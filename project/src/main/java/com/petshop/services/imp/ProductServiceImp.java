@@ -33,4 +33,12 @@ public class ProductServiceImp implements ProductService {
     public ResponseEntity<ResponseObject> findProductBySubcategoryId(Long sub_category_id) {
         return ResponseEntity.ok(new ResponseObject("OK","List all products by sub_category_id",productRepository.findProductBySubcategoryId(sub_category_id)));
     }
+
+    public ResponseEntity<ResponseObject> findByProductNameContainingIgnoreCase(String name) {
+        List<Product> productList = productRepository.findByNameContainingIgnoreCase(name);
+        if (productList.size()==0){
+            return ResponseEntity.ok(new ResponseObject("False","Cannot find product with name: "+name,""));
+        }
+        return ResponseEntity.ok(new ResponseObject("OK","List name of product",productList));
+    }
 }
