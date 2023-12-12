@@ -26,4 +26,9 @@ public class ProductController {
     public ResponseEntity<?> findProductByName(@RequestParam String name){
          return productServiceImp.findByProductNameContainingIgnoreCase(name);
     }
+    @GetMapping("/find")
+    public ResponseEntity<?> findProductBySubCategoryName(@RequestParam String subcategory){
+        return productServiceImp.findProductBySubCategoryName(subcategory);
+    }
+    
 }

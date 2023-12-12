@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 @Data
 @NoArgsConstructor
@@ -20,6 +21,9 @@ public class SubCategory {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Categories category;
+    private String sub_category_name;
+    private Date date_created;
+    private Date date_modified;
     @JsonIgnore
     @OneToMany(mappedBy = "subCategory")
     private List<Product> products;

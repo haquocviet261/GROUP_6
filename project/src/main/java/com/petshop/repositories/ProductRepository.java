@@ -24,5 +24,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     List<Product> findProductBySubcategoryId(@Param("sub_category_id") Long sub_category_id);
     @Query("select p from Product p where p.product_name like %:product_name%")
     List<Product> findByNameContainingIgnoreCase(@Param("product_name") String product_name);
+    @Query("select p from Product p join p.subCategory s where p.subCategory.sub_category_name like %:sub_category_name%")
+    List<Product> findBySubCategoriesContainingIgnoreCase(@Param("sub_category_name") String sub_category_name);
 
 }
