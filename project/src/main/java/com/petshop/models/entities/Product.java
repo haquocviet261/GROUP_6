@@ -1,5 +1,6 @@
 package com.petshop.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,7 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long product_id;
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "sub_category_id")
     private SubCategory subCategory;
@@ -25,7 +27,7 @@ public class Product {
     private String description;
     @Column(name = "product_image")
     private String image;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name ="discount_id",nullable = true)
+    @ManyToOne
+    @JoinColumn(name ="discount_id")
     private Discount discount;
 }

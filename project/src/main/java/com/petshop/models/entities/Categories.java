@@ -1,5 +1,6 @@
 package com.petshop.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,9 +20,10 @@ public class Categories {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long category_id;
-    private String category_name;
+    private String catergory_name;
     private Date date_created;
     private Date date_modify;
+    @JsonIgnore
     @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
     private List<SubCategory> subCategories;
 }
