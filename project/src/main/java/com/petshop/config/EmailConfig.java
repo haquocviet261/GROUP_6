@@ -24,7 +24,6 @@ public class EmailConfig {
         javaMailSender.setPort(Integer.parseInt(mailPort));
         javaMailSender.setUsername(mailUsername);
         javaMailSender.setPassword(mailPassword);
-
         Properties props = javaMailSender.getJavaMailProperties();
         props.put("mail.smtp.starttls.enable", "true");
         return javaMailSender;

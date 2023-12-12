@@ -7,6 +7,7 @@ import com.petshop.models.dto.request.ChangePasswordRequest;
 import com.petshop.models.dto.response.ResponseObject;
 import com.petshop.services.imp.AuthenticationServiceImp;
 import com.petshop.services.imp.UserServiceImp;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +39,18 @@ public class UserController {
     public ResponseEntity<?> getAllUsers() {
         return userServiceImp.getAllUsers();
     }
-    @PutMapping("/forgot-password")
-    public ResponseEntity<?> forgotpassword(@RequestParam String email){
+    @GetMapping("/forgot-password")
+    public ResponseEntity<?> forgotpassword(@RequestParam String email) throws MessagingException {
         return userServiceImp.forgotPassword(email);
+    }
+    @GetMapping("/verify-account")
+    public ResponseEntity<?> verifyAccount(@RequestParam(name = "email") String email,@RequestParam(name = "jwt") String jwt){
+
+        return ResponseEntity.ok(userServiceImp.verifyAccount(email,jwt));
     }
     @PutMapping("/set-password")
     public ResponseEntity<?> setPassword(@RequestParam String email,@RequestHeader String newPassword){
         return ResponseEntity.ok(userServiceImp.setPassword(email,newPassword));
     }
+
 }

@@ -1,7 +1,6 @@
 package com.petshop.services.imp;
 
 import com.petshop.common.utils.EmailUtils;
-import com.petshop.common.utils.OTPUtil;
 import com.petshop.mapper.MapperImp.UserMapper;
 import com.petshop.models.dto.request.ChangePasswordRequest;
 import com.petshop.models.dto.request.UserDto;
@@ -10,7 +9,7 @@ import com.petshop.models.entities.User;
 import com.petshop.repositories.UserRepository;
 import com.petshop.common.utils.Validation;
 import com.petshop.services.interfaces.UserService;
-import lombok.RequiredArgsConstructor;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +26,14 @@ import java.util.Optional;
 
 public class UserServiceImp implements UserService {
     @Autowired
+    JwtServiceImp jwtServiceImp;
+    @Autowired
     private  PasswordEncoder passwordEncoder;
     @Autowired
     private UserRepository userrepository;
     @Autowired
     private UserMapper userMapper;
-    @Autowired
-    private OTPUtil otpUtil;
+
     @Autowired
     private EmailUtils emailUtil;
     public ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request, Principal connectedUser) {
@@ -67,24 +67,24 @@ public class UserServiceImp implements UserService {
                 .body(new ResponseObject(Validation.OK, "Retrieved users successfully",userDtos));
     }
 
-    public ResponseEntity<String> forgotPassword(String email) {
-        Optional<User> user =  userrepository.findByEmail(email);
-
-        if (user.isPresent()){
-            try {
-                emailUtil.sendSetPasswordEmail(email);
-            }catch (Exception e){
-                throw new RuntimeException("Unable to send set password otp please try again");
-            }
-
-        }else {
-            throw new RuntimeException("Email dose not exist");
-        }
+    public ResponseEntity<String> forgotPassword(String email) throws MessagingException {
+        User user =  userrepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Email is not exist"));
+        String jwt = jwtServiceImp.generateToken(user,true);
+        emailUtil.sendEmail(email,jwt);
         return ResponseEntity.ok("Please check you email to set password");
     }
+    public ResponseEntity<String> verifyAccount(String email,String jwt){
+         User user = userrepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Email not found !"));
+         if (jwtServiceImp.isTokenValid(jwt,user)){
+             return ResponseEntity.ok("Verify Account successfully !");
+         }else {
+             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("Email is Expired please try send Email again !");
+         }
+    }
+
     public String setPassword(String email,String newPassword){
-        User user = userrepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found this email !"));
-        user.setPassword(newPassword);
+        User user = userrepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Email not found this email !"));
+        user.setPassword(passwordEncoder.encode(newPassword));
         userrepository.save(user);
         return "Set new Password successfully !";
     }

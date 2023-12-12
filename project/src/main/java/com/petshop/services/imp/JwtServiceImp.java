@@ -38,8 +38,17 @@ public class JwtServiceImp {
     ) {
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
+    public String generateToken(
+            Map<String, Object> extraClaims,
+            UserDetails userDetails,boolean isgenerate
+    ) {
+        return buildToken(extraClaims, userDetails, jwtExpiration,isgenerate);
+    }
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
+    }
+    public String generateToken(UserDetails userDetails,boolean isgenerate) {
+        return generateToken(new HashMap<>(), userDetails,isgenerate);
     }
     public String generateRefreshToken(UserDetails userDetails) {
         return buildToken(new HashMap<>(), userDetails, refreshExpiration);
@@ -52,6 +61,16 @@ public class JwtServiceImp {
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration, boolean isgenerate) {
+        return Jwts
+                .builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + (30 * 1000)))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

@@ -44,7 +44,7 @@ public class SecurityConfiguration {
             http.cors(Customizer.withDefaults())
                     .csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(authorizeRequests ->
                             authorizeRequests
-                                    .requestMatchers("api/auth/**").permitAll()
+                                    .requestMatchers("api/auth/**","api/v1/user/**").permitAll()
                                     .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
                                     .anyRequest()
                                     .authenticated()
