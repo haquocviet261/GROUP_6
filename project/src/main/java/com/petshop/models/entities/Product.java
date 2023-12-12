@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "product")
+@Table(name = "products")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +23,9 @@ public class Product {
     private int quantity;
     private double price;
     private String description;
+    @Column(name = "product_image")
     private String image;
-    @ManyToOne
-    @JoinColumn(name ="discount_id" )
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name ="discount_id",nullable = true)
     private Discount discount;
 }
