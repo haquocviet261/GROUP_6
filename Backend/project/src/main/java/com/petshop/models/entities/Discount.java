@@ -1,5 +1,6 @@
 package com.petshop.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ public class Discount {
     private double  discount_value;
     private Date start_date;
     private Date end_date;
+    @JsonIgnore
     @OneToMany(mappedBy = "discount",cascade = CascadeType.ALL)
     List<Product> products;
 }

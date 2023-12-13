@@ -21,5 +21,4 @@ public class SubCategoriesController {
     public ResponseEntity<?> getSubcategoryByCategoryId(@PathVariable Long category_id){
         return categoriesServiceImp.findSubCategoriesByCategoryId(category_id);
     }
-
 }
