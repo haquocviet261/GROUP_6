@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -30,4 +32,7 @@ public class Product {
     @ManyToOne
     @JoinColumn(name ="discount_id")
     private Discount discount;
+    @JsonIgnore
+    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
+    List<Cart> carts;
 }

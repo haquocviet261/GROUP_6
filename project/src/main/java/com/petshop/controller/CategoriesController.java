@@ -12,10 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/api/v1/category")
 public class CategoriesController {
-    @Autowired
-    CategoriesServiceImp categoriesServiceImp;
-    @GetMapping("/all")
-    public ResponseEntity<?> getAllCategories(){
-        return categoriesServiceImp.findAll();
-    }
+
+
 }

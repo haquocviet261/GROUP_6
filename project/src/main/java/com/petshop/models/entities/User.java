@@ -1,4 +1,5 @@
 package com.petshop.models.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.petshop.common.constant.Role;
 import jakarta.persistence.*;
 
@@ -45,9 +46,15 @@ public class User implements UserDetails {
     private Role Role;
     @Column(name = "status", columnDefinition = "INT DEFAULT 1")
     private int Status = 1;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Token> tokens;
+    @JsonIgnore
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    List<FeedBack> feedBacks;
+    @JsonIgnore
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    List<Cart> carts;
 
     public User(String UserName, String Password) {
         this.UserName = UserName;
