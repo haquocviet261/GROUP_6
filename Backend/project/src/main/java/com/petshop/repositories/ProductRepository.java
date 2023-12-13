@@ -1,9 +1,11 @@
 package com.petshop.repositories;
 
 import com.petshop.models.entities.Product;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 
@@ -11,7 +13,7 @@ import java.util.List;
 
 
 public interface ProductRepository extends JpaRepository<Product,Long> {
-    @Query(value = "SELECT * FROM product ORDER BY RAND() LIMIT 30", nativeQuery = true)
+    @Query(value = "SELECT TOP 30 * FROM products ORDER BY NEWID()", nativeQuery = true)
     List<Product> findRandomProducts();
 
     @Override
