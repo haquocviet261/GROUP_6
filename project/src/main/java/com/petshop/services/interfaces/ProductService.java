@@ -11,4 +11,6 @@ public interface ProductService {
     ResponseEntity<ResponseObject> findAll();
     ResponseEntity<ResponseObject> findTopSaleProduct();
     ResponseEntity<ResponseObject> findProductBySubcategoryId(Long sub_category_id);
+    ResponseEntity<ResponseObject> findByProductNameContainingIgnoreCase(String name);
+    ResponseEntity<ResponseObject> findProductBySubCategoryName(String subcategory);
 }

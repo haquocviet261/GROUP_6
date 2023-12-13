@@ -6,24 +6,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
-import java.util.List;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "categories")
-public class Categories {
+public class OrderDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long category_id;
-    private String catergory_name;
-    private Date date_created;
-    private Date date_modify;
+    private Long order_detail_id;
     @JsonIgnore
-    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
-    private List<SubCategory> subCategories;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Orders orders;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
+    private int quantity;
+    private double total_price;
 }

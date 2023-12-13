@@ -36,6 +36,9 @@ public class UserServiceImp implements UserService {
 
     @Autowired
     private EmailUtils emailUtil;
+
+
+
     public ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request, Principal connectedUser) {
 
 
@@ -68,6 +71,7 @@ public class UserServiceImp implements UserService {
     }
 
     public ResponseEntity<String> forgotPassword(String email) throws MessagingException {
+
         User user =  userrepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Email is not exist"));
         String jwt = jwtServiceImp.generateToken(user,true);
         emailUtil.sendEmail(email,jwt);

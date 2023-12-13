@@ -15,15 +15,20 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "categories")
-public class Categories {
+public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long category_id;
-    private String catergory_name;
-    private Date date_created;
-    private Date date_modify;
+    private Long order_id;
     @JsonIgnore
-    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
-    private List<SubCategory> subCategories;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+    private Date order_date;
+    private String full_name;
+    private String phone_number;
+    private int order_status;
+    private String address;
+    @JsonIgnore
+    @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL)
+    private List<OrderDetails> orderDetails;
 }

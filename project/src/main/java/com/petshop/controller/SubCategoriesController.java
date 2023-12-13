@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class SubCategoriesController {
     @Autowired
     SubCategoriesServiceImp categoriesServiceImp;
-    @GetMapping("all")
+    @GetMapping("/all")
     public ResponseEntity<?> getAll(){
         return categoriesServiceImp.findAll();
     }
@@ -21,5 +21,4 @@ public class SubCategoriesController {
     public ResponseEntity<?> getSubcategoryByCategoryId(@PathVariable Long category_id){
         return categoriesServiceImp.findSubCategoriesByCategoryId(category_id);
     }
-
 }

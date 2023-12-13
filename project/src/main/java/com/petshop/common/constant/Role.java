@@ -11,5 +11,6 @@ import java.util.Set;
 public enum Role {
     customer,
     admin;
+    //test gitcommit
 
 }
