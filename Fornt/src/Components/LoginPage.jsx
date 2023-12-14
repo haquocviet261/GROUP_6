@@ -7,6 +7,8 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { Navigate, useNavigate } from "react-router-dom";
 import NavBar from "../Components/NavBar";
 import NavbarHeader from "../Components/NavBar";
+import Footer from './Footer'
+
 
 
 function LoginPage() {
@@ -17,7 +19,7 @@ function LoginPage() {
 
   useEffect(() => {
     let token = localStorage.getItem("token")
-    if(token){
+    if (token) {
       navigate("/");
     }
   }, [])
@@ -43,13 +45,12 @@ function LoginPage() {
 
   return (
     <>
-    <NavbarHeader/>
-       {/* <NavBar />  */}
+      <NavbarHeader />
       <div className="login-container col-12 col-sm-4">
         <i className="fas fa-spinner fa-spin"></i>
-        <div className="title">Login</div>
-        <div className="text">Username</div>
+        <div className="title-login">Login</div>
         <input
+          className="input-login"
           type="text"
           placeholder="Username..."
           value={email}
@@ -59,7 +60,9 @@ function LoginPage() {
         />
         <div>
           <input
-            type="text"
+            style={{ marginTop: "5px" }}
+            className="input-login"
+            type="password"
             placeholder="Password..."
             value={psw}
             onChange={(e) => {
@@ -71,13 +74,22 @@ function LoginPage() {
           disabled={email && psw ? false : true}
           className={email && psw ? "active" : "null"}
           onClick={() => handleLogin()}
+          style={{ border: "none" }}
         >
-          
+
           {loadingApi ? <FontAwesomeIcon icon={faSpinner} spin /> : null}
           Login
         </button>
-        <div className="back">Go back</div>
+        <div style={{ marginTop: "10px" }} >
+          <a className="a-login" href="/register" rel="noopener noreferrer">
+            Register
+          </a>
+          <a className="a-login" href="/forgotpassword" rel="noopener noreferrer" style={{ float: "right" }}>
+            Forgot password
+          </a>
+        </div>
       </div>
+      <Footer />
     </>
   );
 }

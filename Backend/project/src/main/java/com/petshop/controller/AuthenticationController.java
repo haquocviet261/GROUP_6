@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping(value = "api/auth",method = RequestMethod.POST)
 
 public class AuthenticationController {
     @Autowired
@@ -24,7 +24,7 @@ public class AuthenticationController {
         return authenticationServiceImp.register(request);
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/authenticate" )
     public ResponseEntity<ResponseObject> authenticated(@RequestBody UserDto request){
         return authenticationServiceImp.authenticated(request);
     }

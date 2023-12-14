@@ -8,7 +8,7 @@ function SearchBar() {
 
   const [input, setinput] = useState();
 
-  
+
 
   const handleSearch = async () => {
     let search = await searchApi();
@@ -18,19 +18,19 @@ function SearchBar() {
   return (
     <>
       <div className="search-bar">
-        <input type="text" value={input} onChange={(e) => handleSearch(e.target.value) } placeholder="Tìm kiếm" />
-        
+        <input type="text" value={input} onChange={(e) => handleSearch(e.target.value)} placeholder="Tìm kiếm" />
+
         <button className="button-search"
           type="submit"
           value="Tìm kiếm"
-       >
+        >
           <FontAwesomeIcon icon={faSearch} />
         </button>
       </div>
 
-      
-        
-      
+
+
+
     </>
   );
 }
