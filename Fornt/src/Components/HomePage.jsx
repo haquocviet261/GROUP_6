@@ -5,16 +5,8 @@ import { getCategory } from '../Services/UserService'
 import { useState } from 'react'
 
 const HomePage = () => {
-  const [categoryName, setcategoryName] = useState("");
+  const categoryNames = [];
   
-  const handleCategory = async () => {
-    const result = await getCategory();
-    result.data.map(product => {
-      console.log(product.catergory_name);
-    })
-  }
-  
-  handleCategory();
   return (
     <>
       <NavbarHeader />

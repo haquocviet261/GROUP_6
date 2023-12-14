@@ -6,6 +6,7 @@ import com.petshop.models.entities.Product;
 import com.petshop.repositories.ProductRepository;
 import com.petshop.services.interfaces.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
@@ -43,11 +44,17 @@ public class ProductServiceImp implements ProductService {
         return ResponseEntity.ok(new ResponseObject("OK","List name of product",productList));
     }
 
-    public ResponseEntity<ResponseObject> findProductBySubCategoryName(String subcategory) {
-        List<Product> productList =productRepository.findBySubCategoriesContainingIgnoreCase(subcategory);
-        if (productList.size()==0){
-            return ResponseEntity.ok(new ResponseObject("False","Cannot find product with subcategories name: "+subcategory,""));
+    public ResponseEntity<ResponseObject> findProductBySubCategoryNameOrProductName(String name) {
+        List<Product> productListBySubcategories =productRepository.findBySubCategoriesContainingIgnoreCase(name);
+        List<Product> productListByProductName =productRepository.findByNameContainingIgnoreCase(name);
+
+        if (productListByProductName.size() !=0){
+            return ResponseEntity.ok(new ResponseObject("OK","List of product: "+name,productListByProductName));
+
+        } else if (productListBySubcategories.size() !=0) {
+            return ResponseEntity.ok(new ResponseObject("OK","List of product: "+name,productListBySubcategories));
         }
-        return ResponseEntity.ok(new ResponseObject("OK","List subcategories name of product",productList));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ResponseObject("False","Cannot find product with subcategories name: "+name,""));
+
     }
 }
