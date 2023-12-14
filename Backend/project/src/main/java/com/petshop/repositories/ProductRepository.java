@@ -22,7 +22,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     @Query("SELECT p FROM Product p JOIN p.discount sc ORDER BY sc.discount_value DESC")
     List<Product> findTopSaleProduct();
 
-    @Query("SELECT p FROM Product p  WHERE p.subCategory = :sub_category_id")
+    @Query("SELECT p FROM Product p  WHERE p.subCategory.sub_category_id = :sub_category_id")
     List<Product> findProductBySubcategoryId(@Param("sub_category_id") Long sub_category_id);
     @Query("select p from Product p where p.product_name like %:product_name%")
     List<Product> findByNameContainingIgnoreCase(@Param("product_name") String product_name);
