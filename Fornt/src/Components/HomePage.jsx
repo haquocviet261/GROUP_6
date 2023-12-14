@@ -7,14 +7,14 @@ import Footer from './Footer'
 
 const HomePage = () => {
   const [categoryName, setcategoryName] = useState("");
-  
+
   const handleCategory = async () => {
     const result = await getCategory();
     result.data.map(product => {
       console.log(product.catergory_name);
     })
   }
-  
+
   handleCategory();
   return (
     <>

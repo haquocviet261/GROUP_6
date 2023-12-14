@@ -76,7 +76,7 @@ function LoginPage() {
           onClick={() => handleLogin()}
           style={{ border: "none" }}
         >
-
+          
           {loadingApi ? <FontAwesomeIcon icon={faSpinner} spin /> : null}
           Login
         </button>

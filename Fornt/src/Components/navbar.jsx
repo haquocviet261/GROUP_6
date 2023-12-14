@@ -85,10 +85,7 @@ const NavbarHeader = () => {
             <NavDropdown title={name} key={index+1}>
               <NavDropdown.Item></NavDropdown.Item>
             </NavDropdown>
-            })
-          }
-          */}
-          
+          ))}
 
           <NavDropdown title="User" id="basic-nav-dropdown">
             

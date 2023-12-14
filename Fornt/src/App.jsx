@@ -12,7 +12,7 @@ import { UserContext } from "./Context/UserContext.jsX";
 import { useContext } from "react";
 import SearchBar from "./Components/SearchBar";
 import AppRoutes from "./Routes/AppRoutes";
-import { Route, Routes, Link } from "react-router-dom";
+
 
 
 
@@ -24,11 +24,7 @@ function App() {
     // <UserProvider>
       <div className="app-container">
           
-          <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="test" element={<SearchBar />} />
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
+          <AppRoutes />
 
           {/* Same as */}
           <ToastContainer
