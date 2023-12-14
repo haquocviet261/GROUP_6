@@ -1,5 +1,6 @@
 package com.petshop.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,10 @@ public class SubCategory {
     @JoinColumn(name = "category_id")
     private Categories category;
     private String sub_category_name;
+    @Transient // Đánh dấu trường này không cần ánh xạ vào cơ sở dữ liệu
+    public Long getCategory_id() {
+        return (category != null) ? category.getCategory_id() : null;
+    }
     private Date date_created;
     private Date date_modified;
     @JsonIgnore

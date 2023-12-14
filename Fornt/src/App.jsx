@@ -13,9 +13,9 @@ import { useContext } from "react";
 import SearchBar from "./Components/SearchBar";
 import AppRoutes from "./Routes/AppRoutes";
 import { Route, Routes, Link } from "react-router-dom";
-
-
-
+import RegisterAccount from "./Components/RegisterAccount";
+import ForgotPassword from "./Components/ForgotPasswordPage";
+import NewPassword from "./Components/NewPassword";
 function App() {
   const [count, setCount] = useState(0);
 
@@ -28,6 +28,9 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="test" element={<SearchBar />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterAccount/>}></Route>
+        <Route path="/forgotpassword" element={<ForgotPassword/>}/>
+        <Route path="/newpassword" element={<NewPassword/>}/>
       </Routes>
 
           {/* Same as */}
