@@ -28,7 +28,7 @@ public class ProductController {
     }
     @GetMapping("/find")
     public ResponseEntity<?> findProductBySubCategoryName(@RequestParam String subcategory){
-        return productServiceImp.findProductBySubCategoryName(subcategory);
+        return productServiceImp.findProductBySubCategoryNameOrProductName(subcategory);
     }
     
 }
