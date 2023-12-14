@@ -1,0 +1,48 @@
+import { Route, Routes, Link } from "react-router-dom";
+import LoginPage from "../Components/LoginPage";
+import HomePage from "../Components/HomePage";
+import SearchBar from "../Components/SearchBar";
+import PrivateRoutes from "./PrivateRoutes";
+import AdminPage from "../Components/AdminPage";
+import RegisterAccount from "../Components/RegisterAccount";
+import ForgotPassword from "../Components/ForgotPasswordPage";
+import NewPassword from "../Components/NewPassword";
+import ProfileUser from "../Components/ProfileUser";
+
+const AppRoutes = () => {
+  // if(localStorage.getItem("token") == null){
+  //     return( <>
+  //             You dont have permisson to access this page
+  //     </>)
+  // }
+
+  return (
+    <Routes>
+    <>
+     
+        <Route path="/" element={<HomePage />} />
+        <Route path="test" element={<SearchBar />} />
+        <Route path="/login" element={<LoginPage />} />
+<<<<<<< HEAD
+     
+      
+{/*       
+=======
+        <Route path="/register" element={<RegisterAccount />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
+        <Route path="/newpassword" element={<NewPassword />} />
+        <Route path="/profile" element={<ProfileUser />} />
+      </Routes>
+
+
+>>>>>>> 6dcd30d336750398849b81c4b4d666ff52691f09
+      <PrivateRoutes path="/Admin">
+        <AdminPage />
+      </PrivateRoutes> */}
+     
+    </>
+    </Routes>
+  );
+};
+
+export default AppRoutes;
