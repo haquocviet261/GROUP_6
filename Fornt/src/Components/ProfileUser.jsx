@@ -155,7 +155,7 @@ export default function ProfileUser() {
                                 <input
                                     id="email"
                                     className="input-register"
-                                    type="text"
+                                    type="text" 
                                     name="email"
                                     value={formValue.email}
                                     onChange={handleChange}></input>
