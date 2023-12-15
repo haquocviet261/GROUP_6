@@ -5,13 +5,22 @@ const fetchAllUser = () => {
 };
 
 const getCategory = () => {
-  const data = Axios.get("/api/v1/category/all", {
+  const data = Axios.get("api/v1/home/all-category", {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   });
   return data;
 };
+
+const getSubcategoryById = (category_id) => {
+  const data = Axios.get('api/v1/home/find-subcategories',{
+    params: {
+      category_id  
+    }
+});
+  return data;
+}
 
 const postCreateUser = (name, job) => {
   return Axios.post("/api/users", { name, job });
@@ -54,4 +63,5 @@ export {
   logoutApi,
   searchApi,
   getCategory,
+  getSubcategoryById
 };

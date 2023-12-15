@@ -17,22 +17,21 @@ const AppRoutes = () => {
   // }
 
   return (
+    <Routes>
     <>
-      <Routes>
+     
         <Route path="/" element={<HomePage />} />
         <Route path="test" element={<SearchBar />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterAccount />} />
-        <Route path="/forgotpassword" element={<ForgotPassword />} />
-        <Route path="/newpassword" element={<NewPassword />} />
-        <Route path="/profile" element={<ProfileUser />} />
       </Routes>
-
-
+      
+      
       <PrivateRoutes path="/Admin">
         <AdminPage />
-      </PrivateRoutes>
+      </PrivateRoutes> */}
+     
     </>
+    </Routes>
   );
 };
 

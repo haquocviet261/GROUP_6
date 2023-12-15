@@ -1,5 +1,6 @@
 package com.petshop.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class Orders {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date order_date;
     private String full_name;
     private String phone_number;

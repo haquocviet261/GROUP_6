@@ -5,24 +5,45 @@ import NavDropdown from "react-bootstrap/NavDropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightToBracket } from "@fortawesome/free-solid-svg-icons";
 import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
-import { useLocation, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { logoutApi } from "../Services/UserService";
-import LoginButton from "./LoginButton";
-import HomeButton from "./HomeButton";
+import { getSubcategoryById, logoutApi } from "../Services/UserService";
 import SearchBar from "./SearchBar";
 import { getCategory } from "../Services/UserService";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+
+
+const handleCategory = async (getcategory) => {
+  const data = await getCategory();
+  const name = data.data.map(item => item.catergory_name);
+  getcategory(name);
+} 
+
+const handleSubCategory = async (getsubcategory, id) => {
+  const data = await getSubcategoryById(id);
+  const name = data.data.map(item => item.sub_category_name);
+  getsubcategory(name);
+} 
+
+ 
+
+
+
+// const [subcategory, setsubcategory] = useState([]);
+
+
 
 const NavbarHeader = () => {
   const navigate = useNavigate();
   const [category, setcategory] = useState([]);
-  useEffect(() => {
-    const a = getCategory().then(cate => {
+  const [subcategory, setsubcategory] = useState([]);
 
-    })
-    setcategory(a);
-  }, []);
+  useEffect(() => {
+    handleCategory(setcategory);
+    // handleLogout();
+    
+  }, []); 
+  
   const handleLogout = async () => {
     try {
       const response = await logoutApi(localStorage.getItem("token"));
@@ -37,6 +58,7 @@ const NavbarHeader = () => {
 
   return (
     <>
+    
       <nav
         style={{ marginBottom: 0 }}
         className="navbar navbar-expand-lg bg-white navbar-light shadow-sm py-3 py-lg-0 px-3 px-lg-0 mb-5"
@@ -58,51 +80,18 @@ const NavbarHeader = () => {
           <a href="index.html" className="nav-item nav-link">
             Home
           </a>
-          <a href="about.html" className="nav-item nav-link">
-            About
-          </a>
-
-          {/* <NavDropdown title="Cate1" id="basic-nav-dropdown">
-            <NavDropdown.Item>4</NavDropdown.Item>
-            <NavDropdown.Item>4</NavDropdown.Item>
-          </NavDropdown>
-
-          <NavDropdown title="Cate2" id="basic-nav-dropdown">
-            <NavDropdown.Item>4</NavDropdown.Item>
-            <NavDropdown.Item>4</NavDropdown.Item>
-          </NavDropdown>
-
-          <NavDropdown title="Cate3" id="basic-nav-dropdown">
-            <NavDropdown.Item>4</NavDropdown.Item>
-            <NavDropdown.Item>4</NavDropdown.Item>
-          </NavDropdown>
-
-          <NavDropdown title="Cate4" id="basic-nav-dropdown">
-            <NavDropdown.Item>4</NavDropdown.Item>
-            <NavDropdown.Item>4</NavDropdown.Item>
-          </NavDropdown> */}
-
-          {/* {
-            category.map(cate => {
-              <NavDropdown title="Cate4" id="basic-nav-dropdown">
-              <NavDropdown.Item>4</NavDropdown.Item>
-              <NavDropdown.Item>4</NavDropdown.Item>
+          
+          {category.map((name, index) => (
+            <NavDropdown title={name} key={index+1}>
+              <NavDropdown.Item></NavDropdown.Item>
             </NavDropdown>
             })
           }
           */}
-
+          
 
           <NavDropdown title="User" id="basic-nav-dropdown">
-            <NavDropdown.Item>
-              <NavLink to="/login " className="nav-link">
-                {localStorage.getItem("token") ? (
-                  <HomeButton />
-                ) : (
-                  <LoginButton />
-                )}
-              </NavLink>
-            </NavDropdown.Item>
+            
 
             <NavDropdown.Item
               onClick={() => {

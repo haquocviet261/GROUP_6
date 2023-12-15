@@ -16,19 +16,26 @@ public class HomeController {
     CategoriesServiceImp categoriesServiceImp;
     @Autowired
     SubCategoriesServiceImp subCategoriesServiceImp;
-    @GetMapping("/{category_id}")
-    public ResponseEntity<?> getSubcategoryByCategoryId(@PathVariable Long category_id){
+    @GetMapping("/find-subcategories")// find-subcategories?category_id=
+    public ResponseEntity<?> getSubcategoryByCategoryId(@RequestParam Long category_id){
         return subCategoriesServiceImp.findSubCategoriesByCategoryId(category_id);
     }
+
+    @GetMapping("/sub_category_id")// sub_category_id?sub_category_id=
+    public ResponseEntity<?> findProductBySubCategoryId(@RequestParam Long sub_category_id){
+        return productServiceImp.findProductBySubcategoryId(sub_category_id);
+    }
+
     @GetMapping("/all-subcategory")
     public ResponseEntity<?> getAllCategories(){
         return subCategoriesServiceImp.findAll();
     }
 
-    @GetMapping("/find")
-    public ResponseEntity<?> findProductBySubCategoryName(@RequestParam String subcategory){
-        return productServiceImp.findProductBySubCategoryName(subcategory);
+    @GetMapping("/find")// find?subcategory=
+    public ResponseEntity<?> findProductBySubCategoryNameOrProductName(@RequestParam String subcategory){
+        return productServiceImp.findProductBySubCategoryNameOrProductName(subcategory);
     }
+
     @GetMapping("/all-category")
     public ResponseEntity<?> getAll(){
         return categoriesServiceImp.findAll();
