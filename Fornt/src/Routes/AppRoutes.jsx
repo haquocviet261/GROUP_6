@@ -9,6 +9,7 @@ import RegisterAccount from "../Components/RegisterAccount";
 import ForgotPassword from "../Components/ForgotPasswordPage";
 
 
+
 const AppRoutes = () => {
   // if(localStorage.getItem("token") == null){
   //     return( <>
