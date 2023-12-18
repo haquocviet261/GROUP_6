@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -62,13 +63,9 @@ public class HomeController {
     }
 
 
-
-
-
-    @DeleteMapping("/{itemId}")
-    public ResponseEntity<String> removeFromCart(@PathVariable Long itemId) {
-        shoppingCartServiceImp.removeFromCart(itemId);
-        return ResponseEntity.ok("Item removed from the shopping cart.");
+    @DeleteMapping("/item")
+    public ResponseEntity<?> removeItemFromCart(@RequestParam Long item_id, Principal user) {
+        return ResponseEntity.ok(shoppingCartServiceImp.removeItemFromCart(item_id,user));
     }
 
 }

@@ -13,7 +13,7 @@ import java.util.List;
 
 
 public interface ProductRepository extends JpaRepository<Product,Long> {
-    @Query(value = "SELECT TOP 30 * FROM products ORDER BY NEWID()", nativeQuery = true)
+    @Query(value = "SELECT TOP 16 * FROM products ORDER BY NEWID()", nativeQuery = true)
     List<Product> findRandomProducts();
 
     @Override
@@ -28,6 +28,6 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     List<Product> findByNameContainingIgnoreCase(@Param("product_name") String product_name);
     @Query("select p from Product p join p.subCategory s where p.subCategory.sub_category_name like %:sub_category_name%")
     List<Product> findBySubCategoriesContainingIgnoreCase(@Param("sub_category_name") String sub_category_name);
-
-
+    @Query("select p from Product where p.product_id =:product_id")
+    Product findByProduct_id(@Param("product_id")Long product_id);
 }
