@@ -93,4 +93,7 @@ public class UserServiceImp implements UserService {
         return "Set new Password successfully !";
     }
 
+    public ResponseEntity<ResponseObject> findById(Long userId) {
+        return ResponseEntity.ok(new ResponseObject("OK","User profile",userrepository.findById(userId)));
+    }
 }

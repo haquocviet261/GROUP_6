@@ -53,7 +53,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<FeedBack> feedBacks;
     @JsonIgnore
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
     List<Cart> carts;
 
     public User(String UserName, String Password) {

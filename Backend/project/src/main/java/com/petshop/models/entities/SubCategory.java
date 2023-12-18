@@ -23,7 +23,7 @@ public class SubCategory {
     @JoinColumn(name = "category_id")
     private Categories category;
     private String sub_category_name;
-    @Transient // Đánh dấu trường này không cần ánh xạ vào cơ sở dữ liệu
+    @Transient
     public Long getCategory_id() {
         return (category != null) ? category.getCategory_id() : null;
     }

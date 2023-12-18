@@ -1,11 +1,15 @@
 package com.petshop.controller;
 
+import com.petshop.models.entities.Cart;
 import com.petshop.services.imp.CategoriesServiceImp;
 import com.petshop.services.imp.ProductServiceImp;
+import com.petshop.services.imp.ShoppingCartServiceImp;
 import com.petshop.services.imp.SubCategoriesServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/home")
@@ -16,6 +20,8 @@ public class HomeController {
     CategoriesServiceImp categoriesServiceImp;
     @Autowired
     SubCategoriesServiceImp subCategoriesServiceImp;
+    @Autowired
+    ShoppingCartServiceImp shoppingCartServiceImp;
     @GetMapping("/find-subcategories")// find-subcategories?category_id=
     public ResponseEntity<?> getSubcategoryByCategoryId(@RequestParam Long category_id){
         return subCategoriesServiceImp.findSubCategoriesByCategoryId(category_id);
@@ -53,6 +59,16 @@ public class HomeController {
     @GetMapping("/sale")
     public ResponseEntity<?> sale(){
         return productServiceImp.findTopSaleProduct();
+    }
+
+
+
+
+
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<String> removeFromCart(@PathVariable Long itemId) {
+        shoppingCartServiceImp.removeFromCart(itemId);
+        return ResponseEntity.ok("Item removed from the shopping cart.");
     }
 
 }

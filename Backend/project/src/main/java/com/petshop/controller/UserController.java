@@ -52,5 +52,9 @@ public class UserController {
     public ResponseEntity<?> setPassword(@RequestParam String email,@RequestHeader String newPassword){
         return ResponseEntity.ok(userServiceImp.setPassword(email,newPassword));
     }
+    @GetMapping("/profile")
+    public ResponseEntity<?> showProfile(@RequestParam Long user_id){
+        return ResponseEntity.ok(userServiceImp.findById(user_id));
+    }
 
 }

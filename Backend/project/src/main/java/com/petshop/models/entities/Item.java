@@ -1,7 +1,7 @@
-package com.petshop.models.dto.request;
+package com.petshop.models.entities;
 
 import com.petshop.models.entities.Product;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,8 +11,17 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "items")
 public class Item {
-    private Long product_id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long items_id;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+    @ManyToOne
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
     private int quantity;
-    private double price;
 }
