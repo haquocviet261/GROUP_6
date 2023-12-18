@@ -6,16 +6,19 @@ import { Container } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HomePage from "./Components/HomePage";
-import NavbarHeader from "./Components/NavBar";
+import NavbarHeader from "./Components/navbar";
 // import { UserProvider } from "./Context/UserContext.jsX";
 import { UserContext } from "./Context/UserContext.jsX";
 import { useContext } from "react";
 import SearchBar from "./Components/SearchBar";
 import AppRoutes from "./Routes/AppRoutes";
-
-
-
-
+import { Route, Routes, Link } from "react-router-dom";
+import RegisterAccount from "./Components/RegisterAccount";
+import ForgotPassword from "./Components/ForgotPasswordPage";
+import NewPassword from "./Components/NewPassword";
+import AdminPage from "./Components/AdminPage";
+import ProfileUser from "./Components/ProfileUser";
+import Cart from "./Components/Cart";
 function App() {
   const [count, setCount] = useState(0);
 
@@ -24,7 +27,17 @@ function App() {
     // <UserProvider>
       <div className="app-container">
           
-          <AppRoutes />
+          <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="test" element={<SearchBar />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterAccount/>}></Route>
+        <Route path="/forgotpassword" element={<ForgotPassword/>}/>
+        <Route path="/newpassword" element={<NewPassword/>}/>
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/profile" element={<ProfileUser/>} />
+        <Route path="/cart" element={<Cart/>} />
+      </Routes>
 
           {/* Same as */}
           <ToastContainer

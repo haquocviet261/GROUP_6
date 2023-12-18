@@ -11,28 +11,24 @@ import SearchBar from "./SearchBar";
 import { getCategory } from "../Services/UserService";
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-
+import LoginButton from "./LoginButton";
+import { getSubCategory } from "../Services/UserService";
 
 const handleCategory = async (getcategory) => {
   const data = await getCategory();
   const name = data.data.map(item => item.catergory_name);
   getcategory(name);
 } 
-
-const handleSubCategory = async (getsubcategory, id) => {
-  const data = await getSubcategoryById(id);
-  const name = data.data.map(item => item.sub_category_name);
-  getsubcategory(name);
-} 
-
- 
-
-
-
+const handleSubCategory = async (setsubcategory) => {
+  const data = await getSubCategory();
+  let name = [{}];
+  name = data.data.map((item) => ({
+    id: item.category_id,
+    subCateName: item.sub_category_name,
+  }));
+  setsubcategory(name);
+};
 // const [subcategory, setsubcategory] = useState([]);
-
-
-
 const NavbarHeader = () => {
   const navigate = useNavigate();
   const [category, setcategory] = useState([]);
@@ -41,9 +37,9 @@ const NavbarHeader = () => {
   useEffect(() => {
     handleCategory(setcategory);
     // handleLogout();
-    
-  }, []); 
-  
+    handleSubCategory(setsubcategory);
+  }, []);
+
   const handleLogout = async () => {
     try {
       const response = await logoutApi(localStorage.getItem("token"));
@@ -58,12 +54,11 @@ const NavbarHeader = () => {
 
   return (
     <>
-    
       <nav
         style={{ marginBottom: 0 }}
         className="navbar navbar-expand-lg bg-white navbar-light shadow-sm py-3 py-lg-0 px-3 px-lg-0 mb-5"
       >
-        <a href="index.html" className="navbar-brand ms-lg-5">
+        <a href="/" className="navbar-brand ms-lg-5">
           <h1 className="m-0 text-uppercase text-dark">
             <i
               style={{ color: "green" }}
@@ -74,21 +69,29 @@ const NavbarHeader = () => {
         </a>
 
         <div className="collapse navbar-collapse" id="navbarCollapse">
-          <SearchBar></SearchBar>
+          <SearchBar></SearchBar> 
 
           {/* <div className="navbar-nav ms-auto py-0"> */}
-          <a href="index.html" className="nav-item nav-link">
-            Home
-          </a>
-          
+
           {category.map((name, index) => (
-            <NavDropdown title={name} key={index+1}>
-              <NavDropdown.Item></NavDropdown.Item>
+            <NavDropdown title={name} key={index + 1}>
+              
+                 {subcategory.filter((sc) => sc.id === index + 1).map((sc,index) => (
+                  <NavDropdown.Item key={index}>{sc.subCateName}</NavDropdown.Item>
+                ))}
+              
             </NavDropdown>
           ))}
 
           <NavDropdown title="User" id="basic-nav-dropdown">
             
+          {localStorage.getItem("token") && <NavDropdown.Item>
+              User
+            </NavDropdown.Item> }
+            
+            {
+              !localStorage.getItem("token") &&  <LoginButton />
+            }
 
             <NavDropdown.Item
               onClick={() => {
@@ -119,5 +122,6 @@ const NavbarHeader = () => {
     </>
   );
 };
+
 
 export default NavbarHeader;

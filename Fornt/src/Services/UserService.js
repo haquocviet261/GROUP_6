@@ -1,8 +1,13 @@
+import axios from "axios";
 import Axios from "./Axios";
 
 const fetchAllUser = () => {
   return Axios.get("/api/users?page=1");
 };
+
+const getRandomProduct = () => {
+  return Axios.get("/api/v1/home/random");
+}
 
 const getCategory = () => {
   const data = Axios.get("api/v1/home/all-category", {
@@ -13,6 +18,8 @@ const getCategory = () => {
   return data;
 };
 
+
+
 const getSubcategoryById = (category_id) => {
   const data = Axios.get('api/v1/home/find-subcategories',{
     params: {
@@ -22,13 +29,26 @@ const getSubcategoryById = (category_id) => {
   return data;
 }
 
+const getSubCategory = () => {
+  const data = Axios.get("/api/v1/home/all-subcategory");
+  return data;
+}
+
 const postCreateUser = (name, job) => {
   return Axios.post("/api/users", { name, job });
 };
 
-const searchApi = () => {
-  return Axios.get("/api/v1/product/all", { username });
-};
+const searchApi = (productName, token) => {
+  const data = Axios.get("/api/v1/product/search",{
+    params: {
+      name: productName
+    },
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+  return data;
+}
 
 const loginApi = (username, password) => {
   return Axios.post("/api/auth/authenticate", { username, password });
@@ -63,5 +83,7 @@ export {
   logoutApi,
   searchApi,
   getCategory,
-  getSubcategoryById
+  getSubcategoryById,
+  getSubCategory,
+  getRandomProduct
 };

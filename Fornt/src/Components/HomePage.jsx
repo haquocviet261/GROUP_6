@@ -1,8 +1,9 @@
 import React from 'react'
-import NavbarHeader from './NavBar'
+import NavbarHeader from './navbar';
 import VideoComponent from './VideoComponent'
 import { getCategory } from '../Services/UserService'
 import { useState } from 'react'
+import RandomProduct from './RandomProduct'
 import Footer from './Footer'
 
 const HomePage = () => {
@@ -14,13 +15,14 @@ const HomePage = () => {
       console.log(product.catergory_name);
     })
   }
-
+  const categoryNames = [];
   handleCategory();
   return (
     <>
-      <NavbarHeader />
+      <NavbarHeader/>
       <VideoComponent></VideoComponent>
-      <Footer />
+      <RandomProduct></RandomProduct>
+      <Footer/>
     </>
   )
 }
