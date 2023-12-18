@@ -87,6 +87,7 @@
     background-color: white;
     border-right:1px solid #999;
     border-left:1px solid #999;
+    
   }
   .nav-dropdown:first-child {
     border-top-left-radius: 10px;
@@ -140,7 +141,9 @@
   .search-bar input:focus {
     outline: none;
   }
-
+  .search-result{
+    overflow-y: scroll;
+  }
   .button-search {
     height: 40px;
     border-radius: 0 30px 30px 0;

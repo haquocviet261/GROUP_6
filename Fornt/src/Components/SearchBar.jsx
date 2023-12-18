@@ -37,11 +37,13 @@ function SearchBar() {
         <button className="button-search" type="submit" value="Tìm kiếm">
           <FontAwesomeIcon icon={faSearch} />
         </button>
+        <div className="search-result">
         {searchResults.map((item, index) => {
           if (index < 6) {
             return <p className="nav-dropdown" key={index}>{item.subCateName}</p>;
           }
         })}
+        </div>
       </div>
     </>
   );
