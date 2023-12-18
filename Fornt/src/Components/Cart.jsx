@@ -1,12 +1,29 @@
-
+import React from 'react'
+import NavbarHeader from './navbar';
+import VideoComponent from './VideoComponent'
+import { getCategory } from '../Services/UserService'
+import { useState } from 'react'
+import RandomProduct from './RandomProduct'
+import Footer from './Footer'
 function Card(ten){
-    return(
-       <div className="card">
-            <img src={'/cho/1.jpg'} alt="Image" />
-            <h2 className="card-title">{ten}</h2>
-            <p className="card-text">I make Youtube videos and play video games</p>
-       </div> 
-    );
+    const [categoryName, setcategoryName] = useState("");
+
+  const handleCategory = async () => {
+    const result = await getCategory();
+    result.data.map(product => {
+      console.log(product.catergory_name);
+    })
+  }
+  const categoryNames = [];
+  handleCategory();
+  return (
+    <>
+        <NavbarHeader/>
+        <VideoComponent></VideoComponent>
+        <RandomProduct></RandomProduct>
+      <Footer/>
+    </>
+  )
 }
 export default Card
 

@@ -39,7 +39,7 @@ const RandomProduct = () => {
               <img className="card-image" src={item.image+".jpg"} 
                 // alt="Không có ảnh cho sản phẩm này"  
                 onError={(e) => {
-                  e.target.src = '/';
+                  e.target.src = '/usecases/error.jpg';
                 }}
               />
             </div>
@@ -47,7 +47,7 @@ const RandomProduct = () => {
                 <p className="card-title">{item.name}</p>
               </div>
               <div>
-                <p className="card-text">{item.price}</p>
+                <p className="card-text">{item.price}đ</p>
               </div>
               <div>
                 <button>Add to Cart</button>

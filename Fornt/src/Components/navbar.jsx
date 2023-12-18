@@ -58,7 +58,7 @@ const NavbarHeader = () => {
         style={{ marginBottom: 0 }}
         className="navbar navbar-expand-lg bg-white navbar-light shadow-sm py-3 py-lg-0 px-3 px-lg-0 mb-5"
       >
-        <a href="/" className="navbar-brand ms-lg-5">
+        <a href="/home" className="navbar-brand ms-lg-5">
           <h1 className="m-0 text-uppercase text-dark">
             <i
               style={{ color: "green" }}
