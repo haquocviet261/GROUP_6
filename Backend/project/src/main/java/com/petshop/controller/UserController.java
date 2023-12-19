@@ -4,6 +4,7 @@ package com.petshop.controller;
 
 import com.petshop.models.dto.request.ChangePasswordRequest;
 
+import com.petshop.models.dto.request.EditDTO;
 import com.petshop.models.dto.response.ResponseObject;
 import com.petshop.services.imp.AuthenticationServiceImp;
 import com.petshop.services.imp.UserServiceImp;
@@ -51,6 +52,14 @@ public class UserController {
     @PutMapping("/set-password")
     public ResponseEntity<?> setPassword(@RequestParam String email,@RequestHeader String newPassword){
         return ResponseEntity.ok(userServiceImp.setPassword(email,newPassword));
+    }
+    @GetMapping("/profile")
+    public ResponseEntity<?> showProfile(@RequestParam Long user_id){
+        return ResponseEntity.ok(userServiceImp.findById(user_id));
+    }
+    @GetMapping("/edit_user")
+    public ResponseEntity<?> editProfile(@RequestBody EditDTO editDTO,Principal connectedUser){
+        return ResponseEntity.ok(userServiceImp.editUser(editDTO, connectedUser));
     }
 
 }

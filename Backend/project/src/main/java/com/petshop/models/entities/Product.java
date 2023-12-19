@@ -34,5 +34,5 @@ public class Product {
     private Discount discount;
     @JsonIgnore
     @OneToMany(mappedBy = "product",cascade = CascadeType.ALL)
-    List<Cart> carts;
+    List<Item> items;
 }

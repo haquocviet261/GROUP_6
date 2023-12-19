@@ -3,6 +3,7 @@ package com.petshop.services.imp;
 import com.petshop.common.utils.EmailUtils;
 import com.petshop.mapper.MapperImp.UserMapper;
 import com.petshop.models.dto.request.ChangePasswordRequest;
+import com.petshop.models.dto.request.EditDTO;
 import com.petshop.models.dto.request.UserDto;
 import com.petshop.models.dto.response.ResponseObject;
 import com.petshop.models.entities.User;
@@ -91,6 +92,20 @@ public class UserServiceImp implements UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userrepository.save(user);
         return "Set new Password successfully !";
+    }
+
+    public ResponseEntity<ResponseObject> findById(Long userId) {
+        return ResponseEntity.ok(new ResponseObject("OK","User profile",userrepository.findById(userId)));
+    }
+
+    public ResponseEntity<String> editUser(EditDTO editDTO,Principal connectedUser) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        user.setFirstName(editDTO.getFirstname());
+        user.setLastName(editDTO.getLastname());
+        user.setAddress(editDTO.getAddress());
+        user.setDateOfBirth(editDTO.getDateofbirth());
+        userrepository.save(user);
+        return ResponseEntity.ok("Edit user profile successfully !");
     }
 
 }

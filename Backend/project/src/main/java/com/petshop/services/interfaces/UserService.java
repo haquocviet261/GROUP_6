@@ -10,4 +10,5 @@ public interface UserService {
 
     public ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request, Principal connectedUser);
     public ResponseEntity<ResponseObject> getAllUsers();
+    public ResponseEntity<ResponseObject> findById(Long user_id);
 }

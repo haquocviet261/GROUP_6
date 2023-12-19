@@ -14,7 +14,7 @@ public class MapperConfig {
     @Bean
     public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {
         Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
-        builder.dateFormat(new SimpleDateFormat("yyyy-MM-dd")); // Đặt định dạng ngày giờ mong muốn
+        builder.dateFormat(new SimpleDateFormat("yyyy-MM-dd"));
         return builder;
     }
     @Bean
