@@ -52,9 +52,7 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<FeedBack> feedBacks;
-    @JsonIgnore
-    @OneToOne(mappedBy = "user",cascade = CascadeType.ALL)
-    List<Cart> carts;
+
 
     public User(String UserName, String Password) {
         this.UserName = UserName;

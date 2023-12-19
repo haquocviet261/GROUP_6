@@ -1,6 +1,8 @@
 package com.petshop.services.imp;
 
 import com.petshop.models.dto.request.CartItemDTO;
+import com.petshop.models.dto.response.CheckOutResponse;
+import com.petshop.models.dto.response.ResponseObject;
 import com.petshop.models.entities.Item;
 import com.petshop.models.entities.Cart;
 import com.petshop.models.entities.Product;
@@ -36,7 +38,9 @@ public class ShoppingCartServiceImp implements ShoppingCartService {
     }
 
     @Override
-    public ResponseEntity<String> addToCart(List<CartItemDTO> items, Long user_id) {
+    public ResponseEntity<String> addToCart(List<CartItemDTO> items, Principal user) {
+        var current_user = (User) ((UsernamePasswordAuthenticationToken) user).getPrincipal();
+        Long user_id =current_user.getUserId();
         Cart cart = cartRepository.findCartByUserId(user_id);
 
         if (cart == null) {
@@ -46,14 +50,15 @@ public class ShoppingCartServiceImp implements ShoppingCartService {
             cart.setItems(new ArrayList<>());
         }
             for (CartItemDTO item : items) {
-                Product product = productRepository.findByProduct_id(item.getProduct_id());
-                Optional<Item> existingItem = findItemByProduct(cart, product);
+                Object[] product = productRepository.findByProduct_id(item.getProduct_id());
+                Product current_product = (Product) product[0];
+                Optional<Item> existingItem = findItemByProduct(cart, current_product);
                 if (existingItem.isPresent()){
                     Item item_exist = existingItem.get();
                     item_exist.setQuantity(item_exist.getQuantity() + item.getQuantity());
                 }else {
                     Item item_new = new Item();
-                    item_new.setProduct(product);
+                    item_new.setProduct(current_product);
                     item_new.setQuantity(item.getQuantity());
                     item_new.setCart(cart);
                     cart.getItems().add(item_new);
@@ -81,7 +86,16 @@ public class ShoppingCartServiceImp implements ShoppingCartService {
     }
 
     @Override
-    public void removeCartByProductId(Long product_id) {
-        Cart cart = cartRepository.getCartByProductId(product_id);
+    public ResponseEntity<ResponseObject> checkOut(List<CartItemDTO> items, Principal connectedUser) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        Cart cart = cartRepository.findCartByUserId(user.getUserId());
+        CheckOutResponse checkOutResponse = new CheckOutResponse();
+        checkOutResponse.setItems(items);
+        for (CartItemDTO item:items) {
+            Object[] product = productRepository.findByProduct_id(item.getProduct_id());
+            Product current_product = (Product) product[0];
+            checkOutResponse.setTotal(checkOutResponse.getTotal()+(current_product.getPrice()*item.getQuantity()));
+        }
+        return ResponseEntity.ok(new ResponseObject("OK","Check out content", checkOutResponse));
     }
 }

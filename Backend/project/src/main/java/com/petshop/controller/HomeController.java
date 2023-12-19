@@ -1,6 +1,8 @@
 package com.petshop.controller;
 
+import com.petshop.models.dto.request.CartItemDTO;
 import com.petshop.models.entities.Cart;
+import com.petshop.models.entities.Item;
 import com.petshop.services.imp.CategoriesServiceImp;
 import com.petshop.services.imp.ProductServiceImp;
 import com.petshop.services.imp.ShoppingCartServiceImp;
@@ -62,7 +64,10 @@ public class HomeController {
         return productServiceImp.findTopSaleProduct();
     }
 
-
+    @PostMapping("/cart")
+    public ResponseEntity<?> addToCart(@RequestBody List<CartItemDTO> items, Principal user){
+        return ResponseEntity.ok(shoppingCartServiceImp.addToCart(items,user));
+    }
     @DeleteMapping("/item")
     public ResponseEntity<?> removeItemFromCart(@RequestParam Long item_id, Principal user) {
         return ResponseEntity.ok(shoppingCartServiceImp.removeItemFromCart(item_id,user));

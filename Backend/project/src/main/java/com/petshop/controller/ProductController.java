@@ -27,5 +27,6 @@ public class ProductController {
     public ResponseEntity<?> findProductBySubCategoryName(@RequestParam String subcategory){
         return productServiceImp.findProductBySubCategoryNameOrProductName(subcategory);
     }
+
     
 }

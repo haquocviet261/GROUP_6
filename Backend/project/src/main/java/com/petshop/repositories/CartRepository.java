@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Optional;
 
 public interface CartRepository  extends JpaRepository<Cart,Long> {
-    @Query("select c from Cart c where c.product.product_id = :id")
-    public Cart getCartByProductId(@Param("id") Long id);
-    Optional<Cart> findByUserIdAndProductId(Long userId, Long productId);
-    @Query("select c from Cart c where c.user.user_id =:user_id")
+//    @Query("select c from Cart c where c.product.product_id = :id")
+//    public Cart getCartByProductId(@Param("id") Long id);
+
+    @Query("select c from Cart c where c.user.UserId  = :user_id")
     public Cart findCartByUserId(@Param("user_id") Long user_id);
-    @Query("select c from Cart where items.item_id = :item_id ")
+    @Query("select c from Cart c join c.items item where item.item_id = :item_id")
     public Cart findCartByItemId(@Param("item_id") Long item_id);
 }
