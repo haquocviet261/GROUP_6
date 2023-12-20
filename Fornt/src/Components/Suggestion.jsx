@@ -8,15 +8,8 @@ const Suggestion = () => {
     const fetchProducts = async () => {
         try {
             const data = await getTopDiscount();
-            const top10product = data.slice(0, 8); // Get the first 10 products
-
-            // Set the retrieved data to the state
+            const top10product = data.slice(0, 8);
             setlistdiscount(top10product);
-
-            // Output product names to console for verification
-            top10product.forEach((product) => {
-                console.log(product.product_name);
-            });
         } catch (error) {
             console.error("Error fetching products:", error.message || error);
         }

@@ -38,14 +38,22 @@ const postCreateUser = (name, job) => {
   return Axios.post("/api/users", { name, job });
 };
 
-const searchApi = (productName) => {
-  const data = Axios.get("/api/v1/home/find",{
-    params: {
-      name: productName
-    },
-  });
-  return data;
-}
+const searchApi = async (productName) => {
+  try {
+    const response = await Axios.get("/api/v1/home/find", {
+      params: {
+        subcategory: productName
+      }
+    });
+
+    
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching data: ", error);
+    return [];
+  }
+};
 
 const loginApi = (username, password) => {
   return Axios.post("/api/auth/authenticate", { username, password });

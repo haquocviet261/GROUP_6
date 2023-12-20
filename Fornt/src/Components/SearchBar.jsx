@@ -15,7 +15,7 @@ function SearchBar() {
     let search = await searchApi(event);
 
     let name = [{}];
-    name = search.data.map((item) => ({
+    name = search.map((item) => ({
       id: item.product_id,
       subCateName: item.product_name,
     }));
