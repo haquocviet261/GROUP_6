@@ -15,10 +15,7 @@ import java.util.List;
 @Builder
 public class OrderDTO {
     private String fullname;
-    private Date order_date;
     private String phone_number;
-    private int status;
     private String address;
     private List<CartItemDTO> items;
-
 }

@@ -9,11 +9,14 @@ import com.petshop.repositories.ProductRepository;
 import com.petshop.services.interfaces.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import com.petshop.models.entities.Product;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.sql.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class OrderServiceImp implements OrderService {
@@ -40,10 +43,11 @@ public class OrderServiceImp implements OrderService {
             orders.setUser(user);
             orderRepository.save(orders);
             for (CartItemDTO item:request.getItems()) {
-                Object[] product = productRepository.findByProduct_id(item.getProduct_id());
-                Product current_product = (Product) product[0];
+                List<Object[]> result = productRepository.findByProduct_id(item.getProduct_id());
+                Product current_product = (Product) result.get(0)[0];
+                current_product.setQuantity(current_product.getQuantity()-item.getQuantity() > 0 ? current_product.getQuantity()-item.getQuantity() : 0);
                 OrderDetails orderDetails = OrderDetails.builder().orders(orders).product(current_product)
-                        .quantity(item.getQuantity()).total_price(current_product.getPrice()*item.getQuantity()).build();
+                               .quantity(item.getQuantity()).total_price(current_product.getPrice()*item.getQuantity()).build();
                 orderDetailsRepository.save(orderDetails);
             }
         }
