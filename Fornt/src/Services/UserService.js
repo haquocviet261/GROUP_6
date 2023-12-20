@@ -110,6 +110,11 @@ const formatPrice = (price, discount) => {
     };
   }
 };
+const getTopDiscount = async () => {
+    const response = await Axios.get("/api/v1/home/sale");
+    return response.data;
+};
+
 
 export {
   formatPrice,
@@ -123,5 +128,6 @@ export {
   getSubCategory,
   getRandomProduct,
   getAllProduct,
-  getProductbySubCategory
+  getProductbySubCategory,
+  getTopDiscount
 };

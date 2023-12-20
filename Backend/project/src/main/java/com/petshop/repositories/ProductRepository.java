@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface ProductRepository extends JpaRepository<Product,Long> {
@@ -29,8 +30,8 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     List<Object[]> findByNameContainingIgnoreCase(@Param("product_name") String product_name);
     @Query("select p,d.discount_value from Product p join p.subCategory s LEFT JOIN p.discount d where p.subCategory.sub_category_name like %:sub_category_name% ")
     List<Object[]> findBySubCategoriesContainingIgnoreCase(@Param("sub_category_name") String sub_category_name);
-    @Query("select p,d.discount_value from Product p LEFT JOIN p.discount d where p.product_id =:product_id ")
-    Object[] findByProduct_id(@Param("product_id")Long product_id);
+    @Query("select p,d.discount_value from Product p LEFT JOIN p.discount d where p.product_id = :product_id ")
+    List<Object[]> findByProduct_id(@Param("product_id") Long product_id);
    @Query("SELECT p, d.discount_value FROM Product p LEFT JOIN p.discount d")
    List<Object[]> getProductAndDiscount();
 }

@@ -121,14 +121,12 @@ const NavbarHeader = () => {
               ></FontAwesomeIcon>
               Log out
             </NavDropdown.Item>
-
             <NavDropdown.Divider />
             <NavDropdown.Item href="#action/3.4">
               <FontAwesomeIcon icon={faCartShopping} />
               Cart
             </NavDropdown.Item>
           </NavDropdown>
-          {/* </div> */}
         </div>
       </nav>
     </div>

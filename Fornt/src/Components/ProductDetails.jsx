@@ -41,7 +41,7 @@ const productDetails = () => {
                 <div className="row productDetails">
 
                     <div className="col-6">
-                        <img className="card-image" src={product.image+".jpg"} 
+                        <img className="card-image" style={{marginLeft:'14%'}} src={product.image+".jpg"} 
                         // alt="Không có ảnh cho sản phẩm này"  
                         onError={(e) => {
                         e.target.src = '/usecases/error.jpg';

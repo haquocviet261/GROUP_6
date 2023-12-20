@@ -50,8 +50,8 @@ public class ShoppingCartServiceImp implements ShoppingCartService {
             cart.setItems(new ArrayList<>());
         }
             for (CartItemDTO item : items) {
-                Object[] product = productRepository.findByProduct_id(item.getProduct_id());
-                Product current_product = (Product) product[0];
+                List<Object[]> product = productRepository.findByProduct_id(item.getProduct_id());
+                Product current_product = (Product) product.get(0)[0];
                 Optional<Item> existingItem = findItemByProduct(cart, current_product);
                 if (existingItem.isPresent()){
                     Item item_exist = existingItem.get();
@@ -92,9 +92,9 @@ public class ShoppingCartServiceImp implements ShoppingCartService {
         CheckOutResponse checkOutResponse = new CheckOutResponse();
         checkOutResponse.setItems(items);
         for (CartItemDTO item:items) {
-            Object[] product = productRepository.findByProduct_id(item.getProduct_id());
-            Product current_product = (Product) product[0];
-            checkOutResponse.setTotal(checkOutResponse.getTotal()+(current_product.getPrice()*item.getQuantity()));
+            List<Object[]> product = productRepository.findByProduct_id(item.getProduct_id());
+            Product current_product = (Product) product.get(0)[0];
+            checkOutResponse.setTotal(checkOutResponse. getTotal()+(current_product.getPrice()*item.getQuantity()));
         }
         return ResponseEntity.ok(new ResponseObject("OK","Check out content", checkOutResponse));
     }
