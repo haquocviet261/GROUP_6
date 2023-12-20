@@ -68,6 +68,10 @@ public class HomeController {
     public ResponseEntity<?> addToCart(@RequestBody List<CartItemDTO> items, Principal user){
         return ResponseEntity.ok(shoppingCartServiceImp.addToCart(items,user));
     }
+    @GetMapping("/get-cart")
+    public ResponseEntity<?> getCartByUserId(Principal user){
+        return ResponseEntity.ok(shoppingCartServiceImp.getShoppingCartByUserId(user));
+    }
     @DeleteMapping("/item")
     public ResponseEntity<?> removeItemFromCart(@RequestParam Long item_id, Principal user) {
         return ResponseEntity.ok(shoppingCartServiceImp.removeItemFromCart(item_id,user));
