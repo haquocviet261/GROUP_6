@@ -33,8 +33,10 @@ public class ShoppingCartServiceImp implements ShoppingCartService {
     @Autowired
     IntemRepository intemRepository;
     @Override
-    public Cart getShoppingCartByUserId(Long userId) {
-        return cartRepository.findCartByUserId(userId);
+    public ResponseEntity<ResponseObject> getShoppingCartByUserId(Principal user) {
+        var current_user = (User) ((UsernamePasswordAuthenticationToken) user).getPrincipal();
+        System.out.println(current_user.getUserId());
+        return ResponseEntity.ok(new ResponseObject("OK","List Cart ",cartRepository.findCartByUserId(current_user.getUserId())));
     }
 
     @Override

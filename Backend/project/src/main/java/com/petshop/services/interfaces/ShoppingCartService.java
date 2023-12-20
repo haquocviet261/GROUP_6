@@ -10,7 +10,7 @@ import java.security.Principal;
 import java.util.List;
 
 public interface ShoppingCartService {
-    Cart getShoppingCartByUserId(Long userId);
+    ResponseEntity<ResponseObject> getShoppingCartByUserId(Principal user);
     public ResponseEntity<String> addToCart(List<CartItemDTO> items, Principal user);
 
     public ResponseEntity<String> removeItemFromCart(Long itemId, Principal user);
