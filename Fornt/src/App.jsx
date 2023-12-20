@@ -6,7 +6,6 @@ import { Container } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HomePage from "./Components/HomePage";
-import NavbarHeader from "./Components/navbar";
 // import { UserProvider } from "./Context/UserContext.jsX";
 import { UserContext } from "./Context/UserContext.jsX";
 import { useContext } from "react";
@@ -19,6 +18,10 @@ import NewPassword from "./Components/NewPassword";
 import AdminPage from "./Components/AdminPage";
 import ProfileUser from "./Components/ProfileUser";
 import Cart from "./Components/Cart";
+import List from "./Components/ListProductPage";
+import ProductDetails from "./Components/ProductDetails";
+import OrderPage from "./Components/OrderPage";
+
 function App() {
   const [count, setCount] = useState(0);
 
@@ -37,6 +40,9 @@ function App() {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/profile" element={<ProfileUser/>} />
         <Route path="/cart" element={<Cart/>} />
+        <Route path="/list" element={<List/>} />
+        <Route path="/productdetails" element={<ProductDetails/>} />
+        <Route path="/order" element={<OrderPage/>} />
       </Routes>
 
           {/* Same as */}

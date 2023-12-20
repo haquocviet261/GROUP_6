@@ -18,12 +18,13 @@ const handleCategory = async (getcategory) => {
   const data = await getCategory();
   const name = data.data.map(item => item.catergory_name);
   getcategory(name);
-} 
+}
 const handleSubCategory = async (setsubcategory) => {
   const data = await getSubCategory();
   let name = [{}];
   name = data.data.map((item) => ({
     id: item.category_id,
+    sub_id:item.sub_category_id,
     subCateName: item.sub_category_name,
   }));
   setsubcategory(name);
@@ -36,7 +37,6 @@ const NavbarHeader = () => {
 
   useEffect(() => {
     handleCategory(setcategory);
-    // handleLogout();
     handleSubCategory(setsubcategory);
   }, []);
 
@@ -52,13 +52,20 @@ const NavbarHeader = () => {
     }
   };
 
+  
+  const gotolist = (sc)=>{
+    navigate('/list',{state:sc});
+  }
+
+
   return (
     <>
-      <nav
+    <div className="sticky">
+    <nav
         style={{ marginBottom: 0 }}
         className="navbar navbar-expand-lg bg-white navbar-light shadow-sm py-3 py-lg-0 px-3 px-lg-0 mb-5"
       >
-        <a href="/home" className="navbar-brand ms-lg-5">
+        <a href="/" className="navbar-brand ms-lg-5">
           <h1 className="m-0 text-uppercase text-dark">
             <i
               style={{ color: "green" }}
@@ -77,7 +84,12 @@ const NavbarHeader = () => {
             <NavDropdown title={name} key={index + 1}>
               
                  {subcategory.filter((sc) => sc.id === index + 1).map((sc,index) => (
-                  <NavDropdown.Item key={index}>{sc.subCateName}</NavDropdown.Item>
+                  <NavDropdown.Item key={index}>
+                    <div onClick={()=>{gotolist(sc)}}>
+                      {sc.subCateName}
+                      {/* {sc.sub_id} */}
+                    </div>
+                  </NavDropdown.Item>
                 ))}
               
             </NavDropdown>
@@ -119,9 +131,12 @@ const NavbarHeader = () => {
           {/* </div> */}
         </div>
       </nav>
+    </div>
+      
     </>
   );
 };
 
 
 export default NavbarHeader;
+

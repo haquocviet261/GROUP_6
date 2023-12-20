@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import NavbarHeader from "../Components/NavBar";
+import NavbarHeader from "../Components/navbar";
 import Footer from './Footer';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

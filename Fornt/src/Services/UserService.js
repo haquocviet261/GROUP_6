@@ -38,14 +38,11 @@ const postCreateUser = (name, job) => {
   return Axios.post("/api/users", { name, job });
 };
 
-const searchApi = (productName, token) => {
-  const data = Axios.get("/api/v1/product/search",{
+const searchApi = (productName) => {
+  const data = Axios.get("/api/v1/home/find",{
     params: {
       name: productName
     },
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
   });
   return data;
 }
@@ -76,7 +73,46 @@ const logoutApi = (token) => {
     });
 };
 
+const getAllProduct = async (id) => {
+    const response = await Axios.get("/api/v1/home/sub_category_id",{
+        params: {
+          sub_category_id:id  
+        }
+    });
+    return response.data;
+};
+
+const getProductbySubCategory = async (sub_category_id) =>{
+  const response = await Axios.get("/api/v1/home/sub_category_id",{sub_category_id});
+  
+  return response.data;
+}
+const formatPriceToVND = (number) => {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(number);
+};
+const formatPrice = (price, discount) => {
+  discount=discount/100;
+  if (discount && discount > 0) {
+    const discountedPrice = price * (1 - discount);
+    return {
+      originalPrice: formatPriceToVND(price),
+      discountedPrice: formatPriceToVND(discountedPrice),
+      hasDiscount: true,
+    };
+  } else {
+    return {
+      originalPrice: formatPriceToVND(price),
+      hasDiscount: false,
+    };
+  }
+};
+
 export {
+  formatPrice,
   fetchAllUser,
   postCreateUser,
   loginApi,
@@ -85,5 +121,7 @@ export {
   getCategory,
   getSubcategoryById,
   getSubCategory,
-  getRandomProduct
+  getRandomProduct,
+  getAllProduct,
+  getProductbySubCategory
 };

@@ -12,7 +12,7 @@ function SearchBar() {
   const [searchResults, setSearchResults] = useState([]);
 
   const handleSearch = async (event) => {
-    let search = await searchApi(event, localStorage.getItem("token"));
+    let search = await searchApi(event);
 
     let name = [{}];
     name = search.data.map((item) => ({

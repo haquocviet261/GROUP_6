@@ -1,7 +1,6 @@
 import { useState } from "react";
-import NavbarHeader from './NavBar';
 import Footer from './Footer';
-
+import NavbarHeader from "./Navbar";
 
 export default function ProfileUser() {
     const [isEditing, setIsEditing] = useState(false);

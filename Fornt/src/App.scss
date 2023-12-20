@@ -1,3 +1,6 @@
+.pointer:hover{
+  cursor: pointer;
+}
 .app-container {
   .login-container {
     display: flex;
@@ -163,7 +166,8 @@
     margin-bottom: 10px;
   }
   .footer {
-    background-color: #fcb900;
+    border-top: 1px solid gold;
+    background-color: #ffc72d;
     color: #000000;
     width: 100%;
   }
@@ -267,7 +271,10 @@
 
 // product
 .products-heading {
-  background-color: #e99f00;
+  // border-top: 1px solid gold;
+  // border-bottom: 1px solid gold;
+
+  background-color: #fcc019db;
   text-align: center;
   padding: 20px;
 }
@@ -289,7 +296,7 @@
   display: flex;
 
   width: calc(25% - 20px);
-  max-width: 400px;
+  max-width: 300px;
 
   text-align: center;
   flex-direction: column;
@@ -304,13 +311,13 @@
 }
 
 .card .card-image {
-  width:  140px;
-  height: 140px;
+  width:  auto;
+  height: 120px;
 
   margin-bottom: 10px;
   margin-right: 20px;
 
-  border-radius: 1%;
+  border-radius: 4%;
 }
 
 .card .card-title {
@@ -374,4 +381,109 @@
   padding:1px 6px;
   border-radius: 5px;
   margin-left: 15px;
+}
+//------------------Product Details-----------------------
+.product-details-container{
+  background-color: #ffffff;
+  display: flex;
+  text-align: start;
+  margin-top: 62px;
+}
+.product-details-container h3{
+  font-weight: bold;
+}
+.productDetails{
+  padding-top: 20px;
+}
+.productDetails img {
+  margin: 1%;
+  width: 400px;
+  height: auto;
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.title-product-details {
+  display: block;
+  font-size: 30px;
+  font-weight: bold;
+}
+.productDetails span {
+  color: red;
+  font-size: 20px;
+  font-weight: bold;
+}
+.productDetails button {
+  height: 35px;
+  padding: 0;
+  width: 100px;
+  margin-left: 10px;
+  background-color: #fcb000;
+  color: #000000;
+}
+.productDetails input {
+  width: 50px;
+  height: 35px;
+}
+
+.sticky{
+  position: fixed;
+  top:0;
+  width: 100%;
+  z-index: 20000;
+}
+//---------------------------suggestion-------------------------
+.suggest-content{
+  padding: 2%;
+}
+.product-suggestions{
+  background-color: #ffffff;
+}
+.suggest-card{
+  margin-left: 4%;
+  width: 400px;
+  height: auto;
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+.title-goi-y {
+  text-align: center;
+  font-size: 25px;
+  padding: 1%;
+}
+.product-suggestions img {
+  width: 220px;
+  height: 220px;
+  border-radius: 5px;
+}
+.product-suggestions h6{
+  padding-top: 20px;
+}
+
+//--------------Bill details------------------
+.billDetails span {
+  color: red;
+  font-weight: bold;
+}
+.billDetails b {
+  font-size: 25px;
+}
+.form-order {
+  border: 2px solid #fcb900;
+}
+.bill-border {
+  border-top: 2px solid #d4cfcf;
+}
+.billDetails button {
+  margin-bottom: 30px;
+  width: 400px;
+  background-color: #3072e4;
+  color: white;
+  border: none;
+}
+//-----------------------order
+.order{
+  margin-top: 75.5px;
 }
