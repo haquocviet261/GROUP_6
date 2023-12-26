@@ -1,28 +1,22 @@
-import React from 'react'
-import NavbarHeader from './NavBar'
-import VideoComponent from './VideoComponent'
-import { getCategory } from '../Services/UserService'
-import { useState } from 'react'
-import Footer from './Footer'
+import React, { useEffect, useState } from "react";
+import VideoComponent from './VideoComponent';
+import RandomProduct from './RandomProduct';
+import Footer from './Footer';
+import NavbarHeader from './Navbar';
+import Cart from "./Cart";
+
 
 const HomePage = () => {
-  const [categoryName, setcategoryName] = useState("");
 
-  const handleCategory = async () => {
-    const result = await getCategory();
-    result.data.map(product => {
-      console.log(product.catergory_name);
-    })
-  }
 
-  handleCategory();
   return (
     <>
-      <NavbarHeader />
+      <NavbarHeader/>
       <VideoComponent></VideoComponent>
-      <Footer />
+      <RandomProduct></RandomProduct>
+      <Cart></Cart>
+      <Footer></Footer>
     </>
   )
-}
-
+}  
 export default HomePage
