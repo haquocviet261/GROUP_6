@@ -16,8 +16,8 @@ import java.util.List;
 public class CheckOutController {
     @Autowired
     ShoppingCartServiceImp shoppingCartServiceImp;
-    @PostMapping("/checkout-content")
-    public ResponseEntity<?> checkOut(@RequestBody List<CartItemDTO> items, Principal connectedUser){
-        return shoppingCartServiceImp.checkOut(items,connectedUser);
-    }
+//    @PostMapping("/checkout-content")
+//    public ResponseEntity<?> checkOut(@RequestBody List<CartItemDTO> items, Principal connectedUser){
+//        return shoppingCartServiceImp.checkOut(items,connectedUser);
+//    }
 }

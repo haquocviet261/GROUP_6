@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping(value = "api/auth",method = RequestMethod.POST)
-
+@RequestMapping("api/auth")
 public class AuthenticationController {
     @Autowired
     private UserServiceImp userServiceImp;
