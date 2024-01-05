@@ -5,8 +5,8 @@ import { toast } from "react-toastify";
 import { loginApi } from "../Services/UserService";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 import { Navigate, useNavigate } from "react-router-dom";
-import NavBar from "../Components/NavBar";
-import NavbarHeader from "../Components/NavBar";
+import NavBar from "../Components/navbar";
+import NavbarHeader from "../Components/navbar";
 import Footer from './Footer'
 
 
@@ -76,7 +76,6 @@ function LoginPage() {
           onClick={() => handleLogin()}
           style={{ border: "none" }}
         >
-          
           {loadingApi ? <FontAwesomeIcon icon={faSpinner} spin /> : null}
           Login
         </button>
