@@ -1,5 +1,6 @@
 package com.petshop.services.imp;
 
+import com.petshop.common.constant.Role;
 import com.petshop.common.utils.EmailUtils;
 import com.petshop.mapper.MapperImp.UserMapper;
 import com.petshop.models.dto.request.ChangePasswordRequest;
@@ -12,20 +13,26 @@ import com.petshop.common.utils.Validation;
 import com.petshop.services.interfaces.UserService;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 
 public class UserServiceImp implements UserService {
+
+
     @Autowired
     JwtServiceImp jwtServiceImp;
     @Autowired
@@ -41,8 +48,6 @@ public class UserServiceImp implements UserService {
 
 
     public ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request, Principal connectedUser) {
-
-
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new ResponseObject(Validation.OK,"Wrong Password",null));

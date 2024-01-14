@@ -4,15 +4,18 @@ import com.petshop.common.constant.Role;
 import jakarta.persistence.*;
 
 import lombok.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 
 import java.sql.Date;
 import java.util.Collection;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -33,7 +36,7 @@ public class User implements UserDetails {
     private String FirstName;
     @Column(name = "lastname", nullable = false)
     private String LastName;
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number", nullable = true)
     private String PhoneNumber;
     @Column(name = "date_of_birth")
     private Date DateOfBirth;
@@ -52,12 +55,11 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<FeedBack> feedBacks;
-
-
     public User(String UserName, String Password) {
         this.UserName = UserName;
         this.Password = Password;
     }
+
 
     public User( String UserName, String Password, String FirstName, String LastName, String PhoneNumber, Date DateOfBirth, String Email, String Address) {
         this.UserName = UserName;
@@ -71,6 +73,9 @@ public class User implements UserDetails {
         Role = com.petshop.common.constant.Role.customer;
         Status = 1;
     }
+
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -107,4 +112,7 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
+
 }

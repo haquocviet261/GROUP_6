@@ -3,6 +3,7 @@ package com.petshop.services.imp;
 
 import com.petshop.common.constant.Role;
 import com.petshop.common.constant.TokenType;
+import com.petshop.common.utils.PasswordGenerator;
 import com.petshop.models.dto.request.UserDto;
 import com.petshop.models.dto.request.RegisterRequest;
 import com.petshop.models.dto.response.AuthenticationResponse;
@@ -18,20 +19,26 @@ import com.petshop.services.interfaces.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImp implements AuthenticationService {
+    @Autowired
+    private RestTemplate restTemplate;
     private final UserRepository userRepository;
     private final JwtServiceImp jwtServiceImp;
     private final TokenRepository tokenRepository;
@@ -125,5 +132,51 @@ public class AuthenticationServiceImp implements AuthenticationService {
             }
         }
     }
+    public ResponseEntity<ResponseObject> handleGoogleCallback(String authorizationCode){
+        String tokenEndpoint = "https://www.googleapis.com/oauth2/v4/token";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("code", authorizationCode);
+        body.add("client_id", "756081284225-qk5ijqli6cuope3q2j3mdlm2ckgtvedb.apps.googleusercontent.com");
+        body.add("client_secret", "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");
+        body.add("redirect_uri", "http://localhost:9999/login/oauth2/code/google");
+        body.add("grant_type", "authorization_code");
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+        ResponseEntity<Map> response = restTemplate.exchange(tokenEndpoint, HttpMethod.POST, request, Map.class);
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map<String, Object> tokenInfo = response.getBody();
+            System.out.println("Access Token: " + tokenInfo.get("access_token"));
+
+            String userInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
+            HttpHeaders userInfoHeaders = new HttpHeaders();
+            userInfoHeaders.setBearerAuth((String) tokenInfo.get("access_token"));
+            HttpEntity<Void> userInfoRequest = new HttpEntity<>(userInfoHeaders);
+            ResponseEntity<Map> userInfoResponse = restTemplate.exchange(userInfoEndpoint, HttpMethod.GET, userInfoRequest, Map.class);
+            if (userInfoResponse.getStatusCode() == HttpStatus.OK) {
+                Map<String, Object> userInfo = userInfoResponse.getBody();
+                String email = (String) userInfo.get("email");
+                Optional<User> checkMailExist = userRepository.findByEmail(email);
+                if (checkMailExist.isPresent()){
+                    User u = checkMailExist.get();
+                    var jwtToken = jwtServiceImp.generateToken(u);
+                    var refreshToken = jwtServiceImp.generateRefreshToken(u);
+                    saveUserToken(u, jwtToken);
+                    return ResponseEntity.ok(new ResponseObject("OK","Handle authorization code and state successfully!",new AuthenticationResponse(jwtToken,refreshToken)));
+                }
+                User user = User.builder().Email(email)
+                        .UserName(email.split("@")[0])
+                        .Role(Role.customer)
+                        .Status(1)
+                        .Password(passwordEncoder.encode(PasswordGenerator.generateRandomPassword(8)))
+                        .FirstName(userInfo.get("family_name").toString())
+                        .LastName(userInfo.get("given_name").toString()).build();
+                userRepository.save(user);
+                return ResponseEntity.ok(new ResponseObject("OK","Handle authorization code and state successfully!",userInfo));
+            }
+        }
+        return ResponseEntity.ok(new ResponseObject("OK","Failed to handle authorization code and state.","{}"));
+
+    }
 }
