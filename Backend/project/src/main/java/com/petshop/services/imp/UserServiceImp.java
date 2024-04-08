@@ -7,7 +7,10 @@ import com.petshop.models.dto.request.ChangePasswordRequest;
 import com.petshop.models.dto.request.EditDTO;
 import com.petshop.models.dto.request.UserDto;
 import com.petshop.models.dto.response.ResponseObject;
+import com.petshop.models.dto.response.UserStatusResponse;
+import com.petshop.models.entities.OnlineStatus;
 import com.petshop.models.entities.User;
+import com.petshop.repositories.OnlineStatusRepository;
 import com.petshop.repositories.UserRepository;
 import com.petshop.common.utils.Validation;
 import com.petshop.services.interfaces.UserService;
@@ -16,16 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -44,6 +42,8 @@ public class UserServiceImp implements UserService {
 
     @Autowired
     private EmailUtils emailUtil;
+    @Autowired
+    private OnlineStatusRepository onlineStatusRepository;
 
 
 
@@ -103,6 +103,32 @@ public class UserServiceImp implements UserService {
         return ResponseEntity.ok(new ResponseObject("OK","User profile",userrepository.findById(userId)));
     }
 
+    @Override
+    public void disconnect(Long user_id) {
+        Optional<User> user = userrepository.findById(user_id);
+        if (user.isPresent()){
+            OnlineStatus onlineStatus = onlineStatusRepository.getOnlineStatusByUserID(user_id);
+            onlineStatus.setStatus(com.petshop.common.constant.OnlineStatus.OFFLINE.getCode());
+            onlineStatusRepository.save(onlineStatus);
+        }
+    }
+
+    @Override
+    public List<User> findAllUserOnline() {
+        return userrepository.findAllUserOnline(com.petshop.common.constant.OnlineStatus.ONLINE.getCode());
+    }
+
+
+
+    public void saveOnlineStatusUser(Long user_id){
+        Optional<User> user = userrepository.findById(user_id);
+        if (user.isPresent()){
+            OnlineStatus onlineStatus = onlineStatusRepository.getOnlineStatusByUserID(user_id);
+            onlineStatus.setStatus(com.petshop.common.constant.OnlineStatus.ONLINE.getCode());
+            onlineStatusRepository.save(onlineStatus);
+        }
+    }
+
     public ResponseEntity<String> editUser(EditDTO editDTO,Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         user.setFirstName(editDTO.getFirstname());
@@ -111,6 +137,20 @@ public class UserServiceImp implements UserService {
         user.setDateOfBirth(editDTO.getDateofbirth());
         userrepository.save(user);
         return ResponseEntity.ok("Edit user profile successfully !");
+    }
+    @Override
+    public List<UserStatusResponse> getListUserWithStatus() {
+        List<Object[]> list = userrepository.getListUserWithStatus();
+        List<UserStatusResponse> responses = new ArrayList<>();
+        for (int i = 0; i <list.size() ; i++) {
+            User user = (User) list.get(i)[0];
+            Long status = (Long) list.get(i)[1];
+            if (user.getRole() == Role.customer){
+                responses.add(new UserStatusResponse(user.getUsername(),(user.getFirstName()+" "+user.getLastName()),user.getImage_src(),status));
+
+            }
+        }
+        return responses;
     }
 
 }

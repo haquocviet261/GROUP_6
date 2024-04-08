@@ -6,13 +6,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class ShoppingCart implements Serializable {
-    private Long  user_id;
-    private Map<Long, CartItem> items = new HashMap<>();
+    private String  user_id;
+    List <CartItem> items = new ArrayList<>();
 }

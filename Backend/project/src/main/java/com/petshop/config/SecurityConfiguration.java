@@ -18,6 +18,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.IF_
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 import static com.petshop.common.constant.Role.admin;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -55,9 +56,15 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
             http.cors(Customizer.withDefaults())
-                    .csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(authorizeRequests ->
+                    .csrf(csrf -> csrf
+                            .ignoringRequestMatchers("/chat/**")
+                    )
+                    .headers(headers -> headers
+                            .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin
+                            )
+                    ).authorizeHttpRequests(authorizeRequests ->
                             authorizeRequests
-                                    .requestMatchers("api/auth/**","api/v1/user/**","/login/**","/**").permitAll()
+                                    .requestMatchers("api/auth/**","api/v1/user/**","/login/**").permitAll()
                                     .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
                                     .anyRequest()
                                     .authenticated()
@@ -83,7 +90,6 @@ public class SecurityConfiguration {
                     .logout(logout ->
                             logout.logoutUrl("/api/auth/logout")
                                     .addLogoutHandler(logoutHandler)
-
                                     .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
                     );
 

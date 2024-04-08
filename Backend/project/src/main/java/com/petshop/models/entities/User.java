@@ -49,12 +49,20 @@ public class User implements UserDetails {
     private Role Role;
     @Column(name = "status", columnDefinition = "INT DEFAULT 1")
     private int Status = 1;
+    @Column(name = "image_src")
+    private String image_src;
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Token> tokens;
     @JsonIgnore
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<FeedBack> feedBacks;
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private OnlineStatus online_status;
+    @JsonIgnore
+    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
+    private List<Conversation> adminConversations;
     public User(String UserName, String Password) {
         this.UserName = UserName;
         this.Password = Password;

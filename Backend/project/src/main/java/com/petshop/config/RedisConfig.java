@@ -39,23 +39,11 @@ public class RedisConfig {
 
     @Bean
     @Primary
-    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        // tạo ra một RedisTemplate
-        // Với Key là Object
-        // Value là Object
-        // RedisTemplate giúp chúng ta thao tác với Redis
-        RedisTemplate<Object, Object> template = new RedisTemplate<>();
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
         return template;
     }
-//    @Bean
-//    public ObjectMapper redisObjectMapper(){
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        SimpleModule simpleModule = new SimpleModule();
-//        simpleModule.addSerializer(LocalDateTime.class,new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME));
-//        simpleModule.addDeserializer(LocalDateTime.class,new LocalDateTimeDeserializer(DateTimeFormatter.ISO_DATE_TIME));
-//        objectMapper.registerModule(simpleModule);
-//        return objectMapper;
-//    }
+
 }
 
