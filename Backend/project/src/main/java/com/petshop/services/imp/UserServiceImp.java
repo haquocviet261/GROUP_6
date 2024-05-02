@@ -131,10 +131,10 @@ public class UserServiceImp implements UserService {
 
     public ResponseEntity<String> editUser(EditDTO editDTO,Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        user.setFirstName(editDTO.getFirstname());
-        user.setLastName(editDTO.getLastname());
+        user.setFirst_name(editDTO.getFirstname());
+        user.setLast_name(editDTO.getLastname());
         user.setAddress(editDTO.getAddress());
-        user.setDateOfBirth(editDTO.getDateofbirth());
+        user.setDate_of_birth(editDTO.getDateofbirth());
         userrepository.save(user);
         return ResponseEntity.ok("Edit user profile successfully !");
     }
@@ -146,11 +146,18 @@ public class UserServiceImp implements UserService {
             User user = (User) list.get(i)[0];
             Long status = (Long) list.get(i)[1];
             if (user.getRole() == Role.customer){
-                responses.add(new UserStatusResponse(user.getUsername(),(user.getFirstName()+" "+user.getLastName()),user.getImage_src(),status));
+                responses.add(new UserStatusResponse(user.getUsername(),(user.getFirst_name()+" "+user.getLast_name()),user.getImage_src(),status));
 
             }
         }
         return responses;
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> findByUserName(String user_name) {
+        Optional<User> user = userrepository.findByUserName(user_name);
+        return user.isPresent() ? ResponseEntity.ok(new ResponseObject("OK","Find user successfully",user.get()))
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Fail","Cannot find user with username:"+user_name,""));
     }
 
 }

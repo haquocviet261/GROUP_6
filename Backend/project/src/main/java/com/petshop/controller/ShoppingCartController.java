@@ -22,14 +22,12 @@ public class ShoppingCartController {
     public ResponseEntity<ResponseObject> addToCart(@RequestBody CartItem cartItem,@PathVariable Long user_id) {
        return shoppingCartService.addToCart(user_id, cartItem);
     }
-
     @DeleteMapping("/remove/{userId}/{productId}")
     public void removeItemFromCart(@PathVariable Long userId, @PathVariable Long productId) {
         shoppingCartService.RemoveItemFromCart(userId, productId);
     }
-
     @DeleteMapping("/remove/{userId}")
-    public void removeCart(@PathVariable Long userId) {
-        shoppingCartService.RemoveAddCart(userId);
+    public ResponseEntity<ResponseObject> removeCart(@PathVariable Long userId) {
+        return shoppingCartService.RemoveAddCart(userId);
     }
 }

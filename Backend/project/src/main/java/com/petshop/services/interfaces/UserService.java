@@ -17,4 +17,5 @@ public interface UserService {
     public void disconnect(Long user_id);
     public List<User> findAllUserOnline();
     public List<UserStatusResponse> getListUserWithStatus();
+    public ResponseEntity<ResponseObject> findByUserName(String user_name);
 }

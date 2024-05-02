@@ -1,5 +1,10 @@
 package com.petshop.config;
 
+import com.nimbusds.jose.KeySourceException;
+import com.nimbusds.jose.proc.JWSAlgorithmFamilyJWSKeySelector;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.petshop.repositories.TokenRepository;
 import com.petshop.services.imp.JwtServiceImp;
 import jakarta.servlet.FilterChain;
@@ -10,17 +15,27 @@ import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+
 @Component
 public class JwtAuthenicationFilter extends OncePerRequestFilter {
+
     @Autowired
     private JwtServiceImp jwtServiceImp;
     @Autowired
@@ -34,13 +49,12 @@ public class JwtAuthenicationFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().contains("/api/auth")) {
+        if (request.getServletPath().contains("/api/user")) {
             filterChain.doFilter(request, response);
             return;
         }
         try {
             String header = request.getHeader("Authorization");
-
             if (header == null || !header.startsWith("Bearer ")) {
                 filterChain.doFilter(request,response);
                 return;
@@ -67,4 +81,5 @@ public class JwtAuthenicationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request,response);
     }
+
 }

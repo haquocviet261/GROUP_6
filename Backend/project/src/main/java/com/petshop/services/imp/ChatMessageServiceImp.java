@@ -27,7 +27,7 @@ public class ChatMessageServiceImp implements ChatMessageService {
 
     @Override
     public ChatMessage save(ChatMessage chatMessage) {
-        String chat_id = conversationServiceImp.getConversationID(chatMessage.getSender_id().getUserId(), chatMessage.getReceiver_id().getUserId(),true).orElseThrow();
+        String chat_id = conversationServiceImp.getConversationID(chatMessage.getSender_id().getUser_id(), chatMessage.getReceiver_id().getUser_id(),true).orElseThrow();
         Optional<Conversation> conversation =  conversationRepository.findById(chat_id);
         chatMessage.setConversation(conversation.get());
         chatMessageRepository.save(chatMessage);
@@ -42,8 +42,8 @@ public class ChatMessageServiceImp implements ChatMessageService {
     }
     public void processMessage(ChatMessage chatMessage){
         ChatMessage message = chatMessageRepository.save(chatMessage);
-        messagingTemplate.convertAndSendToUser(String.valueOf(chatMessage.getReceiver_id().getUserId()),"queue/messages", ChatNotification.builder().sender_id(chatMessage.getSender_id().getUserId()).receiver_id(
-                chatMessage.getReceiver_id().getUserId())
+        messagingTemplate.convertAndSendToUser(String.valueOf(chatMessage.getReceiver_id().getUser_id()),"queue/messages", ChatNotification.builder().sender_id(chatMessage.getSender_id().getUser_id()).receiver_id(
+                chatMessage.getReceiver_id().getUser_id())
                 .chat_notification_id(chatMessage
                         .getMessage_id()).build());
     }

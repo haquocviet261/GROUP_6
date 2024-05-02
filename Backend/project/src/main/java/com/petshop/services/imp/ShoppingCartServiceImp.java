@@ -15,8 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ShoppingCartServiceImp implements ShoppingCartService{
@@ -27,30 +29,67 @@ public class ShoppingCartServiceImp implements ShoppingCartService{
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public ResponseEntity<ResponseObject> addToCart(Long user_id,CartItem cartItem) {
-        HashOperations<String, Long, Integer> hashOps = redisTemplate.opsForHash();
+    public ResponseEntity<ResponseObject> addToCart(Long user_id, CartItem cartItem) {
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         String cartKey = CART_KEY_PREFIX + user_id;
-        if (!userRepository.findById(user_id).isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("False","Add to Cart False user is not exist",null));
+
+        if (!userRepository.findById(user_id).isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("False", "Add to Cart Failed: User does not exist", null));
         }
-        if (redisTemplate.opsForHash().hasKey(cartKey,cartItem.getProduct_id())){
-            int current_quantity = (Integer) redisTemplate.opsForHash().get(cartKey,cartItem.getProduct_id());
-            hashOps.put(cartKey, cartItem.getProduct_id(),(current_quantity + 1));
+
+        String productKey = String.valueOf(cartItem.getProduct_id());
+        String quantity = String.valueOf(cartItem.getQuantity());
+
+       //check cart exist
+        if (hashOps.hasKey(cartKey, productKey)) {
+           // if cart is exist
+            int currentQuantity = Integer.parseInt(hashOps.get(cartKey, productKey));
+            int newQuantity = currentQuantity + cartItem.getQuantity();
+            hashOps.put(cartKey, productKey, String.valueOf(newQuantity));
+        } else {
+           //if item dose not exist
+            hashOps.put(cartKey, productKey, quantity);
         }
-        hashOps.put(cartKey, cartItem.getProduct_id(), cartItem.getQuantity());
-        return ResponseEntity.ok(new ResponseObject("OK","Add to Cart successfully",hashOps.entries(cartKey)));
+
+        List<CartItem> cartItems = new ArrayList<>();
+        for (Map.Entry<String, String> entry : hashOps.entries(cartKey).entrySet()) {
+            cartItems.add(new CartItem(Long.parseLong(entry.getKey()), Integer.parseInt(entry.getValue())));
+        }
+
+        return ResponseEntity.ok(new ResponseObject("OK", "Add to Cart successfully",
+                new HashMap<String, Object>() {{
+                    put("user_id", user_id);
+                    put("cart_items", cartItems);
+                }}));
     }
+
 
     @Override
     public ResponseEntity<ResponseObject> getCart(Long user_id) {
-        HashOperations<String, String, Integer> hashOps = redisTemplate.opsForHash();
+        HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
         String cartKey = CART_KEY_PREFIX + user_id;
-        if (!userRepository.findById(user_id).isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("False","Add to Cart False user is not exist",null));
+
+        if (!userRepository.findById(user_id).isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject("False", "Get Cart Failed: User does not exist", null));
         }
 
-        return ResponseEntity.ok(new ResponseObject("OK","Add to Cart successfully",hashOps.entries(cartKey)));
+        List<CartItem> cartItems = new ArrayList<>();
+        Map<String, String> cartData = hashOps.entries(cartKey);
+        for (Map.Entry<String, String> entry : cartData.entrySet()) {
+            long productId = Long.parseLong(entry.getKey());
+            int quantity = Integer.parseInt(entry.getValue());
+            cartItems.add(new CartItem(productId, quantity));
+        }
+
+        return ResponseEntity.ok(new ResponseObject("OK", "Get Cart successfully",
+                new HashMap<String, Object>() {{
+                    put("user_id", user_id);
+                    put("cart_items", cartItems);
+                }}));
     }
+
 
     @Override
     public ResponseEntity<ResponseObject> RemoveItemFromCart(Long user_id, Long product_id) {
@@ -73,9 +112,9 @@ public class ShoppingCartServiceImp implements ShoppingCartService{
         if (userRepository.findById(user_id).isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("False","Remove from Cart False user is not exist !",""));
         }
-        ShoppingCart shoppingCart = (ShoppingCart) redisTemplate.opsForHash().entries(cartKey);
+
         if (Boolean.TRUE.equals(redisTemplate.delete(cartKey))){
-            return ResponseEntity.ok(new ResponseObject("OK","Removed  Cart successfully !",shoppingCart));
+            return ResponseEntity.ok(new ResponseObject("OK","Removed  Cart successfully !",""));
         }else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseObject("False","Removed  Cart false !",""));
         }

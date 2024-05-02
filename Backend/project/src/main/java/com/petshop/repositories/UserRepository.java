@@ -11,16 +11,16 @@ import java.util.Objects;
 import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    @Query("SELECT u FROM User u WHERE u.UserName = :UserName")
-    Optional<User> findByUserName(@Param("UserName") String UserName);
+    @Query("SELECT u FROM User u WHERE u.user_name = :user_name")
+    Optional<User> findByUserName(@Param("user_name") String user_name);
     Optional<User> findById(Long user_id);
 
-    @Query("SELECT u FROM User u WHERE u.Email = :Email")
-    Optional<User> findByEmail(@Param("Email") String Email);
-    @Query("SELECT u FROM User u WHERE u.PhoneNumber = :PhoneNumber")
-    Optional<User> findByPhone(@Param("PhoneNumber") String PhoneNumber);
+    @Query("SELECT u FROM User u WHERE u.email = :email")
+    Optional<User> findByEmail(@Param("email") String email);
+    @Query("SELECT u FROM User u WHERE u.phone_number = :phone_number")
+    Optional<User> findByPhone(@Param("phone_number") String phone_number);
     @Query("select u from User u INNER join u.online_status o  where o.status =:status")
     public List<User> findAllUserOnline(@Param("status") Long status);
-    @Query("select u,u.online_status.status from User INNER join u.online_status ")
+    @Query("select u,u.online_status.status from User u INNER join u.online_status ")
     public List<Object[]> getListUserWithStatus();
 }

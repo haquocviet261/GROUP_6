@@ -5,6 +5,8 @@ package com.petshop.controller;
 import com.petshop.models.dto.request.ChangePasswordRequest;
 
 import com.petshop.models.dto.request.EditDTO;
+import com.petshop.models.dto.request.RegisterRequest;
+import com.petshop.models.dto.request.UserDto;
 import com.petshop.models.dto.response.ResponseObject;
 import com.petshop.models.dto.response.UserStatusResponse;
 import com.petshop.models.entities.User;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.security.Principal;
@@ -31,8 +34,7 @@ public class UserController {
     @Autowired
     private AuthenticationServiceImp authenticationServiceImp;
     @GetMapping("/logout")
-    public  String logout
-            (HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public  String logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         authenticationServiceImp.refreshToken(request, response);
         return "Logout Successfully !";
     }
@@ -46,17 +48,17 @@ public class UserController {
     public ResponseEntity<?> getAllUsers() {
         return userServiceImp.getAllUsers();
     }
-    @GetMapping("/forgot-password")
-    public ResponseEntity<?> forgotpassword(@RequestParam String email) throws MessagingException {
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotpassword(@RequestBody String email) throws MessagingException {
         return userServiceImp.forgotPassword(email);
     }
     @GetMapping("/verify-account")
-    public ResponseEntity<?> verifyAccount(@RequestParam(name = "email") String email,@RequestParam(name = "jwt") String jwt){
+    public ResponseEntity<String> verifyAccount(@RequestParam(name = "email") String email,@RequestParam(name = "jwt") String jwt){
 
-        return ResponseEntity.ok(userServiceImp.verifyAccount(email,jwt));
+        return userServiceImp.verifyAccount(email,jwt);
     }
     @PutMapping("/set-password")
-    public ResponseEntity<?> setPassword(@RequestParam String email,@RequestHeader String newPassword){
+    public ResponseEntity<String> setPassword(@RequestBody String email,@RequestBody String newPassword){
         return ResponseEntity.ok(userServiceImp.setPassword(email,newPassword));
     }
     @GetMapping("/profile")
@@ -85,4 +87,22 @@ public class UserController {
     public ResponseEntity<List<UserStatusResponse>> findOnlineUser(){
         return ResponseEntity.ok(userServiceImp.getListUserWithStatus());
     }
+    @PostMapping("/register")
+    public ResponseEntity<ResponseObject> register(@RequestBody RegisterRequest request){
+        return authenticationServiceImp.register(request);
+    }
+
+    @PostMapping("/authenticate" )
+    public ResponseEntity<ResponseObject> authenticated(@RequestBody UserDto request){
+        return authenticationServiceImp.authenticated(request);
+    }
+    @GetMapping("/oauth2/google")
+    public ResponseEntity<ResponseObject> getToken() {
+        return authenticationServiceImp.extracUser();
+    }
+    @GetMapping("/find")
+    public ResponseEntity<ResponseObject> findUserByUserName(@RequestParam String user_name){
+        return userServiceImp.findByUserName(user_name);
+    }
+
 }

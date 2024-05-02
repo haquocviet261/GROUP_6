@@ -4,18 +4,15 @@ import com.petshop.common.constant.Role;
 import jakarta.persistence.*;
 
 import lombok.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 
 import java.sql.Date;
 import java.util.Collection;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -27,29 +24,29 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private Long UserId;
+    private Long user_id;
     @Column(name = "user_name", nullable = false)
-    private String UserName;
+    private String user_name;
     @Column(name = "password", nullable = false)
-    private String Password;
+    private String password;
     @Column(name = "firstname", nullable = false)
-    private String FirstName;
+    private String first_name;
     @Column(name = "lastname", nullable = false)
-    private String LastName;
+    private String last_name;
     @Column(name = "phone_number", nullable = true)
-    private String PhoneNumber;
+    private String phone_number;
     @Column(name = "date_of_birth")
-    private Date DateOfBirth;
+    private Date date_of_birth;
     @Column(name = "email", nullable = false)
-    private String Email;
+    private String email;
     @Column(name = "address")
-    private String Address;
+    private String address;
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private Role Role;
+    private Role role;
     @Column(name = "status", columnDefinition = "INT DEFAULT 1")
-    private int Status = 1;
-    @Column(name = "image_src")
+    private int status = 1;
+    @Column(name = "images_src")
     private String image_src;
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -64,58 +61,58 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
     private List<Conversation> adminConversations;
     public User(String UserName, String Password) {
-        this.UserName = UserName;
-        this.Password = Password;
+        this.user_name = UserName;
+        this.password = Password;
     }
 
 
-    public User( String UserName, String Password, String FirstName, String LastName, String PhoneNumber, Date DateOfBirth, String Email, String Address) {
-        this.UserName = UserName;
-        this.Password = Password;
-        this.FirstName = FirstName;
-        this.LastName = LastName;
-        this.PhoneNumber = PhoneNumber;
-        this.DateOfBirth = DateOfBirth;
-        this.Email = Email;
-        this.Address = Address;
-        Role = com.petshop.common.constant.Role.customer;
-        Status = 1;
+    public User(String UserName, String Password, String FirstName, String last_name, String phone_number, Date date_of_birth, String Email, String Address) {
+        this.user_name = UserName;
+        this.password = Password;
+        this.first_name = FirstName;
+        this.last_name = last_name;
+        this.phone_number = phone_number;
+        this.date_of_birth = date_of_birth;
+        this.email = Email;
+        this.address = Address;
+        role = com.petshop.common.constant.Role.customer;
+        status = 1;
     }
 
 
 
-
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(Role.name()));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
-
+    @JsonIgnore
     @Override
     public String getPassword() {
-        return Password;
+        return password;
     }
-
+    @JsonIgnore
 
     @Override
     public String getUsername() {
-        return UserName;
+        return user_name;
     }
-
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
-
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
-
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;

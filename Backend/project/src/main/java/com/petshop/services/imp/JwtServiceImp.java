@@ -1,6 +1,11 @@
 package com.petshop.services.imp;
 
 
+import com.nimbusds.jose.KeySourceException;
+import com.nimbusds.jose.proc.JWSAlgorithmFamilyJWSKeySelector;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -8,19 +13,26 @@ import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.security.Key;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 
 @Component
 @Service
-@PropertySource("classpath:application.properties")
 public class JwtServiceImp {
     public static Logger logger = LoggerFactory.getLogger(JwtServiceImp.class);
     @Value("${application.security.jwt.expiration}")
@@ -29,6 +41,22 @@ public class JwtServiceImp {
     private  String secretKey ;
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshExpiration;
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private String jwkUri;
+    @Bean
+    public JwtDecoder jwtDecoder() throws KeySourceException, MalformedURLException {
+        URL jwkSetUrl;
+        jwkSetUrl = new URL(jwkUri);
+        // makes a request to the JWK Set endpoint
+        JWSKeySelector<SecurityContext> jwsKeySelector =
+                JWSAlgorithmFamilyJWSKeySelector.fromJWKSetURL(jwkSetUrl);
+
+        DefaultJWTProcessor<SecurityContext> jwtProcessor =
+                new DefaultJWTProcessor<>();
+        jwtProcessor.setJWSKeySelector(jwsKeySelector);
+
+        return new NimbusJwtDecoder(jwtProcessor);
+    }
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -58,6 +86,7 @@ public class JwtServiceImp {
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
+                .setIssuer("http://localhost:9999")
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))

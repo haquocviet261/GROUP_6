@@ -16,23 +16,25 @@ import com.petshop.repositories.TokenRepository;
 import com.petshop.repositories.UserRepository;
 import com.petshop.common.utils.Validation;
 import com.petshop.services.interfaces.AuthenticationService;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +46,14 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager  authenticationManager;
+    @Autowired
+    private JwtDecoder jwtDecoder;
+    @Autowired
+    HttpServletRequest request;
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private  String CLIENT_ID ;
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private  String CLIENT_SECERT;
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()
                 .user(user)
@@ -55,7 +65,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         tokenRepository.save(token);
     }
     private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getUserId());
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getUser_id());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
@@ -74,21 +84,21 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 if (list.get(i).getEmail().equals(request.getEmail())) {
                     return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(Validation.FAIL,"Email are exist !",""));
                 }
-                else if (request.getPhonenumber().equals(list.get(i).getPhoneNumber())) {
+                else if (request.getPhonenumber().equals(list.get(i).getPhone_number())) {
                     return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(Validation.FAIL,"Phone number are exist !",""));
                 }
             }
         }
-        var user = User.builder().UserName(request.getUsername()).FirstName(request.getFirstname())
-                .LastName(request.getLastname()).Email(request.getEmail()).Address(request.getAddress())
-                .PhoneNumber(request.getPhonenumber()).Password(passwordEncoder.encode(request.getPassword())).Role(Role.customer).Status(1)
-                .DateOfBirth(request.getDateofbirth())
+        var user = User.builder().user_name(request.getUsername()).first_name(request.getFirstname())
+                .last_name(request.getLastname()).email(request.getEmail()).address(request.getAddress())
+                .phone_number(request.getPhonenumber()).password(passwordEncoder.encode(request.getPassword())).role(Role.customer).status(1)
+                .date_of_birth(request.getDateofbirth())
                 .build();
         var savedUser = userRepository.save(user);
         var jwtToken = jwtServiceImp.generateToken(user);
         var refreshToken = jwtServiceImp.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK,"Register successfully !",AuthenticationResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build()));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK,"Register successfully !",AuthenticationResponse.builder().accessToken(jwtToken).refresh_token(refreshToken).build()));
     }
     @Override
     public ResponseEntity<ResponseObject> authenticated(UserDto request){
@@ -103,13 +113,10 @@ public class AuthenticationServiceImp implements AuthenticationService {
         var refreshToken = jwtServiceImp.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwt);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK,"Login successfully !",AuthenticationResponse.builder().accessToken(jwt).refreshToken(refreshToken).build()));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK,"Login successfully !",AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
     }
     @Override
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String userName;
@@ -127,56 +134,54 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 saveUserToken(user, accessToken);
                 var authResponse = AuthenticationResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken(refreshToken)
+                        .refresh_token(refreshToken)
                         .build();
             }
         }
     }
-    public ResponseEntity<ResponseObject> handleGoogleCallback(String authorizationCode){
-        String tokenEndpoint = "https://www.googleapis.com/oauth2/v4/token";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-        body.add("code", authorizationCode);
-        body.add("client_id", "756081284225-qk5ijqli6cuope3q2j3mdlm2ckgtvedb.apps.googleusercontent.com");
-        body.add("client_secret", "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");
-        body.add("redirect_uri", "http://localhost:9999/login/oauth2/code/google");
-        body.add("grant_type", "authorization_code");
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
-        ResponseEntity<Map> response = restTemplate.exchange(tokenEndpoint, HttpMethod.POST, request, Map.class);
-        if (response.getStatusCode() == HttpStatus.OK) {
-            Map<String, Object> tokenInfo = response.getBody();
-            System.out.println("Access Token: " + tokenInfo.get("access_token"));
-
-            String userInfoEndpoint = "https://www.googleapis.com/oauth2/v3/userinfo";
-            HttpHeaders userInfoHeaders = new HttpHeaders();
-            userInfoHeaders.setBearerAuth((String) tokenInfo.get("access_token"));
-            HttpEntity<Void> userInfoRequest = new HttpEntity<>(userInfoHeaders);
-            ResponseEntity<Map> userInfoResponse = restTemplate.exchange(userInfoEndpoint, HttpMethod.GET, userInfoRequest, Map.class);
-            if (userInfoResponse.getStatusCode() == HttpStatus.OK) {
-                Map<String, Object> userInfo = userInfoResponse.getBody();
-                String email = (String) userInfo.get("email");
-                Optional<User> checkMailExist = userRepository.findByEmail(email);
-                if (checkMailExist.isPresent()){
-                    User u = checkMailExist.get();
-                    var jwtToken = jwtServiceImp.generateToken(u);
-                    var refreshToken = jwtServiceImp.generateRefreshToken(u);
-                    saveUserToken(u, jwtToken);
-                    return ResponseEntity.ok(new ResponseObject("OK","Handle authorization code and state successfully!",new AuthenticationResponse(jwtToken,refreshToken)));
-                }
-                User user = User.builder().Email(email)
-                        .UserName(email.split("@")[0])
-                        .Role(Role.customer)
-                        .Status(1)
-                        .Password(passwordEncoder.encode(PasswordGenerator.generateRandomPassword(8)))
-                        .FirstName(userInfo.get("family_name").toString())
-                        .LastName(userInfo.get("given_name").toString()).build();
+    public ResponseEntity<ResponseObject> extracUser(){
+        User user;
+        String jwt;
+        String refreshToken;
+            String header = request.getHeader("Authorization");
+        Map<String,Object> userInfor = extractUserInfoFromToken(header.substring(7));
+                Optional<User> checkMailExist = userRepository.findByEmail(userInfor.get("email").toString().trim());
+            if (checkMailExist.isPresent()){
+                user = checkMailExist.get();
+                jwt = jwtServiceImp.generateToken(user);
+                refreshToken = jwtServiceImp.generateRefreshToken(user);
+                return ResponseEntity.ok(new ResponseObject("OK","Handle authorization code and state successfully!",AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
+            }else {
+                String email =  userInfor.get("email").toString().trim();
+                user = User.builder().email(userInfor.get("email").toString().trim())
+                        .user_name(userInfor.get("email").toString().trim().split("@")[0])
+                        .role(Role.customer)
+                        .status(1)
+                        .email(email)
+                        .password(passwordEncoder.encode(PasswordGenerator.generateRandomPassword(8)))
+                        .first_name(userInfor.get("family_name").toString().trim())
+                        .last_name(userInfor.get("given_name").toString().trim())
+                        .image_src(userInfor.get("picture").toString())
+                        .build();
                 userRepository.save(user);
-                return ResponseEntity.ok(new ResponseObject("OK","Handle authorization code and state successfully!",userInfo));
+                jwt = jwtServiceImp.generateToken(user);
+                refreshToken = jwtServiceImp.generateRefreshToken(user);
+                revokeAllUserTokens(user);
+                saveUserToken(user, jwt);
             }
-        }
-        return ResponseEntity.ok(new ResponseObject("OK","Failed to handle authorization code and state.","{}"));
 
+            return ResponseEntity.ok(new ResponseObject("OK","Handle authorization code and state successfully!",AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
+    }
+
+    public Map<String, Object> extractUserInfoFromToken(String accessToken) {
+        Jwt jwt = jwtDecoder.decode(accessToken);
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("email", jwt.getClaim("email"));
+        userInfo.put("picture", jwt.getClaim("picture"));
+        userInfo.put("given_name", jwt.getClaim("given_name"));
+        userInfo.put("family_name", jwt.getClaim("family_name"));
+        userInfo.put("iat", jwt.getClaim("iat"));
+        userInfo.put("exp", jwt.getClaim("exp"));
+        return userInfo;
     }
 }

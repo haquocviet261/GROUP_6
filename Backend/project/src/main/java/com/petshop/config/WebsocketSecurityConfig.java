@@ -25,12 +25,16 @@ public class WebsocketSecurityConfig implements WebSocketMessageBrokerConfigurer
     @Autowired
     private ApplicationContext context;
     @Bean
+    public MessageMatcherDelegatingAuthorizationManager.Builder messageMatcherDelegatingAuthorizationManagerBuilder() {
+        return MessageMatcherDelegatingAuthorizationManager.builder();
+    }
+    @Bean
     public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
         messages
                 .nullDestMatcher().authenticated()
                 .simpSubscribeDestMatchers("/user/queue/errors").permitAll()
                 .simpDestMatchers("/app/**").hasRole("USER")
-                .simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER")
+                .simpSubscribeDestMatchers("/user/**", "/topic/messages/*").permitAll()
                 .simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE).denyAll()
                 .anyMessage().denyAll();
         return messages.build();
