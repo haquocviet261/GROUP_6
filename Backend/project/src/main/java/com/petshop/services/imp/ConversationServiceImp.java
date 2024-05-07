@@ -1,6 +1,6 @@
 package com.petshop.services.imp;
 
-import com.petshop.models.entities.Conversation;
+import com.petshop.model.entity.Conversation;
 import com.petshop.repositories.ConversationRepository;
 import com.petshop.repositories.UserRepository;
 import com.petshop.services.interfaces.ConversationService;

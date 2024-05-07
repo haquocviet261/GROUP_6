@@ -1,6 +1,6 @@
 package com.petshop.repositories;
 
-import com.petshop.models.entities.Token;
+import com.petshop.model.entity.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

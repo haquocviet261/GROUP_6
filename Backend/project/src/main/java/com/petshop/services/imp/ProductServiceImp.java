@@ -1,22 +1,19 @@
 package com.petshop.services.imp;
 
-import com.petshop.models.dto.response.DiscountProductResponse;
-import com.petshop.models.dto.response.ResponseObject;
-import com.petshop.models.entities.Categories;
-import com.petshop.models.entities.Product;
-import com.petshop.repositories.ProductRepository;
+import com.petshop.model.dto.response.ProductResponse;
+import com.petshop.model.dto.response.ResponseObject;
 import com.petshop.services.interfaces.ProductService;
+
+import com.petshop.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class ProductServiceImp implements ProductService {
@@ -24,78 +21,52 @@ public class ProductServiceImp implements ProductService {
     ProductRepository productRepository;
 
     @Override
-    public ResponseEntity<ResponseObject> findProductByCategoryID(Pageable pageable,Long category_id) {
-        List<Object[]> products = productRepository.findProductByCategory(pageable,category_id);
-        List<DiscountProductResponse> discountProductResponses = new ArrayList<>();
-        for (int i = 0; i < products.size() ; i++) {
-            Product current_product = (Product) products.get(i)[0];
-            Double discountValue = (Double) products.get(i)[1];
-            Long current_category_id = (Long) products.get(i)[2];
-            discountProductResponses.add(convertProductDiscountResponse(current_product,discountValue,current_category_id));
+    public ResponseEntity<ResponseObject> findProductByCategoryID(Integer page , Integer size, Long category_id) {
+        List<ProductResponse> products = new ArrayList<>();
+        if (page == null || size == null){
+            products = productRepository.findProductByCategory(category_id);
+        }else {
+            products = productRepository.findProductByCategory(PageRequest.of(page,size),category_id);
         }
-        return ResponseEntity.ok(new ResponseObject("OK","List all products",discountProductResponses));
+
+        return ResponseEntity.ok(new ResponseObject("OK","List all products",products));
     }
 
     @Override
     public ResponseEntity<ResponseObject> findRandomProducts(Pageable pageable) {
         List<Object[]> products = productRepository.findRandomProducts(pageable);
-        List<DiscountProductResponse> products_new = new ArrayList<>();
-        for (int i = 0; i < products.size() ; i++) {
-           DiscountProductResponse discountProductResponse = fromObjectArray(products.get(i));
-           products_new.add(discountProductResponse);
+        List<ProductResponse> list = new ArrayList<>();
+        for (int i = 0; i < products.size(); i++) {
+            list.add(fromObjectArray(products.get(i)));
         }
-        return ResponseEntity.ok(new ResponseObject("OK","List random top product by paging",products_new));
+        return ResponseEntity.ok(new ResponseObject("OK","List random top product by paging",products));
     }
 
     @Override
     public ResponseEntity<ResponseObject> findAll() {
-        List<Object[]> products = productRepository.getProductAndDiscount();
-        List<DiscountProductResponse> discountProductResponses = new ArrayList<>();
-        for (int i = 0; i < products.size() ; i++) {
-            Product current_product = (Product) products.get(i)[0];
-            Double discountValue = (Double) products.get(i)[1];
-            Long category_id = (Long) products.get(i)[2];
-            discountProductResponses.add(convertProductDiscountResponse(current_product,discountValue,category_id));
-        }
-        return ResponseEntity.ok(new ResponseObject("OK","List all products",discountProductResponses));
+        List<ProductResponse> products = productRepository.getProductAndDiscount();
+
+        return ResponseEntity.ok(new ResponseObject("OK","List all products",products));
     }
     public  ResponseEntity<ResponseObject> findTopSaleProduct(){
-        List<Object[]> products = productRepository.findTopSaleProduct();
-        List<DiscountProductResponse> discountProductResponses = new ArrayList<>();
-        int count =0;
-        for (Object[] result: products) {
-            Product current_product = (Product) result[0];
-            Double discountValue = (Double) result[1];
-            Long category_id = (Long) result[2];
-            discountProductResponses.add(convertProductDiscountResponse(current_product,discountValue,category_id));
-            if (count == 8){
-                break;
-            }
-            count++;
-        }
-        return ResponseEntity.ok(new ResponseObject("OK","List all products desc",discountProductResponses));
+        List<ProductResponse> products = productRepository.findTopSaleProduct();
+
+        return ResponseEntity.ok(new ResponseObject("OK","List all products desc",products));
 
     }
 
     @Override
     public ResponseEntity<ResponseObject> findProductBySubcategoryId(Long sub_category_id) {
-        List<Object[]> products = productRepository.findProductBySubcategoryId(sub_category_id);
-        List<DiscountProductResponse> discountProductResponses = new ArrayList<>();
-        for (Object[] result: products) {
-            Product current_product = (Product) result[0];
-            Double discountValue = (Double) result[1];
-            Long category_id = (Long) result[2];
-            discountProductResponses.add(convertProductDiscountResponse(current_product,discountValue,category_id));
-        }
-        return ResponseEntity.ok(new ResponseObject("OK","List all products by sub_category_id",discountProductResponses));
+        List<ProductResponse> products = productRepository.findProductBySubcategoryId(sub_category_id);
+        return ResponseEntity.ok(new ResponseObject("OK","List all products by sub_category_id",products));
     }
 
-    public ResponseEntity<ResponseObject> findByProductNameContainingIgnoreCase(Pageable pageable,String name) {
-        List<Object[]> productList = new ArrayList<>();
-        if (pageable == null){
+    public ResponseEntity<ResponseObject> findByProductNameContainingIgnoreCase(Integer page ,Integer size,String name) {
+        List<ProductResponse> productList = new ArrayList<>();
+        if (page == null || size == null){
             productList = productRepository.findByNameContainingIgnoreCase(name);
         }else {
-            productList = productRepository.findByNameContainingIgnoreCase(pageable,name);
+            productList = productRepository.findByNameContainingIgnoreCase(PageRequest.of(page,size),name);
         }
 
         if (productList.size()==0){
@@ -104,53 +75,31 @@ public class ProductServiceImp implements ProductService {
         return ResponseEntity.ok(new ResponseObject("OK","List name of product",productList));
     }
 
-    public ResponseEntity<ResponseObject> findProductBySubCategoryNameOrProductName(Pageable pageable,String name) {
-        List<Object[]> productListBySubcategories = new ArrayList<>();
-        if (pageable == null){
-            productListBySubcategories = productRepository.findByNameContainingIgnoreCase(name);
+    public ResponseEntity<ResponseObject> findProductBySubCategoryNameOrProductName(Integer page ,Integer size,String name) {
+
+        List<ProductResponse> productListBySubcategories = new ArrayList<>();
+        List<ProductResponse> productListByProductName = new ArrayList<>();
+        if (page == null || size == null){
+            productListBySubcategories = productRepository.findBySubCategoriesContainingIgnoreCase(name);
+            productListByProductName =productRepository.findByNameContainingIgnoreCase(name);
         }else {
-            productListBySubcategories = productRepository.findByNameContainingIgnoreCase(pageable,name);
+            productListByProductName =productRepository.findByNameContainingIgnoreCase(PageRequest.of(page,size),name);
+            productListBySubcategories = productRepository.findBySubCategoriesContainingIgnoreCase(PageRequest.of(page,size),name);
         }
-        List<Object[]> productListByProductName =productRepository.findByNameContainingIgnoreCase(pageable,name);
-        List<DiscountProductResponse> discountProductResponses = new ArrayList<>();
+
         if (productListByProductName.size() !=0){
-            for (Object[] result: productListByProductName) {
-                Product current_product = (Product) result[0];
-                Double discountValue = (Double) result[1];
-                Long current_category_id = (Long) result[2];
-                discountProductResponses.add(convertProductDiscountResponse(current_product,discountValue,current_category_id));
-            }
-            return ResponseEntity.ok(new ResponseObject("OK","List of product by Name: "+name,discountProductResponses));
+
+            return ResponseEntity.ok(new ResponseObject("OK","List of product by Name: "+name,productListByProductName));
 
         } else if (productListBySubcategories.size() !=0) {
-            for (Object[] result: productListBySubcategories) {
-                Product current_product = (Product) result[0];
-                Double discountValue = (Double) result[1];
-                Long category_id = (Long) result[2];
-                discountProductResponses.add(convertProductDiscountResponse(current_product,discountValue,category_id));
-            }
-            return ResponseEntity.ok(new ResponseObject("OK","List of  by Subcategory: "+name,discountProductResponses));
+
+            return ResponseEntity.ok(new ResponseObject("OK","List of  by Subcategory: "+name,productListBySubcategories));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ResponseObject("False","Cannot find product with name: "+name,""));
 
     }
-    private DiscountProductResponse convertProductDiscountResponse(Product current_product,Double discount,Long category_id){
-            DiscountProductResponse discountProductResponse = new DiscountProductResponse();
-            if( discount == null){
-                discount = Double.valueOf(0);
-            }
-            discountProductResponse.setProduct_id(current_product.getProduct_id());
-            discountProductResponse.setProduct_name(current_product.getProduct_name());
-            discountProductResponse.setDiscount_value(discount);
-            discountProductResponse.setPrice(current_product.getPrice());
-            discountProductResponse.setProduct_image(current_product.getImage());
-            discountProductResponse.setQuantity(current_product.getQuantity());
-            discountProductResponse.setSub_category_id(current_product.getSubCategory().getSub_category_id());
-            discountProductResponse.setDescription(current_product.getDescription());
-            discountProductResponse.setCategory_id(category_id);
-            return discountProductResponse;
-    }
-    private static DiscountProductResponse fromObjectArray(Object[] row) {
+
+    private static ProductResponse fromObjectArray(Object[] row) {
         Long productId = (Long) row[0];
         Long subCategoryId = (Long) row[1];
         String productName = (String) row[2];
@@ -160,6 +109,23 @@ public class ProductServiceImp implements ProductService {
         String productImage = (String) row[6];
         double discountValue = (row[7] != null) ? (double) row[7] : 0.0;
         Long category_id =(Long) row[8];
-        return new DiscountProductResponse(productId,category_id, subCategoryId, productName, quantity, price, description, productImage, discountValue);
+        return new ProductResponse(productId,category_id, subCategoryId, productName, quantity, price, description, productImage, discountValue);
+    }
+
+    public ResponseEntity<ResponseObject> findProductBySearchFilter(Integer page, Integer size, String sortOrder, Double minPrice, Double maxPrice, String searchValue) {
+
+            if (minPrice != null || maxPrice != null || page != null || size != null){
+                List<ProductResponse> listProductByName = productRepository.findByName(PageRequest.of(page,size),searchValue,sortOrder,minPrice,maxPrice);
+                List<ProductResponse> listProductBySubcategory = productRepository.findBySubCategories(PageRequest.of(page,size),searchValue,sortOrder,minPrice,maxPrice);
+                List<ProductResponse> listFilter = new ArrayList<>();
+                if (!listProductByName.isEmpty()){
+
+                    return ResponseEntity.ok(new ResponseObject("OK","List product By Name",listProductByName));
+                }
+                if (!listProductBySubcategory.isEmpty()){
+                    return ResponseEntity.ok(new ResponseObject("OK","List product by Name",listProductBySubcategory));
+                }
+            }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("False","Cannot find product with name: "+searchValue,null));
     }
 }

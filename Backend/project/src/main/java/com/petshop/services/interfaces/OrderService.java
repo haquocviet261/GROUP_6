@@ -1,7 +1,7 @@
 package com.petshop.services.interfaces;
 
-import com.petshop.models.dto.request.OrderDTO;
-import com.petshop.models.entities.Orders;
+
+import com.petshop.model.dto.request.OrderDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.security.Principal;

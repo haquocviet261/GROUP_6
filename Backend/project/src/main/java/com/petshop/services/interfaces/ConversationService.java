@@ -1,7 +1,5 @@
 package com.petshop.services.interfaces;
 
-import org.springframework.data.jpa.repository.Query;
-
 import java.util.Optional;
 
 public interface ConversationService {

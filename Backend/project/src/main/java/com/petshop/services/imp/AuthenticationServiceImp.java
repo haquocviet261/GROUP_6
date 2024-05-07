@@ -4,43 +4,42 @@ package com.petshop.services.imp;
 import com.petshop.common.constant.Role;
 import com.petshop.common.constant.TokenType;
 import com.petshop.common.utils.PasswordGenerator;
-import com.petshop.models.dto.request.UserDto;
-import com.petshop.models.dto.request.RegisterRequest;
-import com.petshop.models.dto.response.AuthenticationResponse;
+import com.petshop.common.utils.Validation;
+import com.petshop.model.dto.request.RegisterRequest;
+import com.petshop.model.dto.request.UserDto;
+import com.petshop.model.dto.response.AuthenticationResponse;
+import com.petshop.model.dto.response.ResponseObject;
+import com.petshop.model.entity.Token;
+import com.petshop.model.entity.User;
+import com.petshop.services.interfaces.AuthenticationService;
 
-import com.petshop.models.dto.response.ResponseObject;
-
-import com.petshop.models.entities.Token;
-import com.petshop.models.entities.User;
 import com.petshop.repositories.TokenRepository;
 import com.petshop.repositories.UserRepository;
-import com.petshop.common.utils.Validation;
-import com.petshop.services.interfaces.AuthenticationService;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImp implements AuthenticationService {
-    @Autowired
-    private RestTemplate restTemplate;
+
     private final UserRepository userRepository;
     private final JwtServiceImp jwtServiceImp;
     private final TokenRepository tokenRepository;
@@ -50,10 +49,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     private JwtDecoder jwtDecoder;
     @Autowired
     HttpServletRequest request;
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private  String CLIENT_ID ;
-    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
-    private  String CLIENT_SECERT;
+
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()
                 .user(user)
@@ -98,7 +94,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         var jwtToken = jwtServiceImp.generateToken(user);
         var refreshToken = jwtServiceImp.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK,"Register successfully !",AuthenticationResponse.builder().accessToken(jwtToken).refresh_token(refreshToken).build()));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK,"Register successfully !", AuthenticationResponse.builder().accessToken(jwtToken).refresh_token(refreshToken).build()));
     }
     @Override
     public ResponseEntity<ResponseObject> authenticated(UserDto request){

@@ -2,21 +2,23 @@ package com.petshop.services.imp;
 
 import com.petshop.common.constant.Role;
 import com.petshop.common.utils.EmailUtils;
+import com.petshop.common.utils.Validation;
 import com.petshop.mapper.MapperImp.UserMapper;
-import com.petshop.models.dto.request.ChangePasswordRequest;
-import com.petshop.models.dto.request.EditDTO;
-import com.petshop.models.dto.request.UserDto;
-import com.petshop.models.dto.response.ResponseObject;
-import com.petshop.models.dto.response.UserStatusResponse;
-import com.petshop.models.entities.OnlineStatus;
-import com.petshop.models.entities.User;
+import com.petshop.model.dto.request.ChangePasswordRequest;
+import com.petshop.model.dto.request.EditDTO;
+import com.petshop.model.dto.request.UserDto;
+import com.petshop.model.dto.response.ResponseObject;
+import com.petshop.model.dto.response.UserStatusResponse;
+import com.petshop.model.entity.OnlineStatus;
+import com.petshop.model.entity.User;
 import com.petshop.repositories.OnlineStatusRepository;
 import com.petshop.repositories.UserRepository;
-import com.petshop.common.utils.Validation;
 import com.petshop.services.interfaces.UserService;
+
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -129,7 +131,7 @@ public class UserServiceImp implements UserService {
         }
     }
 
-    public ResponseEntity<String> editUser(EditDTO editDTO,Principal connectedUser) {
+    public ResponseEntity<String> editUser(EditDTO editDTO, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         user.setFirst_name(editDTO.getFirstname());
         user.setLast_name(editDTO.getLastname());

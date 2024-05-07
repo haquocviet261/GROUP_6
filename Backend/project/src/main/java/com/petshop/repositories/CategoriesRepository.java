@@ -1,6 +1,7 @@
 package com.petshop.repositories;
 
-import com.petshop.models.entities.Categories;
+
+import com.petshop.model.entity.Categories;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

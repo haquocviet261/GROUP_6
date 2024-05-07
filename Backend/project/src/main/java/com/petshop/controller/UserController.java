@@ -2,14 +2,14 @@ package com.petshop.controller;
 
 
 
-import com.petshop.models.dto.request.ChangePasswordRequest;
+import com.petshop.model.dto.request.ChangePasswordRequest;
+import com.petshop.model.dto.response.ResponseObject;
 
-import com.petshop.models.dto.request.EditDTO;
-import com.petshop.models.dto.request.RegisterRequest;
-import com.petshop.models.dto.request.UserDto;
-import com.petshop.models.dto.response.ResponseObject;
-import com.petshop.models.dto.response.UserStatusResponse;
-import com.petshop.models.entities.User;
+import com.petshop.model.dto.request.EditDTO;
+import com.petshop.model.dto.request.RegisterRequest;
+import com.petshop.model.dto.request.UserDto;
+import com.petshop.model.dto.response.UserStatusResponse;
+import com.petshop.model.entity.User;
 import com.petshop.services.imp.AuthenticationServiceImp;
 import com.petshop.services.imp.UserServiceImp;
 import jakarta.mail.MessagingException;
@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.security.Principal;
@@ -66,7 +65,7 @@ public class UserController {
         return ResponseEntity.ok(userServiceImp.findById(user_id));
     }
     @GetMapping("/edit_user")
-    public ResponseEntity<?> editProfile(@RequestBody EditDTO editDTO,Principal connectedUser){
+    public ResponseEntity<?> editProfile(@RequestBody EditDTO editDTO, Principal connectedUser){
         return ResponseEntity.ok(userServiceImp.editUser(editDTO, connectedUser));
     }
     @MessageMapping("/user.add_user")

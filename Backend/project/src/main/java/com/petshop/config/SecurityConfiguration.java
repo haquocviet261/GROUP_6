@@ -6,7 +6,6 @@ import com.nimbusds.jose.proc.JWSAlgorithmFamilyJWSKeySelector;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import com.petshop.models.dto.response.JwtEntryPoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -53,6 +51,9 @@ public class SecurityConfiguration {
     @Autowired
     private LogoutHandler logoutHandler;
 
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private  String jwkUri;
+
     @Autowired
     public static Logger logger = LoggerFactory.getLogger((SecurityConfiguration.class));
     @Bean
@@ -69,7 +70,8 @@ public class SecurityConfiguration {
                                     .anyRequest()
                                     .authenticated()
 
-                    ).sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED))
+                    )
+                    .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED))
                     .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                     .authenticationProvider(authenticationProvider)
                     .exceptionHandling(entryPoint -> entryPoint.authenticationEntryPoint(jwtEntryPoint))
@@ -95,7 +97,29 @@ public class SecurityConfiguration {
         return source;
     }
 
+    @Bean
+    public JwtDecoder jwtDecoder() throws KeySourceException, MalformedURLException {
+        URL jwkSetUrl;
+        jwkSetUrl = new URL(jwkUri);
+        // makes a request to the JWK Set endpoint
+        JWSKeySelector<SecurityContext> jwsKeySelector =
+                JWSAlgorithmFamilyJWSKeySelector.fromJWKSetURL(jwkSetUrl);
 
+        DefaultJWTProcessor<SecurityContext> jwtProcessor =
+                new DefaultJWTProcessor<>();
+        jwtProcessor.setJWSKeySelector(jwsKeySelector);
+
+        return new NimbusJwtDecoder(jwtProcessor);
+    }
+//    .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->{
+//        httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> {
+//            try {
+//                jwtConfigurer.decoder(jwtDecoder());
+//            } catch (MalformedURLException | KeySourceException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//    })
 
     @Bean
     public RestTemplate getRestTemplate() {

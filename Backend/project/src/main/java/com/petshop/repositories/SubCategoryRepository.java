@@ -1,6 +1,6 @@
 package com.petshop.repositories;
 
-import com.petshop.models.entities.SubCategory;
+import com.petshop.model.entity.SubCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -1,9 +1,9 @@
 package com.petshop.services.interfaces;
 
-import com.petshop.models.dto.request.ChangePasswordRequest;
-import com.petshop.models.dto.response.ResponseObject;
-import com.petshop.models.dto.response.UserStatusResponse;
-import com.petshop.models.entities.User;
+import com.petshop.model.dto.request.ChangePasswordRequest;
+import com.petshop.model.dto.response.ResponseObject;
+import com.petshop.model.dto.response.UserStatusResponse;
+import com.petshop.model.entity.User;
 import org.springframework.http.ResponseEntity;
 
 import java.security.Principal;

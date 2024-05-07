@@ -1,14 +1,12 @@
 package com.petshop.services.imp;
 
-import com.petshop.models.dto.response.ResponseObject;
-import com.petshop.models.entities.SubCategory;
+import com.petshop.model.dto.response.ResponseObject;
 import com.petshop.repositories.SubCategoryRepository;
 import com.petshop.services.interfaces.SubCategoriesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 @Service
 public class SubCategoriesServiceImp implements SubCategoriesService {
     @Autowired

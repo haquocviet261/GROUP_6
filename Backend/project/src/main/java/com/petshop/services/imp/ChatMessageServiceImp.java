@@ -1,8 +1,8 @@
 package com.petshop.services.imp;
 
-import com.petshop.models.entities.ChatMessage;
-import com.petshop.models.entities.ChatNotification;
-import com.petshop.models.entities.Conversation;
+import com.petshop.model.entity.ChatMessage;
+import com.petshop.model.entity.ChatNotification;
+import com.petshop.model.entity.Conversation;
 import com.petshop.repositories.ChatMessageRepository;
 import com.petshop.repositories.ConversationRepository;
 import com.petshop.services.interfaces.ChatMessageService;
@@ -24,6 +24,7 @@ public class ChatMessageServiceImp implements ChatMessageService {
     ConversationServiceImp conversationServiceImp;
     @Autowired
     ConversationRepository conversationRepository;
+
 
     @Override
     public ChatMessage save(ChatMessage chatMessage) {

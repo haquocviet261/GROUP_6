@@ -1,7 +1,7 @@
 package com.petshop.controller;
 
-import com.petshop.models.dto.response.ResponseObject;
-import com.petshop.models.entities.CartItem;
+import com.petshop.model.dto.response.ResponseObject;
+import com.petshop.model.entity.CartItem;
 import com.petshop.services.imp.ShoppingCartServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/add/{user_id}")
-    public ResponseEntity<ResponseObject> addToCart(@RequestBody CartItem cartItem,@PathVariable Long user_id) {
+    public ResponseEntity<ResponseObject> addToCart(@RequestBody CartItem cartItem, @PathVariable Long user_id) {
        return shoppingCartService.addToCart(user_id, cartItem);
     }
     @DeleteMapping("/remove/{userId}/{productId}")

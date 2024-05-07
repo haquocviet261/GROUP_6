@@ -1,10 +1,8 @@
 package com.petshop.services.imp;
 
 
-import com.petshop.models.dto.request.CartItemDTO;
-import com.petshop.models.dto.response.ResponseObject;
-import com.petshop.models.entities.CartItem;
-import com.petshop.models.entities.ShoppingCart;
+import com.petshop.model.dto.response.ResponseObject;
+import com.petshop.model.entity.CartItem;
 import com.petshop.repositories.UserRepository;
 import com.petshop.services.interfaces.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
-public class ShoppingCartServiceImp implements ShoppingCartService{
+public class ShoppingCartServiceImp implements ShoppingCartService {
     private static final String CART_KEY_PREFIX = "cart:";
     @Autowired
     private UserRepository userRepository;

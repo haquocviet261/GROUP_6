@@ -1,6 +1,5 @@
 package com.petshop.controller;
 
-import com.petshop.models.entities.SubCategory;
 import com.petshop.services.imp.SubCategoriesServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

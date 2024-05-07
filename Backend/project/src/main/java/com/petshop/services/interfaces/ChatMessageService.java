@@ -1,6 +1,7 @@
 package com.petshop.services.interfaces;
 
-import com.petshop.models.entities.ChatMessage;
+
+import com.petshop.model.entity.ChatMessage;
 
 import java.util.List;
 

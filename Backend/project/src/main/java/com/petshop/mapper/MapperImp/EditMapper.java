@@ -1,8 +1,8 @@
 package com.petshop.mapper.MapperImp;
 
 import com.petshop.mapper.Mapper;
-import com.petshop.models.dto.request.EditDTO;
-import com.petshop.models.entities.User;
+import com.petshop.model.dto.request.EditDTO;
+import com.petshop.model.entity.User;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;

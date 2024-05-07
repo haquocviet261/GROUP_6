@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class ApplicationConfig {
 
     @Autowired
-    private  UserRepository userRepository;
+    private UserRepository userRepository;
     @Bean
     public UserDetailsService userDetailsService(){
         return username -> userRepository.findByUserName(username)

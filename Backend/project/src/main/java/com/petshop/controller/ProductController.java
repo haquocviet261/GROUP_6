@@ -1,6 +1,6 @@
 package com.petshop.controller;
 
-import com.petshop.models.dto.response.ResponseObject;
+import com.petshop.model.dto.response.ResponseObject;
 import com.petshop.services.imp.ProductServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -18,8 +18,8 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> findProductByName(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "8") int size,@RequestParam String name){
-         return productServiceImp.findByProductNameContainingIgnoreCase(PageRequest.of(page,size),name);
+    public ResponseEntity<?> findProductByName(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "8") Integer size,@RequestParam String name){
+         return productServiceImp.findByProductNameContainingIgnoreCase( page , size,name);
     }
 
     @GetMapping("/sale")
@@ -27,7 +27,7 @@ public class ProductController {
         return productServiceImp.findTopSaleProduct();
     }
     @GetMapping("/random")
-    public ResponseEntity<?> random(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "8") int size){
+    public ResponseEntity<?> random(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "8") Integer size){
         return productServiceImp.findRandomProducts(PageRequest.of(page,size));
     }
 
@@ -37,11 +37,18 @@ public class ProductController {
         return productServiceImp.findProductBySubcategoryId(sub_category_id);
     }
     @GetMapping("/find")// find?subcategory=
-    public ResponseEntity<?> findProductBySubCategoryNameOrProductName(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "8") int size,@RequestParam String subcategory){
-        return productServiceImp.findProductBySubCategoryNameOrProductName(PageRequest.of(page,size),subcategory);
+    public ResponseEntity<?> findProductBySubCategoryNameOrProductName(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size,@RequestParam String subcategory){
+        return productServiceImp.findProductBySubCategoryNameOrProductName(page,size,subcategory);
     }
     @GetMapping("/category")
-    public ResponseEntity<ResponseObject > findProductByCategoryID(@RequestParam Long category_id,@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "8") int size){
-        return productServiceImp.findProductByCategoryID(PageRequest.of(page,size),category_id);
+    public ResponseEntity<ResponseObject> findProductByCategoryID(@RequestParam Long category_id, @RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size){
+        return productServiceImp.findProductByCategoryID(page,size,category_id);
+    }
+    @GetMapping("/mobile/find")
+    public ResponseEntity<ResponseObject> findProductBySearchOption(@RequestParam(required = false) Integer page,
+                                                                    @RequestParam(required = false) Integer size,@RequestParam(required = false) String sort,
+                                                                    @RequestParam(required = false) Double min_price,@RequestParam(required = false) Double max_price,
+                                                                    @RequestParam String search_value){
+        return productServiceImp.findProductBySearchFilter(page,size,sort,min_price,max_price,search_value);
     }
 }

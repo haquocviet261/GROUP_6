@@ -1,14 +1,9 @@
 package com.petshop.common.utils;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 
-import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
