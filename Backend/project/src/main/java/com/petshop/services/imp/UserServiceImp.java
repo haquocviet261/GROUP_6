@@ -148,7 +148,7 @@ public class UserServiceImp implements UserService {
             User user = (User) list.get(i)[0];
             Long status = (Long) list.get(i)[1];
             if (user.getRole() == Role.customer){
-                responses.add(new UserStatusResponse(user.getUsername(),(user.getFirst_name()+" "+user.getLast_name()),user.getImage_src(),status));
+                responses.add(new UserStatusResponse(user.getUser_id(),user.getUsername(),user.getFirst_name(),user.getLast_name(),user.getImage_src(),status));
 
             }
         }
@@ -160,6 +160,18 @@ public class UserServiceImp implements UserService {
         Optional<User> user = userrepository.findByUserName(user_name);
         return user.isPresent() ? ResponseEntity.ok(new ResponseObject("OK","Find user successfully",user.get()))
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Fail","Cannot find user with username:"+user_name,""));
+    }
+    @Override
+    public ResponseEntity<ResponseObject> findByUserID(Long user_id) {
+        Optional<User> user = userrepository.findById(user_id);
+        return user.isPresent() ? ResponseEntity.ok(new ResponseObject("OK","Find user successfully",user.get()))
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Fail","Cannot find user with username:"+user_id,""));
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> getUserWithStatus(Long user_id) {
+        UserStatusResponse userStatusResponse = userrepository.getUserWithStatus(user_id);
+        return ResponseEntity.ok(new ResponseObject("OK","Usser wwith Status: ",userStatusResponse));
     }
 
 }

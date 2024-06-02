@@ -1,5 +1,6 @@
 package com.petshop.repositories;
 
+import com.petshop.model.dto.response.UserStatusResponse;
 import com.petshop.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     public List<User> findAllUserOnline(@Param("status") Long status);
     @Query("select u,u.online_status.status from User u INNER join u.online_status ")
     public List<Object[]> getListUserWithStatus();
+    @Query("select new com.petshop.model.dto.response.UserStatusResponse(u.user_id,u.user_name,u.first_name,u.last_name,u.image_src,s.status) from User u INNER join u.online_status s where u.user_id =:user_id")
+    public UserStatusResponse getUserWithStatus(@Param("user_id") Long user_id);
 }

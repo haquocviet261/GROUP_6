@@ -18,4 +18,6 @@ public interface UserService {
     public List<User> findAllUserOnline();
     public List<UserStatusResponse> getListUserWithStatus();
     public ResponseEntity<ResponseObject> findByUserName(String user_name);
+    ResponseEntity<ResponseObject> getUserWithStatus(Long user_id);
+    ResponseEntity<ResponseObject> findByUserID(Long user_id);
 }

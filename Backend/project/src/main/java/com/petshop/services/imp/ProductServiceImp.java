@@ -39,7 +39,7 @@ public class ProductServiceImp implements ProductService {
         for (int i = 0; i < products.size(); i++) {
             list.add(fromObjectArray(products.get(i)));
         }
-        return ResponseEntity.ok(new ResponseObject("OK","List random top product by paging",products));
+        return ResponseEntity.ok(new ResponseObject("OK","List random top product by paging",list));
     }
 
     @Override
@@ -48,16 +48,16 @@ public class ProductServiceImp implements ProductService {
 
         return ResponseEntity.ok(new ResponseObject("OK","List all products",products));
     }
-    public  ResponseEntity<ResponseObject> findTopSaleProduct(){
-        List<ProductResponse> products = productRepository.findTopSaleProduct();
+    public  ResponseEntity<ResponseObject> findTopSaleProduct(Integer page, Integer size){
+        List<ProductResponse> products = productRepository.findTopSaleProduct(PageRequest.of(page,size));
 
         return ResponseEntity.ok(new ResponseObject("OK","List all products desc",products));
 
     }
 
     @Override
-    public ResponseEntity<ResponseObject> findProductBySubcategoryId(Long sub_category_id) {
-        List<ProductResponse> products = productRepository.findProductBySubcategoryId(sub_category_id);
+    public ResponseEntity<ResponseObject> findProductBySubcategoryId(Integer page, Integer size,Long sub_category_id) {
+        List<ProductResponse> products = productRepository.findProductBySubcategoryId(PageRequest.of(page,size),sub_category_id);
         return ResponseEntity.ok(new ResponseObject("OK","List all products by sub_category_id",products));
     }
 
@@ -101,31 +101,34 @@ public class ProductServiceImp implements ProductService {
 
     private static ProductResponse fromObjectArray(Object[] row) {
         Long productId = (Long) row[0];
-        Long subCategoryId = (Long) row[1];
-        String productName = (String) row[2];
-        int quantity = (int) row[3];
-        double price = (double) row[4];
-        String description = (String) row[5];
-        String productImage = (String) row[6];
-        double discountValue = (row[7] != null) ? (double) row[7] : 0.0;
-        Long category_id =(Long) row[8];
+        Long category_id =(Long) row[1];
+        Long subCategoryId = (Long) row[2];
+        String productName = (String) row[3];
+        int quantity = (int) row[4];
+        double price = (double) row[5];
+        String description = (String) row[6];
+        String productImage = (String) row[7];
+        double discountValue = (row[8] != null) ? (double) row[8] : 0.0;
+
         return new ProductResponse(productId,category_id, subCategoryId, productName, quantity, price, description, productImage, discountValue);
     }
 
-    public ResponseEntity<ResponseObject> findProductBySearchFilter(Integer page, Integer size, String sortOrder, Double minPrice, Double maxPrice, String searchValue) {
+    public ResponseEntity<ResponseObject> findProductBySearchFilter(Integer page, Integer size, String sortOrder, Double minPrice, Double maxPrice,Long selected_category_id, String searchValue) {
 
             if (minPrice != null || maxPrice != null || page != null || size != null){
-                List<ProductResponse> listProductByName = productRepository.findByName(PageRequest.of(page,size),searchValue,sortOrder,minPrice,maxPrice);
-                List<ProductResponse> listProductBySubcategory = productRepository.findBySubCategories(PageRequest.of(page,size),searchValue,sortOrder,minPrice,maxPrice);
-                List<ProductResponse> listFilter = new ArrayList<>();
-                if (!listProductByName.isEmpty()){
 
-                    return ResponseEntity.ok(new ResponseObject("OK","List product By Name",listProductByName));
+                List<ProductResponse> listProductByName = productRepository.findByName(PageRequest.of(page,size),searchValue,sortOrder,minPrice,maxPrice,selected_category_id);
+                List<ProductResponse> listProductBySubcategory = productRepository.findBySubCategories(PageRequest.of(page,size),searchValue,sortOrder,minPrice,maxPrice,selected_category_id);
+                if (!listProductByName.isEmpty()){
+                        return ResponseEntity.ok(new ResponseObject("OK","List product By Name",listProductByName));
                 }
                 if (!listProductBySubcategory.isEmpty()){
-                    return ResponseEntity.ok(new ResponseObject("OK","List product by Name",listProductBySubcategory));
+                        return ResponseEntity.ok(new ResponseObject("OK","List product By Name",listProductBySubcategory));
                 }
             }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("False","Cannot find product with name: "+searchValue,null));
+    }
+    public ResponseEntity<ResponseObject> findById(Long product_id){
+        return  ResponseEntity.ok(new ResponseObject("OK","Product by id"+product_id,productRepository.findByProduct_id(product_id)));
     }
 }

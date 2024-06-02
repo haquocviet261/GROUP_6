@@ -1,12 +1,12 @@
 package com.petshop.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -21,14 +21,15 @@ public class Conversation  {
     private String conversation_id;
     @Column(name = "status")
     private Integer status;
-    @JsonIgnore
+    private String last_message;
+    @Column(columnDefinition = "DATETIME2 DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
+    private LocalDateTime last_message_timestamp;
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id", nullable = false)
-    private User user;
-    @OneToMany(mappedBy = "conversation")
-    private List<ChatMessage> messages;
-    @JsonIgnore
+    private User sender;
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
-    private User admin;
+    private User receiver;
 }

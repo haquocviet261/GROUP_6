@@ -146,6 +146,8 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 user = checkMailExist.get();
                 jwt = jwtServiceImp.generateToken(user);
                 refreshToken = jwtServiceImp.generateRefreshToken(user);
+                revokeAllUserTokens(user);
+                saveUserToken(user, jwt);
                 return ResponseEntity.ok(new ResponseObject("OK","Handle authorization code and state successfully!",AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
             }else {
                 String email =  userInfor.get("email").toString().trim();

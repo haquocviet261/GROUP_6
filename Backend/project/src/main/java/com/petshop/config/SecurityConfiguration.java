@@ -60,12 +60,15 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
             http.cors(Customizer.withDefaults())
-                    .csrf(AbstractHttpConfigurer::disable)
+                    .csrf(csrf -> csrf
+                            // ignore our stomp endpoints since they are protected using Stomp headers
+                            .ignoringRequestMatchers("/**")
+                    )
                     .headers(headers -> headers
                             .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                     ).authorizeHttpRequests(authorizeRequests ->
                             authorizeRequests
-                                    .requestMatchers("api/user/**","/api/subcategory/**","api/product/**","/**").permitAll()
+                                    .requestMatchers("api/user/**","/**").permitAll()
                                     .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
                                     .anyRequest()
                                     .authenticated()

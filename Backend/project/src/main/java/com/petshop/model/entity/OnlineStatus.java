@@ -2,10 +2,7 @@ package com.petshop.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
@@ -20,6 +17,7 @@ public class OnlineStatus {
     private Long id;
     @Column(name = "status")
     private Long status;
+    @ToString.Exclude
     @JsonIgnore
     @OneToOne
     @MapsId

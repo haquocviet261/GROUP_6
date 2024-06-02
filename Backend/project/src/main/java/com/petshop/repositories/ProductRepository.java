@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product,Long> {
     @Query(value = "SELECT p.product_id,s.category_id, p.sub_category_id, p.product_name, p.quantity, p.price, " +
-            "p.description, p.product_image, d.discount_value" +
+            "p.description, p.product_image, d.discount_value " +
             "FROM products p LEFT JOIN discount d ON p.discount_id = d.discount_id " +
             "INNER JOIN sub_categories s ON p.sub_category_id = s.sub_category_id " +
             "ORDER BY NEWID()", nativeQuery = true)
@@ -34,12 +34,12 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     @Query("select new com.petshop.model.dto.response.ProductResponse(p.product_id, p.subCategory.category.category_id," +
             "p.subCategory.sub_category_id, p.product_name, p.quantity, p.price, p.description, p.image, sc.discount_value)  " +
             "FROM Product p JOIN p.discount sc   ORDER BY sc.discount_value DESC")
-    List<ProductResponse> findTopSaleProduct();
+    List<ProductResponse> findTopSaleProduct(Pageable pageable);
 
     @Query("select new com.petshop.model.dto.response.ProductResponse(p.product_id, p.subCategory.category.category_id, " +
             "p.subCategory.sub_category_id, p.product_name, p.quantity, p.price, p.description, p.image, d.discount_value) " +
             " FROM Product p LEFT JOIN p.discount d WHERE p.subCategory.sub_category_id = :sub_category_id ")
-    List<ProductResponse> findProductBySubcategoryId(@Param("sub_category_id") Long sub_category_id);
+    List<ProductResponse> findProductBySubcategoryId(Pageable pageable,@Param("sub_category_id") Long sub_category_id);
 
     @Query("select new com.petshop.model.dto.response.ProductResponse(p.product_id, p.subCategory.category.category_id, " +
             "p.subCategory.sub_category_id, p.product_name, p.quantity, p.price, p.description, p.image, d.discount_value) " +
@@ -73,12 +73,31 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     @Query("select new com.petshop.model.dto.response.ProductResponse(" +
             "p.product_id, p.subCategory.category.category_id, p.subCategory.sub_category_id, " +
             "p.product_name, p.quantity, p.price, p.description, p.image, d.discount_value) " +
-            "from Product p LEFT JOIN p.discount d where p.product_name like %:product_name% and p.price BETWEEN :minPrice AND :maxPrice " +
-            "order by case when :sortOrder = 'Desc' then p.price end desc, case when :sortOrder = 'Asc' then p.price end asc ")
-    List<ProductResponse> findByName(Pageable pageable, @Param("product_name") String product_name, @Param("sortOrder") String sortOrder,@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice);
+            "from Product p LEFT JOIN p.discount d " +
+            "where p.product_name like %:product_name% and p.price BETWEEN :minPrice AND :maxPrice " +
+            "and (:category_id = 0 or p.subCategory.category.category_id = :category_id) " +
+            "order by case when :sortOrder = 'Desc' then p.price end desc, " +
+            "case when :sortOrder = 'Asc' then p.price end asc ")
+    List<ProductResponse> findByName(Pageable pageable,
+                                     @Param("product_name") String product_name,
+                                     @Param("sortOrder") String sortOrder,
+                                     @Param("minPrice") Double minPrice,
+                                     @Param("maxPrice") Double maxPrice,
+                                     @Param("category_id") Long category_id);
 
-    @Query("select  new com.petshop.model.dto.response.ProductResponse(p.product_id,p.subCategory.category.category_id,p.subCategory.sub_category_id,p.product_name,p.quantity,p.price,p.description,p.image, d.discount_value) from Product p join p.subCategory s LEFT JOIN p.discount d  where p.subCategory.sub_category_name like %:sub_category_name% and p.price BETWEEN :minPrice AND :maxPrice " +
-            "order by case when :sortOrder = 'Desc' then p.price end desc, case when :sortOrder = 'Asc' then p.price end asc ")
-    List<ProductResponse> findBySubCategories(Pageable pageable, @Param("sub_category_name") String sub_category_name, @Param("sortOrder") String sortOrder,@Param("minPrice") Double minPrice, @Param("maxPrice") Double maxPrice);
+    @Query("select  new com.petshop.model.dto.response.ProductResponse(p.product_id,p.subCategory.category.category_id,p.subCategory.sub_category_id,p.product_name,p.quantity,p.price,p.description,p.image, d.discount_value) " +
+            "from Product p join p.subCategory s LEFT JOIN p.discount d " +
+            "where p.subCategory.sub_category_name like %:sub_category_name% " +
+            "and p.price BETWEEN :minPrice AND :maxPrice " +
+            "and (:category_id = 0 or p.subCategory.category.category_id = :category_id) " +
+            "order by case when :sortOrder = 'Desc' then p.price end desc, " +
+            "case when :sortOrder = 'Asc' then p.price end asc ")
+    List<ProductResponse> findBySubCategories(Pageable pageable,
+                                              @Param("sub_category_name") String sub_category_name,
+                                              @Param("sortOrder") String sortOrder,
+                                              @Param("minPrice") Double minPrice,
+                                              @Param("maxPrice") Double maxPrice,
+                                              @Param("category_id") Long category_id);
+
 }
 

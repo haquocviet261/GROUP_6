@@ -23,8 +23,13 @@ public class ProductController {
     }
 
     @GetMapping("/sale")
-    public ResponseEntity<?> sale(){
-        return productServiceImp.findTopSaleProduct();
+    public ResponseEntity<ResponseObject> sale(@RequestParam(defaultValue = "1",required = false) Integer page
+                                                ,@RequestParam(defaultValue = "8",required = false) Integer size){
+        return productServiceImp.findTopSaleProduct(page, size);
+    }
+    @GetMapping("/{product_id}")
+    public ResponseEntity<ResponseObject>findById(@PathVariable(name = "product_id") Long product_id){
+       return productServiceImp.findById(product_id);
     }
     @GetMapping("/random")
     public ResponseEntity<?> random(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "8") Integer size){
@@ -32,9 +37,10 @@ public class ProductController {
     }
 
     @GetMapping("/sub_category_id")// sub_category_id?sub_category_id=
-    public ResponseEntity<?> findProductBySubCategoryId(@RequestParam Long sub_category_id){
+    public ResponseEntity<?> findProductBySubCategoryId(@RequestParam(required = false) Integer page,
+                                                        @RequestParam(required = false) Integer size,@RequestParam Long sub_category_id){
 
-        return productServiceImp.findProductBySubcategoryId(sub_category_id);
+        return productServiceImp.findProductBySubcategoryId(page,size,sub_category_id);
     }
     @GetMapping("/find")// find?subcategory=
     public ResponseEntity<?> findProductBySubCategoryNameOrProductName(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer size,@RequestParam String subcategory){
@@ -46,9 +52,11 @@ public class ProductController {
     }
     @GetMapping("/mobile/find")
     public ResponseEntity<ResponseObject> findProductBySearchOption(@RequestParam(required = false) Integer page,
-                                                                    @RequestParam(required = false) Integer size,@RequestParam(required = false) String sort,
-                                                                    @RequestParam(required = false) Double min_price,@RequestParam(required = false) Double max_price,
+                                                                    @RequestParam(required = false) Integer size,
+                                                                    @RequestParam String sort,
+                                                                    @RequestParam Double min_price,Double max_price,
+                                                                    @RequestParam(required = false) Long selected_category_id,
                                                                     @RequestParam String search_value){
-        return productServiceImp.findProductBySearchFilter(page,size,sort,min_price,max_price,search_value);
+        return productServiceImp.findProductBySearchFilter(page,size,sort,min_price,max_price,selected_category_id,search_value);
     }
 }

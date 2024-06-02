@@ -20,14 +20,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.annotation.SendToUser;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
+import java.util.Objects;
 
-@RestController
+@Controller
 @RequestMapping("api/user")
 public class UserController {
+
     @Autowired
     private UserServiceImp userServiceImp;
     @Autowired
@@ -69,18 +73,18 @@ public class UserController {
         return ResponseEntity.ok(userServiceImp.editUser(editDTO, connectedUser));
     }
     @MessageMapping("/user.add_user")
-    @SendTo("/topic")
-    public User addUser(@Payload Long user_id){
-        userServiceImp.saveOnlineStatusUser(user_id);
-        ResponseEntity<ResponseObject> user = userServiceImp.findById(user_id);
-        return (User) user.getBody().getData();
+    @SendTo("/user/public")
+    public UserStatusResponse addUser(@Payload Long sender_id){
+        userServiceImp.saveOnlineStatusUser(sender_id);
+        ResponseEntity<ResponseObject> user = userServiceImp.getUserWithStatus(sender_id);
+        return (UserStatusResponse) Objects.requireNonNull(user.getBody()).getData();
     }
     @MessageMapping("/user.disconnect")
-    @SendTo("/topic")
-    public User disconnect(@Payload Long user_id){
-        userServiceImp.disconnect(user_id);
-        ResponseEntity<ResponseObject> user = userServiceImp.findById(user_id);
-        return (User) user.getBody().getData();
+    @SendTo("/user/public")
+    public UserStatusResponse disconnect(@Payload Long sender_id){
+        userServiceImp.disconnect(sender_id);
+        ResponseEntity<ResponseObject> user = userServiceImp.getUserWithStatus(sender_id);
+        return (UserStatusResponse) Objects.requireNonNull(user.getBody()).getData();
     }
     @GetMapping("/online_user")
     public ResponseEntity<List<UserStatusResponse>> findOnlineUser(){
@@ -103,5 +107,8 @@ public class UserController {
     public ResponseEntity<ResponseObject> findUserByUserName(@RequestParam String user_name){
         return userServiceImp.findByUserName(user_name);
     }
-
+    @GetMapping("/{user_id}")
+    public ResponseEntity<ResponseObject> findUserByUserID(@PathVariable Long user_id){
+        return userServiceImp.findByUserID(user_id);
+    }
 }

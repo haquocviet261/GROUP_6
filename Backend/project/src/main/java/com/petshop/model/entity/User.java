@@ -3,10 +3,7 @@ package com.petshop.model.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.petshop.common.constant.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,7 +31,7 @@ public class User implements UserDetails {
     private String first_name;
     @Column(name = "lastname", nullable = false)
     private String last_name;
-    @Column(name = "phone_number", nullable = true)
+    @Column(name = "phone_number")
     private String phone_number;
     @Column(name = "date_of_birth")
     private Date date_of_birth;
@@ -50,17 +47,25 @@ public class User implements UserDetails {
     @Column(name = "images_src")
     private String image_src;
     @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private List<Token> tokens;
     @JsonIgnore
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     List<FeedBack> feedBacks;
     @JsonIgnore
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private OnlineStatus online_status;
+    @ToString.Exclude
+    @OneToMany(mappedBy = "sender",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    List<Conversation> sentConversations;
     @JsonIgnore
-    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
-    private List<Conversation> adminConversations;
+    @ToString.Exclude
+    @OneToMany(mappedBy = "receiver",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    List<Conversation> receivedConversations;
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    private OnlineStatus online_status;
     public User(String UserName, String Password) {
         this.user_name = UserName;
         this.password = Password;
@@ -87,12 +92,11 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
-    @JsonIgnore
+
     @Override
     public String getPassword() {
         return password;
     }
-    @JsonIgnore
 
     @Override
     public String getUsername() {
