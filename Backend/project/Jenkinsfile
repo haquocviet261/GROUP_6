@@ -10,8 +10,10 @@ pipeline {
         }
         stage('Build') {
             steps {
-
-                sh 'mvn clean install'
+                dir('Backend/project') {
+                    // Execute Maven command
+                    sh 'mvn clean install'
+                }
             }
         }
         stage('Deploy') {
