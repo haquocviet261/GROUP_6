@@ -1,0 +1,35 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+
+                git 'git@github.com:haquocviet261/PetShopServer.git'
+            }
+        }
+        stage('Build') {
+            steps {
+
+                sh 'mvn clean install'
+            }
+        }
+        stage('Deploy') {
+            steps {
+
+                sh 'java -jar .Backend/project/target/project-0.0.1-SNAPSHOT.jar app.jar'
+            }
+        }
+    }
+
+    post {
+        success {
+
+            echo 'Build successfully!'
+        }
+        failure {
+
+            echo 'Build false!'
+        }
+    }
+}
