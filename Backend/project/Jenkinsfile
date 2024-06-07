@@ -15,8 +15,9 @@ pipeline {
         }
         stage('Build') {
             steps {
-                dir('Backend/project') { // Sử dụng đường dẫn tương đối
-                    sh './mvnw clean install'
+                dir('/var/jenkins_home/workspace/Pet_Shop_Server/Backend/project') { // Sử dụng đường dẫn tương đối
+                   sh 'chmod +x mvnw'
+                   sh './mvnw clean install'
                 }
             }
         }
