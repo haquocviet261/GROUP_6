@@ -73,15 +73,7 @@ public class SecurityConfiguration {
                                     .anyRequest()
                                     .authenticated()
 
-                    ).oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->{
-                        httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> {
-                            try {
-                                jwtConfigurer.decoder(jwtDecoder());
-                            } catch (MalformedURLException | KeySourceException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
-                    })
+                    )
                     .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED))
                     .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                     .authenticationProvider(authenticationProvider)
@@ -122,7 +114,15 @@ public class SecurityConfiguration {
 
         return new NimbusJwtDecoder(jwtProcessor);
     }
-
+//.oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->{
+//        httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> {
+//            try {
+//                jwtConfigurer.decoder(jwtDecoder());
+//            } catch (MalformedURLException | KeySourceException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//    })
 
     @Bean
     public RestTemplate getRestTemplate() {
