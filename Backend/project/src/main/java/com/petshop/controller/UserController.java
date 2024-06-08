@@ -70,15 +70,15 @@ public class UserController {
     public ResponseEntity<?> editProfile(@RequestBody EditDTO editDTO, Principal connectedUser){
         return ResponseEntity.ok(userServiceImp.editUser(editDTO, connectedUser));
     }
-    @MessageMapping("/user.add_user")
-    @SendTo("/user/public")
+    @MessageMapping("api/user.add_user")
+    @SendTo("api/user/public")
     public UserStatusResponse addUser(@Payload Long sender_id){
         userServiceImp.saveOnlineStatusUser(sender_id);
         ResponseEntity<ResponseObject> user = userServiceImp.getUserWithStatus(sender_id);
         return (UserStatusResponse) Objects.requireNonNull(user.getBody()).getData();
     }
     @MessageMapping("/user.disconnect")
-    @SendTo("/user/public")
+    @SendTo("api/user/public")
     public UserStatusResponse disconnect(@Payload Long sender_id){
         userServiceImp.disconnect(sender_id);
         ResponseEntity<ResponseObject> user = userServiceImp.getUserWithStatus(sender_id);
