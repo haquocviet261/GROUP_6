@@ -44,14 +44,14 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         log.info("Registered Stomp endpoint");
-        registry.addEndpoint("/api/ws").setAllowedOrigins("*");
+        registry.addEndpoint("/ws").setAllowedOrigins("*");
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/api/app");
-        registry.enableSimpleBroker("/api/user");
-        registry.setUserDestinationPrefix("/api/user");
+        registry.setApplicationDestinationPrefixes("/app");
+        registry.enableSimpleBroker("/user");
+        registry.setUserDestinationPrefix("/user");
     }
 
     @Override
