@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import java.io.IOException;
 
 public interface AuthenticationService {
-    public ResponseEntity<ResponseObject> register(RegisterRequest request);
-    public ResponseEntity<ResponseObject> authenticated(UserDto request);
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
+     ResponseEntity<ResponseObject> register(RegisterRequest request);
+     ResponseEntity<ResponseObject> authenticated(UserDto request);
+     void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
 }

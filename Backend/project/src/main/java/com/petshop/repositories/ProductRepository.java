@@ -30,7 +30,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
 
     @Override
     List<Product> findAll();
-
+   // @Query("select new com.petshop.model.dto.response.ProductResponse(p.product_id,suc,.....) from Product p join p.discount d")
     @Query("select new com.petshop.model.dto.response.ProductResponse(p.product_id, p.subCategory.category.category_id," +
             "p.subCategory.sub_category_id, p.product_name, p.quantity, p.price, p.description, p.image, sc.discount_value)  " +
             "FROM Product p JOIN p.discount sc   ORDER BY sc.discount_value DESC")

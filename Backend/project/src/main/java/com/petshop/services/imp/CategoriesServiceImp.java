@@ -13,6 +13,7 @@ public class CategoriesServiceImp implements CategoriesService {
     CategoriesRepository categoriesRepository;
     @Override
     public ResponseEntity<ResponseObject> findAll() {
+
         return ResponseEntity.ok(new ResponseObject("OK","Get all Categories successfully",categoriesRepository.findAll()));
     }
 }

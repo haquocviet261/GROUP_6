@@ -69,8 +69,8 @@ public class User implements UserDetails {
     public User(String UserName, String Password) {
         this.user_name = UserName;
         this.password = Password;
-    }
 
+    }
 
     public User(String UserName, String Password, String FirstName, String last_name, String phone_number, Date date_of_birth, String Email, String Address) {
         this.user_name = UserName;
@@ -84,8 +84,6 @@ public class User implements UserDetails {
         role = Role.customer;
         status = 1;
     }
-
-
 
     @JsonIgnore
     @Override
@@ -122,7 +120,5 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-
 
 }

@@ -2,6 +2,8 @@ package com.petshop.controller;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("api/admin")
 public class AdminController {
