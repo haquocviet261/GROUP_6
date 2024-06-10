@@ -1,12 +1,18 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = 'pet-shop-image'
+        DOCKER_REGISTRY = 'pet-shop-registry'
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+    }
+
     stages {
         stage('Checkout') {
             steps {
                 checkout([
                     $class: 'GitSCM',
-                    branches: [[name: '*/viet']], // Đảm bảo sử dụng nhánh 'viet'
+                    branches: [[name: '*/viet']],
                     userRemoteConfigs: [
                         [url: 'git@github.com:haquocviet261/PetShopServer.git']
                     ]
@@ -15,15 +21,43 @@ pipeline {
         }
         stage('Build') {
             steps {
-                dir('/var/jenkins_home/workspace/Pet_Shop_Server/Backend/project') {
-                   sh 'chmod +x mvnw'
-                   sh './mvnw clean install'
+                dir('Backend/project') {
+                    sh 'chmod +x mvnw'
+                    sh './mvnw clean install'
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                dir('Backend/project') {
+                    script {
+                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
+                    }
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Login vào Docker registry
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh "echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin"
+                    }
+
+                    // Push Docker image lên Docker registry
+                    sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                    sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
                 }
             }
         }
         stage('Deploy') {
             steps {
-               sh 'nohup java -jar /var/jenkins_home/workspace/Pet_Shop_Server/Backend/project/target/project-0.0.1-SNAPSHOT.jar > output.log 2>&1 &'
+                dir('Backend/project') {
+                    script {
+                        sh 'docker-compose down'
+                        sh 'docker-compose up -d'
+                    }
+                }
             }
         }
     }
@@ -34,6 +68,12 @@ pipeline {
         }
         failure {
             echo 'Build failed!'
+        }
+        always {
+            script {
+                sh "docker rm -f myapp || true"
+                sh "docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} || true"
+            }
         }
     }
 }
