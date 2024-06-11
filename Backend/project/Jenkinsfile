@@ -47,7 +47,9 @@ pipeline {
                 script {
                     // Login vào Docker registry
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "echo ${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u ${DOCKER_USERNAME} --password-stdin"
+                        sh """
+                        echo \${DOCKER_PASSWORD} | docker login ${DOCKER_REGISTRY} -u \${DOCKER_USERNAME} --password-stdin
+                        """
                     }
 
                     // Push Docker image lên Docker registry
