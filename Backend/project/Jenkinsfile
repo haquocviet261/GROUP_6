@@ -77,7 +77,7 @@ pipeline {
         }
         always {
             script {
-                sh "docker rm -f myapp || true"
+                sh "docker rm -f app || true"
                 sh "docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} || true"
             }
         }
