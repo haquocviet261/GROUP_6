@@ -5,12 +5,16 @@ pipeline {
         DOCKER_REGISTRY = 'pet-shop-registry'
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
     }
-
+      stages {
+             stage('Initialize') {
+                 steps {
+                     script {
+                         def dockerHome = tool 'Docker'
+                         env.PATH = "${dockerHome}/bin:${env.PATH}"
+                     }
+                 }
+             }
     stages {
-        stage('Initialize'){
-                def dockerHome = tool 'Docker'
-                env.PATH = "${dockerHome}/bin:${env.PATH}"
-            }
         stage('Checkout') {
             steps {
                 checkout([
