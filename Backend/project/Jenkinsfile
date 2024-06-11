@@ -47,7 +47,7 @@ pipeline {
             steps {
                 script {
                     // Push Docker image lên Docker registry
-                    withDockerRegistry(credentialsId: 'DOCKER_CREDENTIALS_ID', toolName: 'Docker', url: 'https://index.docker.io/v1/') {
+                    withDockerRegistry(credentialsId: 'haquocviet', toolName: 'Docker', url: 'https://index.docker.io/v1/') {
                         sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
                         sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
                     }
