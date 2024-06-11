@@ -3,6 +3,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'app'
         DOCKER_REGISTRY = 'pet-shop-registry'
+
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
     }
     stages {
@@ -48,7 +49,7 @@ pipeline {
                     // Login vào Docker registry
                     withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh """
-                        docker login -u ${haquocviet261} -p ${0868046261} ${DOCKER_REGISTRY}
+                        docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}
                         """
                     }
 
