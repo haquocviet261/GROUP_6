@@ -2,9 +2,8 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = 'app'
-        DOCKER_REGISTRY = 'pet-shop-registry'
+        DOCKER_REGISTRY = 'haquocviet'
 
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
     }
     stages {
         stage('Initialize') {
