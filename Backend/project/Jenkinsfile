@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        docker { image 'docker:latest' }
+    }
 
     environment {
         DOCKER_IMAGE = 'pet-shop-image'
