@@ -46,14 +46,6 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    // Login vào Docker registry
-                    withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        // Use the credentials to log in to Docker registry
-                        script {
-                            sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}"
-                        }
-                    }
-
                     // Push Docker image lên Docker registry
                     withDockerRegistry(credentialsId: 'dockerhub-credentials', toolName: 'Docker', url: 'https://index.docker.io/v1/') {
                         sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
