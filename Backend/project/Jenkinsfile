@@ -1,9 +1,7 @@
 pipeline {
-    agent {
-            label 'Docker'
-        }
+    agent any
     environment {
-        DOCKER_IMAGE = 'pet-shop-image'
+        DOCKER_IMAGE = 'app'
         DOCKER_REGISTRY = 'pet-shop-registry'
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
     }
