@@ -65,4 +65,16 @@ pipeline {
 
     post {
         success {
-            echo '
+            echo 'Build successfully!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+        always {
+            script {
+                sh "docker rm -f ${DOCKER_IMAGE} || true"
+                sh "docker rmi ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER} || true"
+            }
+        }
+    }
+}
