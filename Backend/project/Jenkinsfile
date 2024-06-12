@@ -58,8 +58,8 @@ pipeline {
             steps {
                 dir('Backend/project') {
                     script {
-                        sh 'docker-compose down'
-                        sh 'docker-compose up -d'
+                        sh 'Docker-compose down'
+                        sh 'Docker-compose up -d'
                     }
                 }
             }
