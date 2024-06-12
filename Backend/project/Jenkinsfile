@@ -89,7 +89,7 @@ pipeline {
             steps {
                 dir('Backend/project') {
                     script {
-                        sh 'ls -l'
+                        sh 'which docker-compose || { echo " Cannot find docker-compose."; exit 1; }'
                         sh 'docker-compose down'
                         sh 'docker-compose up -d'
                     }
