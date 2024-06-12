@@ -16,24 +16,24 @@ pipeline {
         }
         stage('Install Docker Compose') {
                steps {
-                   script {
+                   dir('Backend/project') {
+                       script {
                        // Check if docker-compose is already installed
-                       def dockerComposeInstalled = sh(script: 'command -v docker-compose', returnStatus: true) == 0
+                            def dockerComposeInstalled = sh(script: 'command -v docker-compose', returnStatus: true) == 0
 
-                       if (!dockerComposeInstalled) {
-                           echo 'Docker Compose not found, installing...'
-                           sh '''
-                               curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
-                               chmod +x ~/docker-compose
-                               mkdir -p ~/.local/bin
-                               mv ~/docker-compose ~/.local/bin/docker-compose
-                           '''
+                            if (!dockerComposeInstalled) {
+                                echo 'Docker Compose not found, installing...'
+                                sh '''
+                                    curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
+                                    chmod +x ~/docker-compose
+                                    mkdir -p ~/.local/bin
+                                     mv ~/docker-compose ~/.local/bin/docker-compose
+                                '''
                        } else {
                            echo 'Docker Compose is already installed.'
                        }
-
-                       // Verify installation
                        sh '~/.local/bin/docker-compose --version'
+                       }
                    }
                }
 
