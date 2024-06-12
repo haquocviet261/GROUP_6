@@ -14,8 +14,7 @@ pipeline {
                 }
             }
         }
-   stages {
-           stage('Install Docker Compose') {
+        stage('Install Docker Compose') {
                steps {
                    script {
                        // Check if docker-compose is already installed
@@ -38,7 +37,7 @@ pipeline {
                    }
                }
            }
-   }
+       }
 
         stage('Checkout') {
             steps {
