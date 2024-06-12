@@ -14,27 +14,29 @@ pipeline {
                 }
             }
         }
-    stage('Install Docker Compose') {
-        steps {
-            script {
-                // Check if docker-compose is already installed
-                def dockerComposeInstalled = sh(script: 'command -v docker-compose', returnStatus: true) == 0
+   stage('Install Docker Compose') {
+       steps {
+           script {
+               // Check if docker-compose is already installed
+               def dockerComposeInstalled = sh(script: 'command -v docker-compose', returnStatus: true) == 0
 
-                if (!dockerComposeInstalled) {
-                    echo 'Docker Compose not found, installing...'
-                    sh '''
-                        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-                        sudo chmod +x /usr/local/bin/docker-compose
-                    '''
-                } else {
-                    echo 'Docker Compose is already installed.'
-                }
+               if (!dockerComposeInstalled) {
+                   echo 'Docker Compose not found, installing...'
+                   sh '''
+                       curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
+                       chmod +x ~/docker-compose
+                       mkdir -p ~/.local/bin
+                       mv ~/docker-compose ~/.local/bin/docker-compose
+                   '''
+               } else {
+                   echo 'Docker Compose is already installed.'
+               }
 
-                // Verify installation
-                sh 'docker-compose --version'
-            }
-        }
-    }
+               // Verify installation
+               sh '~/.local/bin/docker-compose --version'
+           }
+       }
+   }
         stage('Checkout') {
             steps {
                 checkout([
