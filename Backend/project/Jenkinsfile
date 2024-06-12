@@ -36,8 +36,8 @@ pipeline {
                        sh '~/.local/bin/docker-compose --version'
                    }
                }
-           }
-       }
+
+        }
 
         stage('Checkout') {
             steps {
