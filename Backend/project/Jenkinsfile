@@ -15,8 +15,11 @@ pipeline {
             }
         }
    stage('Install Docker Compose') {
+   withEnv(['PATH+~/.local/bin']) {
+
        steps {
            script {
+
                // Check if docker-compose is already installed
                def dockerComposeInstalled = sh(script: 'command -v docker-compose', returnStatus: true) == 0
 
@@ -36,6 +39,7 @@ pipeline {
                sh '~/.local/bin/docker-compose --version'
            }
        }
+                     }
    }
         stage('Checkout') {
             steps {
