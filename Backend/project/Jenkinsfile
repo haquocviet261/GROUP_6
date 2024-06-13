@@ -31,6 +31,7 @@ pipeline {
                         } else {
                             echo 'Docker Compose is already installed.'
                         }
+                        // Ensure the updated PATH is used
                         sh 'export PATH=$PATH:~/.local/bin:/var/jenkins_home/.local/bin'
                         sh '~/.local/bin/docker-compose --version'
                     }
@@ -85,9 +86,12 @@ pipeline {
             steps {
                 dir('Backend/project') {
                     script {
-                        sh 'if ! command -v docker-compose; then echo "docker-compose not found"; exit 1; fi'
-                        sh '~/.local/bin/docker-compose down'
-                        sh '~/.local/bin/docker-compose up -d'
+                        sh '''
+                            export PATH=$PATH:~/.local/bin:/var/jenkins_home/.local/bin
+                            if ! command -v docker-compose; then echo "docker-compose not found"; exit 1; fi
+                            docker-compose down
+                            docker-compose up -d
+                        '''
                     }
                 }
             }
