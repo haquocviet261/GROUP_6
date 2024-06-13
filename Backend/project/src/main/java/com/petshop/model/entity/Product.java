@@ -21,6 +21,7 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "sub_category_id")
     private SubCategory subCategory;
+    @Column(name = "product_name")
     private String product_name;
     private int quantity;
     private double price;

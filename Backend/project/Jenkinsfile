@@ -23,7 +23,7 @@ pipeline {
                         if (!dockerComposeInstalled) {
                             echo 'Docker Compose not found, installing...'
                             sh '''
-                                curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
+                                curl -L "https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
                                 chmod +x ~/docker-compose
                                 mkdir -p ~/.local/bin
                                 mv ~/docker-compose ~/.local/bin/docker-compose

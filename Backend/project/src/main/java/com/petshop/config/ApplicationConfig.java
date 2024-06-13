@@ -24,8 +24,8 @@ public class ApplicationConfig {
     private UserRepository userRepository;
     @Bean
     public UserDetailsService userDetailsService(){
-        return username -> userRepository.findByUserName(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Name not found !"));
+        return username -> userRepository.findById(Long.parseLong(username))
+                .orElseThrow(() -> new UsernameNotFoundException("User ID not found !"));
     }
     @Bean
     public AuthenticationProvider authenticationProvider(){
@@ -34,12 +34,7 @@ public class ApplicationConfig {
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }
-//    @Bean
-//    public ObjectMapper objectMapper() {
-//        ObjectMapper mapper = new ObjectMapper();
-//        mapper.registerModule(new JavaTimeModule());
-//        return mapper;
-//    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

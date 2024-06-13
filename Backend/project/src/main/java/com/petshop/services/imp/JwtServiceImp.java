@@ -1,6 +1,7 @@
 package com.petshop.services.imp;
 
 
+import com.petshop.model.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -60,7 +61,7 @@ public class JwtServiceImp {
                 .builder()
                 .setClaims(extraClaims)
                 .setIssuer("http://localhost:9999")
-                .setSubject(userDetails.getUsername())
+                .setSubject(String.valueOf(((User) userDetails).getUser_id()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)

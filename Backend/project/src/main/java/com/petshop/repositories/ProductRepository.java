@@ -27,7 +27,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
             "            p.product_id, p.subCategory.category.category_id, p.subCategory.sub_category_id, " +
             "            p.product_name, p.quantity, p.price, p.description, p.image, d.discount_value)  FROM Product p LEFT JOIN p.discount d  WHERE  p.subCategory.category.category_id IN (SELECT s.category.category_id FROM SubCategory s WHERE s.category.category_id = :category_id)")
     List<ProductResponse> findProductByCategory(@Param("category_id") Long category_id);
-
+    @Query("select p.product_name from Product p")
     @Override
     List<Product> findAll();
    // @Query("select new com.petshop.model.dto.response.ProductResponse(p.product_id,suc,.....) from Product p join p.discount d")

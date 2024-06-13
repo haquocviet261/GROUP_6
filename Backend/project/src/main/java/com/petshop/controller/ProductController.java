@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/product")
 public class ProductController {
     @Autowired
-    ProductServiceImp productServiceImp;
+    ProductServiceImp productServiceImp = new ProductServiceImp();
     @GetMapping("/all")
     public ResponseEntity<?> getAll(){
         return productServiceImp.findAll();
@@ -25,6 +25,7 @@ public class ProductController {
     @GetMapping("/sale")
     public ResponseEntity<ResponseObject> sale(@RequestParam(defaultValue = "1",required = false) Integer page
                                                 ,@RequestParam(defaultValue = "8",required = false) Integer size){
+
         return productServiceImp.findTopSaleProduct(page, size);
     }
     @GetMapping("/{product_id}")

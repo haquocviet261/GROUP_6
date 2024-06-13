@@ -9,12 +9,15 @@ import com.petshop.model.dto.request.EditDTO;
 import com.petshop.model.dto.request.RegisterRequest;
 import com.petshop.model.dto.request.UserDto;
 import com.petshop.model.dto.response.UserStatusResponse;
+import com.petshop.model.entity.User;
+import com.petshop.repositories.UserRepository;
 import com.petshop.services.imp.AuthenticationServiceImp;
 import com.petshop.services.imp.UserServiceImp;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -32,6 +35,8 @@ public class UserController {
 
     @Autowired
     private UserServiceImp userServiceImp;
+    @Autowired
+    UserRepository userRepository;
     @Autowired
     private AuthenticationServiceImp authenticationServiceImp;
     @GetMapping("/logout")
@@ -92,18 +97,17 @@ public class UserController {
     public ResponseEntity<ResponseObject> register(@RequestBody RegisterRequest request){
         return authenticationServiceImp.register(request);
     }
-
-    @PostMapping("/authenticate" )
+    @GetMapping("/all")
+    public ResponseEntity<ResponseObject> getAll(){
+       return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject("OK","Get List User successfuly !",userRepository.findAll()));
+    }
+    @PostMapping("/authenticate")
     public ResponseEntity<ResponseObject> authenticated(@RequestBody UserDto request){
         return authenticationServiceImp.authenticated(request);
     }
     @GetMapping("/oauth2/google")
     public ResponseEntity<ResponseObject> getToken() {
         return authenticationServiceImp.extracUser();
-    }
-    @GetMapping("/find")
-    public ResponseEntity<ResponseObject> findUserByUserName(@RequestParam String user_name){
-        return userServiceImp.findByUserName(user_name);
     }
     @GetMapping("/{user_id}")
     public ResponseEntity<ResponseObject> findUserByUserID(@PathVariable Long user_id){

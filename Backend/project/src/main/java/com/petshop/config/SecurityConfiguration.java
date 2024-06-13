@@ -6,6 +6,8 @@ import com.nimbusds.jose.proc.JWSAlgorithmFamilyJWSKeySelector;
 import com.nimbusds.jose.proc.JWSKeySelector;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 import static com.petshop.common.constant.Role.admin;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -62,13 +65,13 @@ public class SecurityConfiguration {
             http.cors(Customizer.withDefaults())
                     .csrf(csrf -> csrf
                             // ignore our stomp endpoints since they are protected using Stomp headers
-                            .ignoringRequestMatchers("/**")
+                           .ignoringRequestMatchers("/**")
                     )
                     .headers(headers -> headers
                             .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                     ).authorizeHttpRequests(authorizeRequests ->
                             authorizeRequests
-                                    .requestMatchers("api/user/**","/**").permitAll()
+                                    .requestMatchers("/**").permitAll()
                                     .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
                                     .anyRequest()
                                     .authenticated()

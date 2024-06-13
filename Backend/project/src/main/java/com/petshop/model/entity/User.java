@@ -25,6 +25,7 @@ public class User implements UserDetails {
     private Long user_id;
     @Column(name = "user_name", nullable = false)
     private String user_name;
+    @JsonIgnore
     @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "firstname", nullable = false)
@@ -66,6 +67,14 @@ public class User implements UserDetails {
     @ToString.Exclude
     @OneToOne(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private OnlineStatus online_status;
+    @JsonIgnore
+    @ToString.Exclude
+    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    private Bmi bmi;
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<DeviceItem> deviceItemList;
     public User(String UserName, String Password) {
         this.user_name = UserName;
         this.password = Password;
@@ -90,7 +99,7 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
-
+    @JsonIgnore
     @Override
     public String getPassword() {
         return password;
