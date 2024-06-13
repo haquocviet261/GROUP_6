@@ -27,12 +27,12 @@ pipeline {
                                     curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
                                     chmod +x ~/docker-compose
                                     mkdir -p ~/.local/bin
-                                     mv ~/docker-compose ~/.local/bin/docker-compose
+                                     mv ~/docker-compose ~/.local/bin/docker
                                 '''
                        } else {
                            echo 'Docker Compose is already installed.'
                        }
-                       sh '~/.local/bin/docker-compose --version'
+                       sh '~/.local/bin/docker --version'
                        }
                    }
                }
