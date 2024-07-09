@@ -58,12 +58,7 @@ pipeline {
                 }
             }
         }
-        stage('Debug') {
-            steps {
-                sh 'echo $PATH'
-                sh 'ls -l /usr/local/bin/docker'
-            }
-        }
+
         stage('Build Docker Image') {
             steps {
                 dir('Backend/project') {
