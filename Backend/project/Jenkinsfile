@@ -1,38 +1,71 @@
 pipeline {
     agent any
-
     environment {
         DOCKER_IMAGE = 'app'
         DOCKER_REGISTRY = 'haquocviet'
+        PATH = "${tool 'Docker'}/bin:${env.PATH}:~/.local/bin"
     }
-
     stages {
+        stage('Initialize') {
+            steps {
+                script {
+                    def dockerHome = tool 'Docker'
+                    env.PATH = "${dockerHome}/bin:${env.PATH}:~/.local/bin"
+                }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/viet']],
+                    userRemoteConfigs: [
+                        [url: 'git@github.com:haquocviet261/PetShopServer.git']
+                    ]
+                ])
+            }
+        }
         stage('Build') {
             steps {
-                script {
-                    docker.withServer('tcp://docker:2375') {
-                        // Đảm bảo Docker daemon có thể được truy cập bằng cách sử dụng docker:2375
-                        docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}", "./Backend/project")
+                dir('Backend/project') {
+                    sh 'chmod +x mvnw'
+                    sh './mvnw clean install'
+                }
+            }
+        }
+        stage('Debug') {
+            steps {
+                sh 'echo $PATH'
+                sh 'ls -l /usr/local/bin/docker'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                dir('Backend/project') {
+                    script {
+                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
                     }
                 }
             }
         }
-
-        stage('Push') {
+        stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'haquocviet') {
-                        docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}").push()
+                    withDockerRegistry(credentialsId: 'haquocviet', toolName: 'Docker', url: 'https://index.docker.io/v1/') {
+                        sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                        sh "docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
                     }
                 }
             }
         }
-
         stage('Deploy') {
             steps {
-                script {
-                    docker.withServer('tcp://docker:2375') {
+                dir('Backend/project') {
+                    script {
                         sh '''
+                            export PATH=$PATH:~/.local/bin:/var/jenkins_home/.local/bin
+                            if ! command -v docker-compose; then echo "docker-compose not found"; exit 1; fi
                             docker-compose down || true
                             docker-compose up -d
                         '''
@@ -41,7 +74,6 @@ pipeline {
             }
         }
     }
-
     post {
         success {
             echo 'Build successfully!'
