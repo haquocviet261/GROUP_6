@@ -39,7 +39,7 @@ pipeline {
         }
         stage('Checkout') {
             steps {
-                dir('/var/jenkins_home/workspace/Pet_Shop_Server') {
+                dir('/var/jenkins_home/workspace/Smart Frigde') {
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: '*/viet']],
