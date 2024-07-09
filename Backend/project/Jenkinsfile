@@ -14,8 +14,40 @@ pipeline {
                 }
             }
         }
+        stage('Install Docker Compose') {
+            steps {
+                dir('Backend/project') {
+                    script {
+                        def dockerComposeInstalled = sh(script: 'command -v docker-compose', returnStatus: true) == 0
 
-
+                        if (!dockerComposeInstalled) {
+                            echo 'Docker Compose not found, installing...'
+                            sh '''
+                                curl -L "https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-$(uname -s)-$(uname -m)" -o ~/docker-compose
+                                chmod +x ~/docker-compose
+                                mkdir -p ~/.local/bin
+                                mv ~/docker-compose ~/.local/bin/docker-compose
+                            '''
+                        } else {
+                            echo 'Docker Compose is already installed.'
+                        }
+                        sh 'export PATH=$PATH:~/.local/bin:/var/jenkins_home/.local/bin'
+                        sh '~/.local/bin/docker-compose --version'
+                    }
+                }
+            }
+        }
+        stage('Checkout') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/viet']],
+                    userRemoteConfigs: [
+                        [url: 'git@github.com:haquocviet261/PetShopServer.git']
+                    ]
+                ])
+            }
+        }
         stage('Build') {
             steps {
                 dir('Backend/project') {
