@@ -3,7 +3,7 @@ services:
   app:
     build: .
     ports:
-      - "9999:9999"
+      - "8888:9999"
     links:
       - redis
   redis:
