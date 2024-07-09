@@ -98,7 +98,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     }
     @Override
     public ResponseEntity<ResponseObject> authenticated(UserDto request){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword()));
+
         var user = userRepository.findByUserName(request.getUsername()).orElseThrow();
         if (user == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL,"User Name are incorrect !",""));
@@ -109,6 +109,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         var refreshToken = jwtServiceImp.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwt);
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(String.valueOf(user.getUser_id()),request.getPassword()));
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK,"Login successfully !",AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
     }
     @Override
