@@ -39,6 +39,7 @@ pipeline {
         }
         stage('Checkout') {
             steps {
+                dir('/var/jenkins_home/workspace/Pet_Shop_Server') {
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: '*/viet']],
@@ -46,6 +47,7 @@ pipeline {
                         [url: 'git@github.com:haquocviet261/PetShopServer.git']
                     ]
                 ])
+                }
             }
         }
         stage('Build') {
