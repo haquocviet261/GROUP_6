@@ -15,17 +15,7 @@ pipeline {
             }
         }
 
-        stage('Checkout') {
-            steps {
-                checkout([
-                    $class: 'GitSCM',
-                    branches: [[name: '*/viet']],
-                    userRemoteConfigs: [
-                        [url: 'git@github.com:haquocviet261/PetShopServer.git']
-                    ]
-                ])
-            }
-        }
+
         stage('Build') {
             steps {
                 dir('Backend/project') {
