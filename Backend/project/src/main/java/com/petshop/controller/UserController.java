@@ -69,7 +69,7 @@ public class UserController {
     }
     @GetMapping("/profile")
     public ResponseEntity<?> showProfile(@RequestParam Long user_id){
-        return ResponseEntity.ok(userServiceImp.findById(user_id));
+        return userServiceImp.findById(user_id);
     }
     @GetMapping("/edit_user")
     public ResponseEntity<?> editProfile(@RequestBody EditDTO editDTO, Principal connectedUser){
