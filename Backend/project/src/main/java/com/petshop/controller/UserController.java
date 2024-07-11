@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.ok(userServiceImp.setPassword(email,newPassword));
     }
     @GetMapping("/profile")
-    public ResponseEntity<?> showProfile(@RequestParam Long user_id){
+    public ResponseEntity<ResponseObject> showProfile(@RequestParam Long user_id){
         return userServiceImp.findById(user_id);
     }
     @GetMapping("/edit_user")
