@@ -30,4 +30,11 @@ public class DeviceItem {
     @JsonIgnore
     @JoinColumn(name = "user_id")
     private User user;
+
+    public DeviceItem(String device_name, String mac_address, Device device, User user) {
+        this.device_name = device_name;
+        this.mac_address = mac_address;
+        this.device = device;
+        this.user = user;
+    }
 }

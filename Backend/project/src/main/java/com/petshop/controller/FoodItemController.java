@@ -24,4 +24,8 @@ public class FoodItemController {
     public ResponseEntity<ResponseObject> getFoodItemByUserIDAndDeviceItemID(@RequestParam Long device_item_id){
         return foodItemServiceImp.getFoodItemByUserIDAndDeviceItemID(device_item_id);
     }
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseObject> deleteFoodItemByFoodItemId(@RequestParam Long food_item_id){
+        return foodItemServiceImp.deleteFoodItemByFoodItemId(food_item_id);
+    }
 }

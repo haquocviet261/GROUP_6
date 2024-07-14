@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class DeviceItemRequest {
     private String device_name;
     private String mac_address;
+    private Long device_id;
     private Long user_id;
 
 }

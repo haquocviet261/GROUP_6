@@ -1,5 +1,6 @@
 package com.petshop.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,12 +22,17 @@ public class FoodItem {
     private Date add_date;
     private Date expiration_date;
     @ManyToOne
+    @JsonBackReference
     @JsonIgnore
     @JoinColumn(name ="food_id")
     private Food food;
     @Transient
     public Long getFood_id(){
         return food != null ? food.getFood_id() : null;
+    }
+    @Transient
+    public Long getDevice_item_id(){
+        return deviceItem != null ? deviceItem.getDevice_item_id() : null;
     }
     @ManyToOne
     @JsonIgnore

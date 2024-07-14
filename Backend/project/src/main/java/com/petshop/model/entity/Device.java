@@ -1,5 +1,6 @@
 package com.petshop.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.petshop.common.constant.DeviceType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ public class Device {
     private Long device_id;
     @Enumerated(EnumType.STRING)
     private DeviceType device_type;
+    @JsonIgnore
     @OneToMany(mappedBy = "device",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private List<DeviceItem> deviceItemList;
 }

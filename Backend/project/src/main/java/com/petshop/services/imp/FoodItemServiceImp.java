@@ -37,4 +37,8 @@ public class FoodItemServiceImp implements FoodItemService {
     public ResponseEntity<ResponseObject> getFoodItemByUserIDAndDeviceItemID(Long device_item_id){
         return ResponseEntity.ok(new ResponseObject("OK","List food Item",foodItemRepository.getFoodItemByDeviceItemID(device_item_id)));
     }
+    public ResponseEntity<ResponseObject> deleteFoodItemByFoodItemId(Long food_item_id){
+        foodItemRepository.deleteById(food_item_id);
+        return ResponseEntity.ok(new ResponseObject("OK","List food Item",""));
+    }
 }

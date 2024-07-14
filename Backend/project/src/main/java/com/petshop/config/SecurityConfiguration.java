@@ -64,7 +64,6 @@ public class SecurityConfiguration {
 
             http.cors(Customizer.withDefaults())
                     .csrf(csrf -> csrf
-                            // ignore our stomp endpoints since they are protected using Stomp headers
                            .ignoringRequestMatchers("/**")
                     )
                     .headers(headers -> headers
