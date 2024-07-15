@@ -42,5 +42,6 @@ public class ScheduledTask {
                     template.convertAndSendToUser(String.valueOf(foodItemList.get(i).getDeviceItem().getUser().getUser_id()),"/topic/expiration", "Some foods in your Fridge are expired");
                 }
             }
+        template.convertAndSend("/topic/expiration", "Some foods in your Fridge are expired");
     }
 }
