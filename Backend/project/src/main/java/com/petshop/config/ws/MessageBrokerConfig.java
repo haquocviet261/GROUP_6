@@ -75,5 +75,44 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
         return false;  // Return false to let Spring add default converters too
     }
 
-
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new ChannelInterceptor() {
+            @Override
+            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+                StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                    String jwtToken = accessor.getFirstNativeHeader("Authorization");
+                    if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
+                        String jwt = jwtToken.substring(7);
+                        String username = jwtServiceImp.extractUsername(jwt);
+                        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                            boolean isTokenValid = tokenRepository.findByToken(jwt)
+                                    .map(t -> !t.isExpired() && !t.isRevoked())
+                                    .orElse(false);
+                            if (jwtServiceImp.isTokenValid(jwt, userDetails) && isTokenValid) {
+                                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                        userDetails, null, userDetails.getAuthorities()
+                                );
+                                SecurityContextHolder.getContext().setAuthentication(authentication);
+                            } else {
+                                log.warn("Invalid or expired token");
+                                throw new IllegalStateException("Invalid or expired token");
+                            }
+                        } else {
+                            log.warn("Username is null or user is already authenticated");
+                            throw new IllegalStateException("Username is null or user is already authenticated");
+                        }
+                    } else {
+                        log.warn("Authorization header is missing or invalid");
+                        throw new IllegalStateException("Authorization header is missing or invalid");
+                    }
+                }else {
+                    System.out.println("Error");
+                }
+                return message;
+            }
+        });
+    }
 }
