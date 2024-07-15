@@ -44,7 +44,7 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         log.info("Registered Stomp endpoint");
-        registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS();
+        registry.addEndpoint("/ws").setAllowedOrigins("*");
     }
 
     @Override
@@ -53,6 +53,7 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
         registry.enableSimpleBroker("/user");
         registry.setUserDestinationPrefix("/user");
         registry.enableSimpleBroker("/topic");
+
     }
 
     @Override

@@ -67,7 +67,9 @@ public class SecurityConfiguration {
                            .ignoringRequestMatchers("/**")
                     )
                     .headers(headers -> headers
-                            .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                            .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin
+                            )
+
                     ).authorizeHttpRequests(authorizeRequests ->
                             authorizeRequests
                                     .requestMatchers("/**").permitAll()
