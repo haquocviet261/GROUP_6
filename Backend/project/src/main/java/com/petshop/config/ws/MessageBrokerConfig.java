@@ -64,16 +64,14 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.findAndRegisterModules();  // Register all discovered modules
+        objectMapper.findAndRegisterModules();
 
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
         converter.setObjectMapper(objectMapper);
         converter.setContentTypeResolver(resolver);
         messageConverters.add(converter);
-
         messageConverters.add(new StringMessageConverter());
-
-        return false;  // Return false to let Spring add default converters too
+        return false;
     }
 
     @Override
