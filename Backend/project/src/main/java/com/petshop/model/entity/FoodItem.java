@@ -20,6 +20,7 @@ public class FoodItem {
     private Long food_item_id;
     private String food_name;
     private Date add_date;
+    private String unit;
     private Date expiration_date;
     @ManyToOne
     @JsonBackReference

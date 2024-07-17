@@ -31,7 +31,7 @@ public class FoodItemServiceImp implements FoodItemService {
     public ResponseEntity<ResponseObject> addFoodItem(FoodItemRequest foodItemRequest) {
         Food food = foodRepository.findById(foodItemRequest.getFood_id()).get();
         DeviceItem deviceItem = deviceItemRepository.findById(foodItemRequest.getDevice_item_id()).get();
-        FoodItem foodItem = new FoodItem(null,foodItemRequest.getFood_name(),foodItemRequest.getAdd_date(),foodItemRequest.getExpiration_date(),food,deviceItem);
+        FoodItem foodItem = new FoodItem(null,foodItemRequest.getFood_name(),foodItemRequest.getAdd_date(),String.valueOf(foodItemRequest.getQuantity()),foodItemRequest.getExpiration_date(),food,deviceItem);
         return  ResponseEntity.ok(new ResponseObject("OK","Add Food successfully",foodItem));
     }
     public ResponseEntity<ResponseObject> getFoodItemByUserIDAndDeviceItemID(Long device_item_id){

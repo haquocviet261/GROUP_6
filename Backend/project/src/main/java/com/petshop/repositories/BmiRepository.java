@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface BmiRepository extends JpaRepository<Bmi,Long> {
-    @Query("select com.petshop.model.dto.response.BmiResponse(b.weight,b.height,b.age,b.gender,b.user.user_id) from Bmi b inner join b.user u where u.user_id = :user_id")
+    @Query("select new com.petshop.model.dto.response.BmiResponse(b.weight,b.height,b.age,b.gender,b.user.user_id) from Bmi b where b.user.user_id = :user_id")
     BmiResponse getBmiByUserID(@Param("user_id") Long user_id);
 }
 

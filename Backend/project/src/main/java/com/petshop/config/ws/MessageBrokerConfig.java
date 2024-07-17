@@ -27,6 +27,7 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 import java.util.List;
 
@@ -44,7 +45,8 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         log.info("Registered Stomp endpoint");
-        registry.addEndpoint("/ws").setAllowedOrigins("*");
+        registry.addEndpoint("/ws").setAllowedOrigins("*")
+                .addInterceptors(new HttpSessionHandshakeInterceptor());
     }
 
     @Override
@@ -53,7 +55,6 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
         registry.enableSimpleBroker("/user");
         registry.setUserDestinationPrefix("/user");
         registry.enableSimpleBroker("/topic");
-
     }
 
     @Override
@@ -82,7 +83,7 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    String jwtToken = accessor.getFirstNativeHeader("Authorization");
+                    String jwtToken = accessor.getFirstNativeHeader("X-Authorization");
                     if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
                         String jwt = jwtToken.substring(7);
                         String username = jwtServiceImp.extractUsername(jwt);
@@ -98,21 +99,22 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
                                 SecurityContextHolder.getContext().setAuthentication(authentication);
                             } else {
                                 log.warn("Invalid or expired token");
-                                throw new IllegalStateException("Invalid or expired token");
+                              //  throw new IllegalStateException("Invalid or expired token");
                             }
                         } else {
                             log.warn("Username is null or user is already authenticated");
-                            throw new IllegalStateException("Username is null or user is already authenticated");
+                           // throw new IllegalStateException("Username is null or user is already authenticated");
                         }
                     } else {
                         log.warn("Authorization header is missing or invalid");
-                        throw new IllegalStateException("Authorization header is missing or invalid");
+                      //  throw new IllegalStateException("Authorization header is missing or invalid");
                     }
                 }else {
-                    System.out.println("Error");
+                  //  System.out.println("Error");
                 }
                 return message;
             }
         });
     }
+
 }
