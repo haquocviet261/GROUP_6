@@ -99,18 +99,15 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
                                 SecurityContextHolder.getContext().setAuthentication(authentication);
                             } else {
                                 log.warn("Invalid or expired token");
-                              //  throw new IllegalStateException("Invalid or expired token");
                             }
                         } else {
                             log.warn("Username is null or user is already authenticated");
-                           // throw new IllegalStateException("Username is null or user is already authenticated");
                         }
                     } else {
                         log.warn("Authorization header is missing or invalid");
-                      //  throw new IllegalStateException("Authorization header is missing or invalid");
                     }
                 }else {
-                  //  System.out.println("Error");
+                    System.out.println("Error");
                 }
                 return message;
             }
