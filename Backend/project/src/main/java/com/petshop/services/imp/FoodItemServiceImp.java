@@ -29,9 +29,15 @@ public class FoodItemServiceImp implements FoodItemService {
 
     @Override
     public ResponseEntity<ResponseObject> addFoodItem(FoodItemRequest foodItemRequest) {
-        Food food = foodRepository.findById(foodItemRequest.getFood_id()).get();
         DeviceItem deviceItem = deviceItemRepository.findById(foodItemRequest.getDevice_item_id()).get();
-        FoodItem foodItem = new FoodItem(null,foodItemRequest.getFood_name(),foodItemRequest.getAdd_date(),String.valueOf(foodItemRequest.getQuantity()),foodItemRequest.getExpiration_date(),food,deviceItem);
+        Food food = foodRepository.findById(foodItemRequest.getFood_id()).get();
+        FoodItem foodItem = new FoodItem();
+        foodItem.setFood_name(foodItemRequest.getFood_name());
+        foodItem.setAdd_date(foodItemRequest.getAdd_date());
+        foodItem.setUnit(String.valueOf(foodItemRequest.getQuantity()));
+        foodItem.setExpiration_date(foodItemRequest.getExpiration_date());
+        foodItem.setDeviceItem(deviceItem);
+        foodItem.setFood(food);
         return  ResponseEntity.ok(new ResponseObject("OK","Add Food successfully",foodItem));
     }
     public ResponseEntity<ResponseObject> getFoodItemByUserIDAndDeviceItemID(Long device_item_id){

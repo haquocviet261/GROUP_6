@@ -54,13 +54,23 @@ public class ScheduledTask {
     //@Scheduled(cron = "0 0 10 * * ?")
     @Scheduled(fixedRate = 60000)
     public void suggestFoodAtTenAM() {
-        log.info("The time is now {}", dateFormat.format(new java.util.Date()));
+        log.info("This time to suggest food for lunch now {}", dateFormat.format(new java.util.Date()));
         template.convertAndSend("/topic/lunch", "Time to suggest food for lunch");
     }
    // @Scheduled(cron = "0 30 17 * * ?")
    @Scheduled(fixedRate = 90000)
     public void suggestFoodAtFiveThirtyPM() {
-        log.info("The time is now {}", dateFormat.format(new java.util.Date()));
+        log.info("This time to suggest food for dinner now {}", dateFormat.format(new java.util.Date()));
         template.convertAndSend("/topic/dinner", "Time to suggest food for dinner");
+    }
+    @Scheduled(fixedRate = 270000)
+    public void saveFoodEnday() {
+        log.info("The time save foood now is {}", dateFormat.format(new java.util.Date()));
+        template.convertAndSend("/topic/save_food_end_day", "Time to caculate the calories !");
+    }
+    @Scheduled(fixedRate = 240000)
+    public void caCulateCalories() {
+        log.info("The time to caculate calories now is {}", dateFormat.format(new java.util.Date()));
+        template.convertAndSend("/topic/caculate_calories", "Time to caculate the calories !");
     }
 }

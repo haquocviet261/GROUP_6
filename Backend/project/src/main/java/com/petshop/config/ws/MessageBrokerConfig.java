@@ -45,8 +45,7 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         log.info("Registered Stomp endpoint");
-        registry.addEndpoint("/ws").setAllowedOrigins("*")
-                .addInterceptors(new HttpSessionHandshakeInterceptor());
+        registry.addEndpoint("/ws").setAllowedOrigins("*");
     }
 
     @Override
