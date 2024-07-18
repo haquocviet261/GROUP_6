@@ -38,7 +38,8 @@ public class FoodItemServiceImp implements FoodItemService {
         foodItem.setExpiration_date(foodItemRequest.getExpiration_date());
         foodItem.setDeviceItem(deviceItem);
         foodItem.setFood(food);
-        return  ResponseEntity.ok(new ResponseObject("OK","Add Food successfully",foodItem));
+
+        return  ResponseEntity.ok(new ResponseObject("OK","Add Food successfully",foodItemRepository.save(foodItem)));
     }
     public ResponseEntity<ResponseObject> getFoodItemByUserIDAndDeviceItemID(Long device_item_id){
         return ResponseEntity.ok(new ResponseObject("OK","List food Item",foodItemRepository.getFoodItemByDeviceItemID(device_item_id)));
