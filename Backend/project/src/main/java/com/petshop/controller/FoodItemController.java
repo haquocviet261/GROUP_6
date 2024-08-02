@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 public class FoodItemController {
     @Autowired
     public FoodItemServiceImp foodItemServiceImp;
+    
     @GetMapping("/all")
     public ResponseEntity<ResponseObject> getAllFood(){
         return foodItemServiceImp.getAllFoodItem();
