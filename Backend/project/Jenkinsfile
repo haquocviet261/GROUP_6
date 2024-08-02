@@ -1,32 +1,26 @@
 pipeline {
     agent any
+
     environment {
         DOCKER_IMAGE = 'app'
         DOCKER_REGISTRY = 'haquocviet'
-        PATH = "${tool 'Docker'}/bin:${env.PATH}:~/.local/bin"
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
+        IMAGE_NAME = "${DOCKER_IMAGE}:${DOCKER_TAG}"
     }
+
     stages {
-        stage('Initialize') {
-            steps {
-                script {
-                    def dockerHome = tool 'Docker'
-                    env.PATH = "${dockerHome}/bin:${env.PATH}:~/.local/bin"
-                }
-            }
-        }
         stage('Checkout') {
             steps {
                 dir('/var/jenkins_home/workspace/Pet_Shop_Server') {
                     checkout([
                         $class: 'GitSCM',
                         branches: [[name: '*/viet']],
-                        userRemoteConfigs: [
-                            [url: 'git@github.com:haquocviet261/PetShopServer.git']
-                        ]
+                        userRemoteConfigs: [[url: 'git@github.com:haquocviet261/PetShopServer.git']]
                     ])
                 }
             }
         }
+
         stage('Build') {
             steps {
                 dir('Backend/project') {
@@ -35,16 +29,18 @@ pipeline {
                 }
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 dir('Backend/project') {
                     script {
-                        sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ."
+                        sh "docker build -t ${IMAGE_NAME} ."
                     }
                 }
             }
         }
-        stage('Clean Up') {
+
+        stage('Clean Up Old Containers') {
             steps {
                 script {
                     // Stop and remove any existing container
@@ -52,33 +48,37 @@ pipeline {
                     docker stop ${DOCKER_IMAGE} || true
                     docker rm ${DOCKER_IMAGE} || true
                     """
-                    // Remove the old image
-                    sh "docker rmi ${DOCKER_IMAGE}:previous || true"
                 }
             }
         }
+
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Run the new container, mapping internal port 9999 to external port 9999
-                    sh "docker run -d --name ${DOCKER_IMAGE} -p 9999:9999 ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
+                    // Run the new container
+                    sh "docker run -d --name ${DOCKER_IMAGE} -p 9999:9999 ${IMAGE_NAME}"
                 }
             }
         }
     }
+
     post {
         success {
-            echo 'Build successfully!'
-            // Tag the newly built image as the latest image
-            sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+            echo 'Build and deployment successful!'
+            // Tag the newly built image as 'latest'
+            sh "docker tag ${IMAGE_NAME} ${DOCKER_IMAGE}:latest"
         }
+
         failure {
-            echo 'Build failed!'
+            echo 'Build or deployment failed!'
         }
+
         always {
             script {
-                // Optionally remove old images
-                sh "docker rmi ${DOCKER_IMAGE}:${env.BUILD_NUMBER} || true"
+                // Remove old images
+                sh """
+                docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} || true
+                """
             }
         }
     }
