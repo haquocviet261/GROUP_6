@@ -8,8 +8,6 @@ import com.petshop.model.dto.response.ResponseObject;
 import com.petshop.model.dto.request.EditDTO;
 import com.petshop.model.dto.request.RegisterRequest;
 import com.petshop.model.dto.request.UserDto;
-import com.petshop.model.dto.response.UserStatusResponse;
-import com.petshop.model.entity.User;
 import com.petshop.repositories.UserRepository;
 import com.petshop.services.imp.AuthenticationServiceImp;
 import com.petshop.services.imp.UserServiceImp;

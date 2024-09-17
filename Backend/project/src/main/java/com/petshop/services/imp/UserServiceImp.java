@@ -8,10 +8,8 @@ import com.petshop.model.dto.request.ChangePasswordRequest;
 import com.petshop.model.dto.request.EditDTO;
 import com.petshop.model.dto.request.UserDto;
 import com.petshop.model.dto.response.ResponseObject;
-import com.petshop.model.dto.response.UserStatusResponse;
 import com.petshop.model.entity.OnlineStatus;
 import com.petshop.model.entity.User;
-import com.petshop.repositories.OnlineStatusRepository;
 import com.petshop.repositories.UserRepository;
 import com.petshop.services.interfaces.UserService;
 

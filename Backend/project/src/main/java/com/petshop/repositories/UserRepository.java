@@ -1,6 +1,5 @@
 package com.petshop.repositories;
 
-import com.petshop.model.dto.response.UserStatusResponse;
 import com.petshop.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
