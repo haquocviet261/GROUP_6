@@ -14,13 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "Device")
-public class Device {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long device_id;
-    @Enumerated(EnumType.STRING)
-    private DeviceType device_type;
-    @JsonIgnore
-    @OneToMany(mappedBy = "device",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    private List<DeviceItem> deviceItemList;
+public class Device extends CommonEntity{
+    private String name;
+    private String mac_address;
+    private Long user_id;
 }

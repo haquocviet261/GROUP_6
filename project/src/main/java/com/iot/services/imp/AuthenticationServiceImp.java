@@ -2,7 +2,6 @@ package com.iot.services.imp;
 
 
 import com.iot.common.constant.Role;
-import com.iot.common.constant.TokenType;
 import com.iot.common.utils.PasswordGenerator;
 import com.iot.common.utils.Validation;
 import com.iot.model.dto.request.RegisterRequest;
@@ -52,16 +51,15 @@ public class AuthenticationServiceImp implements AuthenticationService {
 
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()
-                .user(user)
+                .user_id(user.getId())
                 .token(jwtToken)
-                .tokenType(TokenType.BEARER)
                 .expired(false)
                 .revoked(false)
                 .build();
         tokenRepository.save(token);
     }
     private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getUser_id());
+        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;
         validUserTokens.forEach(token -> {
@@ -87,7 +85,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         }
         var user = User.builder().user_name(request.getUsername()).first_name(request.getFirstname())
                 .last_name(request.getLastname()).email(request.getEmail()).address(request.getAddress())
-                .phone_number(request.getPhonenumber()).password(passwordEncoder.encode(request.getPassword())).role(Role.customer).status(1)
+                .phone_number(request.getPhonenumber()).password(passwordEncoder.encode(request.getPassword())).role("USER").status("ACTIVE")
                 .date_of_birth(request.getDateofbirth())
                 .build();
         var savedUser = userRepository.save(user);
@@ -109,7 +107,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         var refreshToken = jwtServiceImp.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwt);
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(String.valueOf(user.getUser_id()),request.getPassword()));
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(String.valueOf(user.getId()),request.getPassword()));
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK,"Login successfully !",AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
     }
     @Override
@@ -154,13 +152,13 @@ public class AuthenticationServiceImp implements AuthenticationService {
                 String email =  userInfor.get("email").toString().trim();
                 user = User.builder().email(userInfor.get("email").toString().trim())
                         .user_name(userInfor.get("email").toString().trim().split("@")[0])
-                        .role(Role.customer)
-                        .status(1)
+                        .role("USER")
+                        .status("ACTIVE")
                         .email(email)
                         .password(passwordEncoder.encode(PasswordGenerator.generateRandomPassword(8)))
                         .first_name(userInfor.get("family_name").toString().trim())
                         .last_name(userInfor.get("given_name").toString().trim())
-                        .image_src(userInfor.get("picture").toString())
+                        .images_src(userInfor.get("picture").toString())
                         .build();
                 userRepository.save(user);
                 jwt = jwtServiceImp.generateToken(user);

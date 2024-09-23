@@ -8,20 +8,17 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    @Query("SELECT u FROM User u WHERE u.user_name = :user_name")
+    @Query("SELECT u FROM User u WHERE u.id = :user_name")
     Optional<User> findByUserName(@Param("user_name") String user_name);
-    @Query("SELECT u FROM User u WHERE u.user_id = :user_id")
+    @Query("SELECT u FROM User u WHERE u.id = :user_id")
     Optional<User> findById(@Param("user_id") Long user_id);
 
     @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> findByEmail(@Param("email") String email);
     @Query("SELECT u FROM User u WHERE u.phone_number = :phone_number")
     Optional<User> findByPhone(@Param("phone_number") String phone_number);
-    @Query("select u from User u INNER join u.online_status o  where o.status =:status")
-    public List<User> findAllUserOnline(@Param("status") Long status);
-    @Query("select u,u.online_status.status from User u INNER join u.online_status ")
-    public List<Object[]> getListUserWithStatus();
+    @Query("SELECT u FROM User u WHERE u.user_name = :user_name")
+    List<User> findByUserNameList(@Param("user_name") String user_name);
 
 }

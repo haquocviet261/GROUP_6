@@ -1,6 +1,5 @@
 package com.iot.model.entity;
 
-import com.iot.common.constant.TokenType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,24 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "token")
-public class Token {
-    @Column(name = "id")
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
-
+@Table(name = "Token")
+public class Token extends CommonEntity{
     @Column(name = "token")
     public String token;
-
-    @Enumerated(EnumType.STRING)
-    public TokenType tokenType = TokenType.BEARER;
 
     public boolean revoked;
 
     public boolean expired;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    public User user;
+    public Long user_id;
 }

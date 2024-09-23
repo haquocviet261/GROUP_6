@@ -1,6 +1,5 @@
 package com.iot.services.imp;
 
-import com.iot.common.constant.Role;
 import com.iot.common.utils.EmailUtils;
 import com.iot.common.utils.Validation;
 import com.iot.mapper.MapperImp.UserMapper;
@@ -8,7 +7,6 @@ import com.iot.model.dto.request.ChangePasswordRequest;
 import com.iot.model.dto.request.EditDTO;
 import com.iot.model.dto.request.UserDto;
 import com.iot.model.dto.response.ResponseObject;
-import com.iot.model.entity.OnlineStatus;
 import com.iot.model.entity.User;
 import com.iot.repositories.UserRepository;
 import com.iot.services.interfaces.UserService;
@@ -27,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-
 public class UserServiceImp implements UserService {
 
 
@@ -43,14 +40,10 @@ public class UserServiceImp implements UserService {
     @Autowired
     private EmailUtils emailUtil;
 
-
-
-
     public ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new ResponseObject(Validation.OK,"Wrong Password",null));
-
         }
         if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new ResponseObject(Validation.OK,"Confirm password are not the same",null));
@@ -117,7 +110,5 @@ public class UserServiceImp implements UserService {
         return user.isPresent() ? ResponseEntity.ok(new ResponseObject("OK","Find user successfully",user.get()))
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Fail","Cannot find user with username:"+user_id,""));
     }
-
-
 
 }

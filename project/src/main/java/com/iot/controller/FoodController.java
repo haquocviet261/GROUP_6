@@ -11,11 +11,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/food")
 public class FoodController {
-    @Autowired
-    private FoodServieImp foodServieImp;
 
-    @GetMapping("/all")
-    public ResponseEntity<ResponseObject> getAllFood(){
-        return foodServieImp.getAllFood();
-    }
 }

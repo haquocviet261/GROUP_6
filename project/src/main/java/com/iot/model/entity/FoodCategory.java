@@ -12,17 +12,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FoodCategory {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long food_category_id;
-
-    @Column(nullable = false)
+public class FoodCategory extends CommonEntity{
     private String category_name;
 
-    @OneToMany(mappedBy = "foodCategory",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    private List<Food> foods;
-    public FoodCategory(String category_name) {
-        this.category_name = category_name;
-    }
 }

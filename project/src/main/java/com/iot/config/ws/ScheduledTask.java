@@ -1,7 +1,6 @@
 package com.iot.config.ws;
 
 import com.iot.model.entity.FoodItem;
-import com.iot.repositories.DeviceItemRepository;
 import com.iot.repositories.FoodItemRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,21 +23,6 @@ public class ScheduledTask {
     private SimpMessagingTemplate template;
     @Autowired
     private FoodItemRepository foodItemRepository;
-    @Autowired
-    private DeviceItemRepository deviceItemRepository;
-
-    @Scheduled(fixedRate = 30000)
-    public void sendPeriodicMessages() {
-            Date currentDate = Date.valueOf(LocalDate.now());
-            Date expiryDate = new Date(currentDate.getTime() - (24 * 60 * 60 * 1000));
-            List<FoodItem> foodItemList = foodItemRepository.getFoodItemsByDeviceItemID(expiryDate);
-            if (!foodItemList.isEmpty()) {
-                for (int i = 0; i < foodItemList.size() ; i++) {
-                    template.convertAndSendToUser(String.valueOf(foodItemList.get(i).getDeviceItem().getUser().getUser_id()),"/topic/expiration", "Some foods in your Fridge are expired");
-                }
-            }
-        template.convertAndSend("/topic/expiration", "Some foods in your Fridge are expired");
-    }
 
     //@Scheduled(cron = "0 0 10 * * ?")
     @Scheduled(fixedRate = 60000)

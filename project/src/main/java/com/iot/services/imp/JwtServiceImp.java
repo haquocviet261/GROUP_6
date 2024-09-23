@@ -18,7 +18,6 @@ import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
 
-@Component
 @Service
 public class JwtServiceImp {
     public static Logger logger = LoggerFactory.getLogger(JwtServiceImp.class);
@@ -61,7 +60,7 @@ public class JwtServiceImp {
                 .builder()
                 .setClaims(extraClaims)
                 .setIssuer("http://localhost:9999")
-                .setSubject(String.valueOf(((User) userDetails).getUser_id()))
+                .setSubject(String.valueOf(((User) userDetails).getId()))
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
@@ -119,8 +118,5 @@ public class JwtServiceImp {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-
-
-
 
 }

@@ -2,6 +2,7 @@ package com.iot.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iot.common.constant.Role;
+import jakarta.annotation.PreDestroy;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,70 +18,35 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "users")
-public class User implements UserDetails {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long user_id;
-    @Column(name = "user_name", nullable = false)
+@Table(name = "Users")
+public class User extends CommonEntity implements UserDetails  {
+    @Column(name = "user_name")
     private String user_name;
-    @JsonIgnore
-    @Column(name = "password", nullable = false)
+    @Column(name = "password")
     private String password;
-    @Column(name = "firstname", nullable = false)
+    @Column(name = "first_name")
     private String first_name;
-    @Column(name = "lastname", nullable = false)
+    @Column(name = "last_name")
     private String last_name;
     @Column(name = "phone_number")
     private String phone_number;
     @Column(name = "date_of_birth")
     private Date date_of_birth;
-    @Column(name = "email", nullable = false)
+    @Column(name = "email")
     private String email;
     @Column(name = "address")
     private String address;
-    @Enumerated(EnumType.STRING)
     @Column(name = "role")
-    private Role role;
-    @Column(name = "status", columnDefinition = "INT DEFAULT 1")
-    private int status = 1;
+    private String role;
+    @Column(name = "status")
+    private String status;
     @Column(name = "images_src")
-    private String image_src;
-    @JsonIgnore
-    @ToString.Exclude
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    private List<Token> tokens;
-    @JsonIgnore
-    @ToString.Exclude
-    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    List<FeedBack> feedBacks;
-    @JsonIgnore
-    @ToString.Exclude
-    @OneToMany(mappedBy = "sender",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    List<Conversation> sentConversations;
-    @JsonIgnore
-    @ToString.Exclude
-    @OneToMany(mappedBy = "receiver",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    List<Conversation> receivedConversations;
-    @JsonIgnore
-    @ToString.Exclude
-    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    private OnlineStatus online_status;
-    @JsonIgnore
-    @ToString.Exclude
-    @OneToOne(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    private Bmi bmi;
-    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    @JsonIgnore
-    @ToString.Exclude
-    private List<DeviceItem> deviceItemList;
+    private String images_src;
+
     public User(String UserName, String Password) {
         this.user_name = UserName;
         this.password = Password;
-
     }
-
     public User(String UserName, String Password, String FirstName, String last_name, String phone_number, Date date_of_birth, String Email, String Address) {
         this.user_name = UserName;
         this.password = Password;
@@ -90,14 +56,14 @@ public class User implements UserDetails {
         this.date_of_birth = date_of_birth;
         this.email = Email;
         this.address = Address;
-        role = Role.customer;
-        status = 1;
+        this.role = "USER";
+        status = "ACTIVE";
     }
 
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
+        return List.of(new SimpleGrantedAuthority(role));
     }
     @JsonIgnore
     @Override

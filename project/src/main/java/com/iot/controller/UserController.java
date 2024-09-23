@@ -30,7 +30,6 @@ import java.util.Objects;
 @Controller
 @RequestMapping("api/user")
 public class UserController {
-
     @Autowired
     private UserServiceImp userServiceImp;
     @Autowired
@@ -73,8 +72,6 @@ public class UserController {
     public ResponseEntity<?> editProfile(@RequestBody EditDTO editDTO, Principal connectedUser){
         return ResponseEntity.ok(userServiceImp.editUser(editDTO, connectedUser));
     }
-
-
 
     @PostMapping("/register")
     public ResponseEntity<ResponseObject> register(@RequestBody RegisterRequest request){

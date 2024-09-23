@@ -12,10 +12,8 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FoodNotification {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long notification_id;
+public class FoodNotification extends CommonEntity{
+    private String notification_type;
     private String message;
-    private Date notification_time;
+    private Long user_id;
 }

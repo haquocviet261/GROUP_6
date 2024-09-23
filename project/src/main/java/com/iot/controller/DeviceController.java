@@ -9,10 +9,4 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/device")
 public class DeviceController {
-    @Autowired
-    private DeviceServiceImp deviceServiceImp;
-    @GetMapping("/all")
-    public ResponseEntity<ResponseObject> getDeviceByUserID(){
-        return deviceServiceImp.getAllDevice();
-    }
 }
