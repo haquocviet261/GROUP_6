@@ -9,8 +9,11 @@ import java.security.Principal;
 import java.util.List;
 
 public interface UserService {
-     ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request, Principal connectedUser);
-     ResponseEntity<ResponseObject> getAllUsers();
-     ResponseEntity<ResponseObject> findById(Long user_id);
+    ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request, Principal connectedUser);
+
+    ResponseEntity<ResponseObject> getAllUsers();
+
+    ResponseEntity<ResponseObject> findById(Long user_id);
+
     ResponseEntity<ResponseObject> findByUserID(Long user_id);
 }
