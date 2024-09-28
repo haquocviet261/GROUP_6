@@ -36,18 +36,21 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class AuthenticationServiceImp implements AuthenticationService {
-
-    private final UserRepository userRepository;
-    private final JwtServiceImp jwtServiceImp;
-    private final TokenRepository tokenRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager  authenticationManager;
-    @Autowired
-    private JwtDecoder jwtDecoder;
-    @Autowired
-    HttpServletRequest request;
+        @Autowired
+        private  UserRepository userRepository;
+        @Autowired
+        private  JwtServiceImp jwtServiceImp;
+        @Autowired
+        private  TokenRepository tokenRepository;
+        @Autowired
+        private  PasswordEncoder passwordEncoder;
+        @Autowired
+        private  AuthenticationManager  authenticationManager;
+        @Autowired
+        private JwtDecoder jwtDecoder;
+        @Autowired
+        HttpServletRequest request;
 
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()

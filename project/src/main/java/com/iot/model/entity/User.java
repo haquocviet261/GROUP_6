@@ -1,8 +1,6 @@
 package com.iot.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.iot.common.constant.Role;
-import jakarta.annotation.PreDestroy;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
