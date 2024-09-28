@@ -11,21 +11,22 @@ import java.sql.Date;
 import java.util.Collection;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "Users")
-public class User extends CommonEntity implements UserDetails  {
+public class User extends CommonEntity implements UserDetails {
     @Column(name = "user_name")
     private String user_name;
     @Column(name = "password")
     private String password;
-    @Column(name = "first_name")
-    private String first_name;
-    @Column(name = "last_name")
-    private String last_name;
+    @Column(name = "firstname")
+    private String firstname;
+    @Column(name = "lastname")
+    private String lastname;
     @Column(name = "phone_number")
     private String phone_number;
     @Column(name = "date_of_birth")
@@ -45,11 +46,24 @@ public class User extends CommonEntity implements UserDetails  {
         this.user_name = UserName;
         this.password = Password;
     }
-    public User(String UserName, String Password, String FirstName, String last_name, String phone_number, Date date_of_birth, String Email, String Address) {
+
+    public User(String UserName, String Password, String FirstName, String lastname, String phone_number, Date date_of_birth, String email, String address) {
         this.user_name = UserName;
         this.password = Password;
-        this.first_name = FirstName;
-        this.last_name = last_name;
+        this.firstname = FirstName;
+        this.lastname = lastname;
+        this.phone_number = phone_number;
+        this.date_of_birth = date_of_birth;
+        this.email = email;
+        this.address = address;
+        this.role = "USER";
+        status = "ACTIVE";
+    }
+
+    public User(String UserName, String FirstName, String lastname, String phone_number, Date date_of_birth, String Email, String Address) {
+        this.user_name = UserName;
+        this.firstname = FirstName;
+        this.lastname = lastname;
         this.phone_number = phone_number;
         this.date_of_birth = date_of_birth;
         this.email = Email;
@@ -63,6 +77,7 @@ public class User extends CommonEntity implements UserDetails  {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role));
     }
+
     @JsonIgnore
     @Override
     public String getPassword() {
@@ -73,21 +88,25 @@ public class User extends CommonEntity implements UserDetails  {
     public String getUsername() {
         return user_name;
     }
+
     @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
+
     @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
+
     @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
+
     @JsonIgnore
     @Override
     public boolean isEnabled() {

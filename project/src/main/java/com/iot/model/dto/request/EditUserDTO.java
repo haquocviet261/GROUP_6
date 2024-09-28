@@ -9,13 +9,16 @@ import lombok.NoArgsConstructor;
 import java.sql.Date;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EditDTO {
+public class EditUserDTO {
     private String firstname;
     private String lastname;
-    private String address;
+    private String phone_number;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date dateofbirth;
+    private Date date_of_birth;
+    private String email;
+    private String address;
+    private String images_src;
+
 }
