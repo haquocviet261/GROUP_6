@@ -137,6 +137,7 @@ public class UserServiceImp implements UserService {
         Optional<User> user = userrepository.findById(user_id);
         return user.isPresent() ? ResponseEntity.ok(new ResponseObject("OK", "Find user successfully", user.get()))
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Fail", "Cannot find user with username:" + user_id, ""));
+        User user1 = new User();
     }
 
 }
