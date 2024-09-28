@@ -20,7 +20,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 
 import static org.springframework.security.config.http.SessionCreationPolicy.IF_REQUIRED;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-import static com.iot.common.constant.Role.admin;
 
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +28,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -70,10 +68,8 @@ public class SecurityConfiguration {
                     ).authorizeHttpRequests(authorizeRequests ->
                             authorizeRequests
                                     .requestMatchers("/**").permitAll()
-                                    .requestMatchers("/api/v1/admin/**").hasAuthority(admin.name())
                                     .anyRequest()
                                     .authenticated()
-
                     )
                     .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED))
                     .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
@@ -88,7 +84,6 @@ public class SecurityConfiguration {
 
         return http.build();
     }
-
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
@@ -115,19 +110,4 @@ public class SecurityConfiguration {
 
         return new NimbusJwtDecoder(jwtProcessor);
     }
-//.oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer ->{
-//        httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> {
-//            try {
-//                jwtConfigurer.decoder(jwtDecoder());
-//            } catch (MalformedURLException | KeySourceException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//    })
-
-    @Bean
-    public RestTemplate getRestTemplate() {
-        return new RestTemplate();
-    }
-
 }
