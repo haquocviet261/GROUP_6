@@ -71,7 +71,6 @@ public class SecurityConfiguration {
                                     .anyRequest()
                                     .authenticated()
                     )
-                    .sessionManagement(session -> session.sessionCreationPolicy(IF_REQUIRED))
                     .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                     .authenticationProvider(authenticationProvider)
                     .exceptionHandling(entryPoint -> entryPoint.authenticationEntryPoint(jwtEntryPoint))

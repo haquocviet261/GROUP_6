@@ -7,9 +7,7 @@ import com.iot.model.dto.response.ResponseObject;
 import com.iot.model.dto.request.EditUserDTO;
 import com.iot.model.dto.request.RegisterRequest;
 import com.iot.model.dto.request.UserDTO;
-import com.iot.model.entity.User;
 import com.iot.repositories.UserRepository;
-import com.iot.services.imp.AuthenticationServiceImp;
 import com.iot.services.imp.UserServiceImp;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,12 +27,10 @@ public class UserController {
     private UserServiceImp userServiceImp;
     @Autowired
     UserRepository userRepository;
-    @Autowired
-    private AuthenticationServiceImp authenticationServiceImp;
 
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        authenticationServiceImp.refreshToken(request, response);
+        userServiceImp.refreshToken(request, response);
         return "Logout Successfully !";
     }
 
@@ -42,6 +38,7 @@ public class UserController {
     public ResponseEntity<ResponseObject> changePassword
             (@RequestBody ChangePasswordRequest request, Principal connectedUser) {
         return userServiceImp.changePassword(request, connectedUser);
+
     }
 
     @GetMapping
@@ -77,7 +74,7 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<ResponseObject> register(@RequestBody RegisterRequest request) {
-        return authenticationServiceImp.register(request);
+        return userServiceImp.addUser(request);
     }
 
     @GetMapping("/all")
@@ -102,16 +99,16 @@ public class UserController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<ResponseObject> authenticated(@RequestBody UserDTO request) {
-        return authenticationServiceImp.authenticated(request);
+        return userServiceImp.authenticated(request);
     }
 
     @GetMapping("/oauth2/google")
     public ResponseEntity<ResponseObject> getToken() {
-        return authenticationServiceImp.extracUser();
+        return userServiceImp.extracUser();
     }
 
     @GetMapping("/{user_id}")
     public ResponseEntity<ResponseObject> findUserByUserID(@PathVariable Long user_id) {
-        return userServiceImp.findByUserID(user_id);
+        return userServiceImp.findByUserId(user_id);
     }
 }
