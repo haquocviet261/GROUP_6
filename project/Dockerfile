@@ -1,6 +1,13 @@
-FROM  jenkins/jenkins:lts
-USER jenkins
-ARG JAR_FILE=target/*jar
-COPY ./target/project-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+# Sử dụng JDK phù hợp để chạy ứng dụng Spring Boot
+FROM openjdk:17-jdk-slim
+
+# Khai báo biến ARG để chỉ định file JAR
+ARG JAR_FILE=target/*.jar
+
+# Sao chép file JAR từ thư mục build vào container
+COPY ${JAR_FILE} app.jar
+
+# Khởi chạy ứng dụng
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+
 

@@ -14,6 +14,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +30,12 @@ public class UserController {
     private UserServiceImp userServiceImp;
     @Autowired
     UserRepository userRepository;
-
+    @Autowired
+    SimpMessagingTemplate simpMessagingTemplate;
+    @MessageMapping
+    public void handleMessgae(@Payload String message){
+        simpMessagingTemplate.convertAndSendToUser("15","/15/message",message);
+    }
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         userServiceImp.refreshToken(request, response);
