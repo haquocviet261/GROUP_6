@@ -1,6 +1,6 @@
 # Sử dụng JDK phù hợp để chạy ứng dụng Spring Boot
 FROM jenkins/jenkins:lts
-
+USER root
 # Khai báo biến ARG để chỉ định file JAR
 ARG JAR_FILE=target/*.jar
 
