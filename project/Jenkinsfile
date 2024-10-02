@@ -14,7 +14,7 @@ pipeline {
             steps {
                 dir('project') {
                     script {
-                        sh "docker build -t iot_app"
+                        sh "docker build -t iot_app ."
                     }
                 }
             }
