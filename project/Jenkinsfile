@@ -1,86 +1,34 @@
 pipeline {
     agent any
-    environment {
-        DOCKER_IMAGE = 'app'
-        DOCKER_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_REGISTRY = 'haquocviet'
-        PATH = "${tool 'Docker'}/bin:${env.PATH}:~/.local/bin"
-    }
+
     stages {
-        stage('Initialize') {
-            steps {
-                script {
-                    def dockerHome = tool 'Docker'
-                    env.PATH = "${dockerHome}/bin:${env.PATH}:~/.local/bin"
-                }
-            }
-        }
-        stage('Checkout') {
-            steps {
-                dir('/var/jenkins_home/workspace/Pet_Shop_Server') {
-                    checkout([
-                        $class: 'GitSCM',
-                        branches: [[name: '*/viet']],
-                        userRemoteConfigs: [
-                            [url: 'git@github.com:haquocviet261/PetShopServer.git']
-                        ]
-                    ])
-                }
-            }
-        }
         stage('Build') {
             steps {
-                dir('Backend/project') {
-                    sh 'chmod +x mvnw'
-                    sh './mvnw clean install'
+                script {
+                    // Build Spring Boot project
+                    sh 'mvn clean package'
                 }
             }
         }
         stage('Build Docker Image') {
             steps {
-                dir('Backend/project') {
-                    script {
-                        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                    }
+                script {
+                    // Build Docker image từ Dockerfile trong dự án
+                    sh 'docker build -t iot_app .'
                 }
             }
         }
-        stage('Clean Up Old Containers') {
+        stage('Deploy Docker Container') {
             steps {
                 script {
-                    // Stop and remove any existing container that uses old image
-                    sh """
-                    docker ps -a --filter "name=${DOCKER_IMAGE}" --format "{{.ID}}" | xargs -r docker rm -f || true
-                    """
+                    // Stop và remove container cũ (nếu có) trước khi chạy container mới
+                    sh '''
+                        docker stop iot_app || true
+                        docker rm iot_app || true
+                        docker run -d -p 9999:9999 --name iot_app iot_app
+                    '''
                 }
             }
-        }
-        stage('Clean Up Old Images') {
-            steps {
-                script {
-                    // Get the list of old images
-                    def imagesToRemove = sh(script: "docker images ${DOCKER_IMAGE} --format '{{.Repository}}:{{.Tag}}' | grep -v ${DOCKER_TAG}", returnStdout: true).trim()
-                    if (imagesToRemove) {
-                        sh "echo '${imagesToRemove}' | xargs -r docker rmi || true"
-                    }
-                }
-            }
-        }
-        stage('Run Docker Container') {
-            steps {
-                script {
-                    // Run the new container
-                    sh "docker run -d --name ${DOCKER_IMAGE} -p 9999:9999 ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                }
-            }
-        }
-    }
-    post {
-        success {
-            echo 'Build successfully!'
-        }
-        failure {
-            echo 'Build failed!'
         }
     }
 }
