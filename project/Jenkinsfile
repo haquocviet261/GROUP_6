@@ -12,9 +12,10 @@ pipeline {
         }
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Build Docker image từ Dockerfile trong dự án
-                    sh 'docker build -t iot_app .'
+                dir('project') {
+                    script {
+                        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                    }
                 }
             }
         }
