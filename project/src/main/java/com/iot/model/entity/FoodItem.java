@@ -4,22 +4,27 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
-
-@Entity
-@Data
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@Entity
 @Table(name = "FoodItem")
 public class FoodItem extends CommonEntity{
-    private String name;
+    @Column(name = "food_id")
     private Integer food_id;
-    private Date add_date;
+    @Column(name = "name")
+    private String name;
+    @Column(name = "type_unit")
     private String type_unit;
-    private String expired_date;
+    @Column(name = "expired_date")
+    private Integer expired_date;
+    @Column(name = "quantity")
     private String quantity;
+    @Column(name = "device_id")
     private Integer device_id;
 }

@@ -2,6 +2,7 @@ package com.iot.config;
 
 import com.iot.repositories.TokenRepository;
 import com.iot.services.imp.JwtServiceImp;
+import com.iot.services.imp.UserDetailsServiceImp;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +27,9 @@ public class JwtAuthenicationFilter extends OncePerRequestFilter {
     @Autowired
     private JwtServiceImp jwtServiceImp;
     @Autowired
-    private  UserDetailsService userDetailsService;
+    private UserDetailsServiceImp userDetailsServiceImp;
+    @Autowired
+    private UserDetailsService userDetailsService;
     @Autowired
     private TokenRepository tokenRepository;
 
@@ -47,9 +50,9 @@ public class JwtAuthenicationFilter extends OncePerRequestFilter {
                 return;
             }
             String jwt = header.substring(7);
-            String UserName = jwtServiceImp.extractUsername(jwt);
-                if (UserName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(UserName);
+            Long userId = jwtServiceImp.extractUserId(jwt);
+                if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(String.valueOf(userId));
                     var isTokenValid = tokenRepository.findByToken(jwt)
                             .map(t -> !t.isExpired() && !t.isRevoked())
                             .orElse(false);
@@ -59,7 +62,6 @@ public class JwtAuthenicationFilter extends OncePerRequestFilter {
                         );
                         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-
                     }
                 }
 
