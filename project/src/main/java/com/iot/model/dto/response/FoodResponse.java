@@ -1,17 +1,18 @@
 package com.iot.model.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class FoodResponse {
-    private Long food_id;
-    private String food_name;
-    private Integer date_expired;
-    private Integer calories_per_unit;
-    private String unit;
-    private Long food_category_id;
+    private String name;
+    private Integer expired_date;
+    private Integer category_id;
+
+    public FoodResponse( String name, Integer expired_date, Integer category_id) {
+        this.name = name;
+        this.expired_date = expired_date;
+        this.category_id = category_id;
+    }
 }
