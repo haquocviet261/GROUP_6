@@ -77,18 +77,4 @@ public class EmailUtils {
                 """.formatted(userName, newPassword), true);
         javaMailSender.send(mimeMessage);
     }
-
-    public void sendSetPasswordEmail(String email) throws MessagingException {
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
-        mimeMessageHelper.setTo(email);
-        mimeMessageHelper.setSubject("Set Password");
-        mimeMessageHelper.setText("""
-                <div>
-                  <a href="http://localhost:9999/api/v1/user/set-password?email=%s" target="_blank">click link to set password</a>
-                </div>
-                """.formatted(email), true);
-
-        javaMailSender.send(mimeMessage);
-    }
 }

@@ -4,7 +4,6 @@ import com.iot.common.utils.CommonUtils;
 import com.iot.common.utils.EmailUtils;
 import com.iot.common.utils.PasswordGenerator;
 import com.iot.common.utils.Validation;
-import com.iot.mapper.MapperImp.UserMapper;
 import com.iot.model.dto.request.ChangePasswordRequest;
 import com.iot.model.dto.request.EditUserDTO;
 import com.iot.model.dto.request.RegisterRequest;
@@ -32,7 +31,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.*;
 
 @Service
@@ -54,8 +52,6 @@ public class UserServiceImp implements UserService {
     HttpServletRequest request;
     @Autowired
     private UserRepository userrepository;
-    @Autowired
-    private UserMapper userMapper;
     @Autowired
     private EmailUtils emailUtil;
 
@@ -96,6 +92,7 @@ public class UserServiceImp implements UserService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseObject(Validation.OK, "Deleted User" + id + " successfully!", userrepository.save(user.get())));
     }
+
     @Override
     public ResponseEntity<ResponseObject> editUser(EditUserDTO editUserDTO) {
         User user = CommonUtils.getUserInforLogin();
@@ -125,13 +122,13 @@ public class UserServiceImp implements UserService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " is exist !");
         }
         String token = jwtServiceImp.generateToken(email);
-        emailUtil.confirmAccount(email,token);
+        emailUtil.confirmAccount(email, token);
         return ResponseEntity.ok("Please check email " + email);
     }
 
     @Override
     public ResponseEntity<String> verifyAccount(String token) throws MessagingException {
-        if(jwtServiceImp.isTokenExpired(token)){
+        if (jwtServiceImp.isTokenExpired(token)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token is expired !!!");
         }
         String email = jwtServiceImp.extractEmail(token);
@@ -153,11 +150,11 @@ public class UserServiceImp implements UserService {
     @Override
     public ResponseEntity<ResponseObject> searchUsers(String keyword) {
         List<User> users = userRepository.searchUsers(keyword);
-        if(users.isEmpty()){
+        if (users.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseObject(Validation.FAIL,"Not found",null));
+                    .body(new ResponseObject(Validation.FAIL, "Not found", null));
         }
-        return ResponseEntity.ok(new ResponseObject(Validation.OK,"Users found successfully !!!",users));
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Users found successfully !!!", users));
     }
 
     public ResponseEntity<String> setPassword(String email, String newPassword) {
@@ -172,14 +169,9 @@ public class UserServiceImp implements UserService {
     }
 
     public ResponseEntity<ResponseObject> getUserProfileById(Long userId) {
-        return ResponseEntity.ok(new ResponseObject("OK", "User profile", userrepository.findById(userId).get()));
-    }
-
-    public ResponseEntity<String> editUser(EditUserDTO editUserDTO, Principal connectedUser) {
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        BeanUtils.copyProperties(editUserDTO, user);
-        userrepository.save(user);
-        return ResponseEntity.ok("Edit user profile successfully !");
+        Optional<User> optionalUser = userrepository.findById(userId);
+        return optionalUser.map(user -> ResponseEntity.ok(new ResponseObject("OK", "User profile", user)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "userId" + userId + " is not exist", null)));
     }
 
     @Override

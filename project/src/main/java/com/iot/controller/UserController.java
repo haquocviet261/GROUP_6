@@ -85,11 +85,6 @@ public class UserController {
         return userServiceImp.extractUser();
     }
 
-    @GetMapping("/{user_id}")
-    public ResponseEntity<ResponseObject> findUserByUserID(@PathVariable Long user_id) {
-        return userServiceImp.findByUserId(user_id);
-    }
-
     @GetMapping("/search")
     public ResponseEntity<ResponseObject> searchUsers(@RequestParam(name = "keyword") String keyword){
         return userServiceImp.searchUsers(keyword);
