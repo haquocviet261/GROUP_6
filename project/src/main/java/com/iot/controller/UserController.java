@@ -10,13 +10,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.security.Principal;
 
 @Controller
 @RequestMapping("api/user")
@@ -45,11 +40,6 @@ public class UserController {
         return userServiceImp.resetPassword(email);
     }
 
-    @GetMapping("/create-account")
-    public ResponseEntity<String> verifyAccount(@RequestParam(name = "email") String email) throws MessagingException {
-        return userServiceImp.createAccount(email);
-    }
-
     @PutMapping("/set-password")
     public ResponseEntity<String> setPassword(@RequestBody String email, @RequestBody String newPassword) {
         return userServiceImp.setPassword(email, newPassword);
@@ -60,14 +50,14 @@ public class UserController {
         return userServiceImp.getUserProfileById(user_id);
     }
 
-    @PostMapping("/edit_user")
-    public ResponseEntity<?> editProfile(@RequestBody EditUserDTO editUserDTO, Principal connectedUser) {
-        return ResponseEntity.ok(userServiceImp.editUser(editUserDTO, connectedUser));
-    }
-
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody String email) throws MessagingException {
         return userServiceImp.register(email);
+    }
+
+    @GetMapping("/verify-account")
+    public ResponseEntity<String> verifyAccount(@RequestParam("token") String token) throws MessagingException {
+        return userServiceImp.verifyAccount(token);
     }
 
     @GetMapping("/all")
@@ -75,19 +65,14 @@ public class UserController {
         return userServiceImp.getAllUsers();
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ResponseObject> addUser(@RequestBody UserDTO request) {
-        return userServiceImp.addUser(request);
-    }
-
     @PostMapping("/delete/{user_id}")
     public ResponseEntity<ResponseObject> deleteUser(@PathVariable Long user_id) {
         return userServiceImp.deleteUser(user_id);
     }
 
-    @PostMapping("/update")
-    public ResponseEntity<ResponseObject> updateUser(@RequestBody EditUserDTO request) {
-        return userServiceImp.updateUser(request);
+    @PostMapping("/edit-user")
+    public ResponseEntity<ResponseObject> editUser(@RequestBody EditUserDTO request) {
+        return userServiceImp.editUser(request);
     }
 
     @PostMapping("/authenticate")
@@ -103,5 +88,10 @@ public class UserController {
     @GetMapping("/{user_id}")
     public ResponseEntity<ResponseObject> findUserByUserID(@PathVariable Long user_id) {
         return userServiceImp.findByUserId(user_id);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ResponseObject> searchUsers(@RequestParam(name = "keyword") String keyword){
+        return userServiceImp.searchUsers(keyword);
     }
 }

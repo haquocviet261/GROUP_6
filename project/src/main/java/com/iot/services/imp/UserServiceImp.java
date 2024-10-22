@@ -96,20 +96,12 @@ public class UserServiceImp implements UserService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseObject(Validation.OK, "Deleted User" + id + " successfully!", userrepository.save(user.get())));
     }
-
-    public ResponseEntity<ResponseObject> updateUser(EditUserDTO editUserDTO) {
+    @Override
+    public ResponseEntity<ResponseObject> editUser(EditUserDTO editUserDTO) {
         User user = CommonUtils.getUserInforLogin();
         BeanUtils.copyProperties(editUserDTO, user);
-        user.setUpdated_at(new Date());
         user.setUpdated_by(user.getUser_name());
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated successfully!", userrepository.save(user)));
-    }
-
-    public ResponseEntity<ResponseObject> addUser(UserDTO userDTO) {
-        User user = userMapper.mapFrom(userDTO);
-        user.setCreated_at(new Date());
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject(Validation.OK, "Added User successfully!", userrepository.save(user)));
     }
 
     @Override
@@ -132,12 +124,17 @@ public class UserServiceImp implements UserService {
         if (optionalUser.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " is exist !");
         }
-        emailUtil.confirmAccount(email);
+        String token = jwtServiceImp.generateToken(email);
+        emailUtil.confirmAccount(email,token);
         return ResponseEntity.ok("Please check email " + email);
     }
 
     @Override
-    public ResponseEntity<String> createAccount(String email) throws MessagingException {
+    public ResponseEntity<String> verifyAccount(String token) throws MessagingException {
+        if(jwtServiceImp.isTokenExpired(token)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token is expired !!!");
+        }
+        String email = jwtServiceImp.extractEmail(token);
         Optional<User> optionalUser = userrepository.findByEmail(email);
         if (optionalUser.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " is exist !");
@@ -151,6 +148,16 @@ public class UserServiceImp implements UserService {
         userrepository.save(newUser);
         emailUtil.sendEmailWithInforNewAccount(email, username, password);
         return ResponseEntity.ok("Account created successfully! Please check your email for login details.");
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> searchUsers(String keyword) {
+        List<User> users = userRepository.searchUsers(keyword);
+        if(users.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject(Validation.FAIL,"Not found",null));
+        }
+        return ResponseEntity.ok(new ResponseObject(Validation.OK,"Users found successfully !!!",users));
     }
 
     public ResponseEntity<String> setPassword(String email, String newPassword) {
@@ -171,7 +178,6 @@ public class UserServiceImp implements UserService {
     public ResponseEntity<String> editUser(EditUserDTO editUserDTO, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         BeanUtils.copyProperties(editUserDTO, user);
-        user.setUpdated_at(new Date());
         userrepository.save(user);
         return ResponseEntity.ok("Edit user profile successfully !");
     }
@@ -224,7 +230,6 @@ public class UserServiceImp implements UserService {
                 .phone_number(request.getPhoneNumber()).password(passwordEncoder.encode(request.getPassword())).role("USER").status("ACTIVE")
                 .date_of_birth(request.getDob())
                 .build();
-        user.setCreated_at(new Date());
         var savedUser = userRepository.save(user);
         var jwtToken = jwtServiceImp.generateToken(user);
         var refreshToken = jwtServiceImp.generateRefreshToken(user);
@@ -234,19 +239,20 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> authenticated(UserDTO request) {
-        Optional<User> user = userRepository.findByUserName(request.getUser_name());
-        if (user.isEmpty()) {
+        Optional<User> optionalUser = userRepository.findByUserName(request.getUser_name());
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "User Name are incorrect !", ""));
-        } else if (!passwordEncoder.matches(request.getPassword(), user.get().getPassword())) {
+        } else if (!passwordEncoder.matches(request.getPassword(), optionalUser.get().getPassword())) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Password are incorrect !", ""));
-        } else if (user.get().getStatus().equals("INACTIVE")) {
+        } else if (optionalUser.get().getStatus().equals("INACTIVE")) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Inactive account !", ""));
         }
-        var jwt = jwtServiceImp.generateToken(user.get());
-        var refreshToken = jwtServiceImp.generateRefreshToken(user.get());
-        revokeAllUserTokens(user.get());
-        saveUserToken(user.get(), jwt);
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(String.valueOf(user.get().getId()), request.getPassword()));
+        User user = optionalUser.get();
+        var jwt = jwtServiceImp.generateToken(user);
+        var refreshToken = jwtServiceImp.generateRefreshToken(user);
+        revokeAllUserTokens(user);
+        saveUserToken(user, jwt);
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(String.valueOf(user.getId()), request.getPassword()));
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK, "Login successfully !", AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
     }
 
