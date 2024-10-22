@@ -28,4 +28,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT new com.iot.model.dto.request.UserDTO(u.user_name, u.password) FROM User u Where u.deleted_at IS NULL")
     List<UserDTO> getAllUser();
 
+    @Query("SELECT u FROM User u WHERE " +
+            "u.user_name LIKE %:keyword% OR " +
+            "u.email LIKE %:keyword% OR " +
+            "u.id IN (SELECT c.user_id FROM Company c WHERE c.name LIKE %:keyword%)")
+    List<User> searchUsers(@Param("keyword") String keyword);
+
 }

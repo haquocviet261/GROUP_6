@@ -33,6 +33,10 @@ public class JwtServiceImp {
         return Long.parseLong(extractClaim(token, Claims::getSubject));
     }
 
+    public String extractEmail(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
@@ -57,6 +61,15 @@ public class JwtServiceImp {
 
     public String generateRefreshToken(UserDetails userDetails) {
         return buildToken(new HashMap<>(), userDetails, refreshExpiration);
+    }
+
+    public String generateToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 5))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
@@ -84,10 +97,10 @@ public class JwtServiceImp {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final Long userId = extractUserId(token);
-        return userId.equals(((User)userDetails).getId())  && !isTokenExpired(token);
+        return userId.equals(((User) userDetails).getId()) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 

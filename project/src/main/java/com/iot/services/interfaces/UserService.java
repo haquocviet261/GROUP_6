@@ -1,6 +1,7 @@
 package com.iot.services.interfaces;
 
 import com.iot.model.dto.request.ChangePasswordRequest;
+import com.iot.model.dto.request.EditUserDTO;
 import com.iot.model.dto.request.RegisterRequest;
 import com.iot.model.dto.request.UserDTO;
 import com.iot.model.dto.response.ResponseObject;
@@ -20,6 +21,8 @@ public interface UserService {
 
     ResponseEntity<ResponseObject> addUser(RegisterRequest request);
 
+    ResponseEntity<ResponseObject> editUser(EditUserDTO editUserDTO);
+
     ResponseEntity<ResponseObject> authenticated(UserDTO request);
 
     ResponseEntity<ResponseObject> logout(HttpServletRequest request, HttpServletResponse response) throws IOException;
@@ -30,5 +33,7 @@ public interface UserService {
 
     ResponseEntity<String> register(String email) throws MessagingException;
 
-    ResponseEntity<String> createAccount(String email) throws MessagingException;
+    ResponseEntity<String> verifyAccount(String email) throws MessagingException;
+
+    ResponseEntity<ResponseObject> searchUsers(String keyword);
 }
