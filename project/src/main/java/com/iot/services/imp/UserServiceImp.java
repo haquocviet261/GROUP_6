@@ -1,5 +1,6 @@
 package com.iot.services.imp;
 
+import com.iot.common.constant.CommonConstant;
 import com.iot.common.utils.CommonUtils;
 import com.iot.common.utils.EmailUtils;
 import com.iot.common.utils.PasswordGenerator;
@@ -83,14 +84,15 @@ public class UserServiceImp implements UserService {
     }
 
     public ResponseEntity<ResponseObject> deleteUser(Long id) {
-        Optional<User> user = userrepository.findById(id);
-        if (user.isEmpty()) {
+        Optional<User> optionalUser = userrepository.findById(id);
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "userId" + id + " is not exist", ""));
         }
-        user.get().setDeleted_at(new Date());
-        user.get().setStatus("INACTIVE");
+        User user = optionalUser.get();
+        user.setDeleted_at(new Date());
+        user.setStatus("INACTIVE");
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject(Validation.OK, "Deleted User" + id + " successfully!", userrepository.save(user.get())));
+                .body(new ResponseObject(Validation.OK, "Deleted User" + id + " successfully!", userrepository.save(user)));
     }
 
     @Override
@@ -115,13 +117,40 @@ public class UserServiceImp implements UserService {
         return ResponseEntity.ok("Your password has been successfully reset! Please check your email for further instructions and your new password.");
     }
 
+    public ResponseEntity<String> registerAdmin(RegisterRequest request) {
+        String email = request.getEmail();
+        User user = new User();
+        user.setRole(CommonConstant.ADMIN);
+        user.setUser_name(email.split("@")[0]);
+        user.setPassword(passwordEncoder.encode("11122002"));
+        user.setEmail(email);
+        user.setStatus("ACTIVE");
+        userrepository.save(user);
+        return ResponseEntity.ok("Ok!!!!");
+    }
+
     @Override
-    public ResponseEntity<String> register(String email) throws MessagingException {
+    public ResponseEntity<String> register(RegisterRequest request) throws MessagingException {
+        User user = CommonUtils.getUserInforLogin();
+        String email = request.getEmail();
         Optional<User> optionalUser = userrepository.findByEmail(email);
         if (optionalUser.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " is exist !");
         }
-        String token = jwtServiceImp.generateToken(email);
+        //Create new User with Status is INACTIVE
+        User newUser = new User();
+        newUser.setUser_name(email.split("@")[0]);
+        newUser.setPassword("temporary-password");
+        newUser.setEmail(email);
+        if (user.getRole().equals(CommonConstant.ADMIN)) {
+            newUser.setRole(CommonConstant.MANAGER);
+        } else {
+            newUser.setRole(CommonConstant.STAFF);
+        }
+        newUser.setStatus("INACTIVE");
+        userrepository.save(newUser);
+
+        String token = jwtServiceImp.generateToken(newUser);
         emailUtil.confirmAccount(email, token);
         return ResponseEntity.ok("Please check email " + email);
     }
@@ -131,19 +160,17 @@ public class UserServiceImp implements UserService {
         if (jwtServiceImp.isTokenExpired(token)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token is expired !!!");
         }
-        String email = jwtServiceImp.extractEmail(token);
-        Optional<User> optionalUser = userrepository.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " is exist !");
+        Long userId = jwtServiceImp.extractUserId(token);
+        Optional<User> optionalUser = userrepository.findById2(userId);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Found !!!");
         }
-        User newUser = new User();
-        String username = email.split("@")[0];
+        User user = optionalUser.get();
         String password = PasswordGenerator.generateRandomPassword(8);
-        newUser.setUser_name(username);
-        newUser.setPassword(passwordEncoder.encode(password));
-        newUser.setEmail(email);
-        userrepository.save(newUser);
-        emailUtil.sendEmailWithInforNewAccount(email, username, password);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setStatus("ACTIVE");
+        userrepository.save(user);
+        emailUtil.sendEmailWithInforNewAccount(user.getEmail(), user.getUser_name(), password);
         return ResponseEntity.ok("Account created successfully! Please check your email for login details.");
     }
 
@@ -174,13 +201,6 @@ public class UserServiceImp implements UserService {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "userId" + userId + " is not exist", null)));
     }
 
-    @Override
-    public ResponseEntity<ResponseObject> findByUserId(Long user_id) {
-        Optional<User> user = userrepository.findById(user_id);
-        return user.map(value -> ResponseEntity.ok(new ResponseObject(Validation.OK, "Find user successfully", value)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Cannot find user with username:" + user_id, "")));
-    }
-
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()
                 .user_id(user.getId())
@@ -201,32 +221,6 @@ public class UserServiceImp implements UserService {
             token.setRevoked(true);
         });
         tokenRepository.saveAll(validUserTokens);
-    }
-
-    @Override
-    public ResponseEntity<ResponseObject> addUser(RegisterRequest request) {
-        List<User> list = userRepository.findAll();
-        for (User value : list) {
-            if (value.getUsername().equals(request.getUsername())) {
-                return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(Validation.FAIL, "User Name are exist !", ""));
-            } else {
-                if (value.getEmail().equals(request.getEmail())) {
-                    return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(Validation.FAIL, "Email are exist !", ""));
-                } else if (request.getPhoneNumber().equals(value.getPhone_number())) {
-                    return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(Validation.FAIL, "Phone number are exist !", ""));
-                }
-            }
-        }
-        var user = User.builder().user_name(request.getUsername()).firstname(request.getFirstName())
-                .lastname(request.getLastName()).email(request.getEmail()).address(request.getAddress())
-                .phone_number(request.getPhoneNumber()).password(passwordEncoder.encode(request.getPassword())).role("USER").status("ACTIVE")
-                .date_of_birth(request.getDob())
-                .build();
-        var savedUser = userRepository.save(user);
-        var jwtToken = jwtServiceImp.generateToken(user);
-        var refreshToken = jwtServiceImp.generateRefreshToken(user);
-        saveUserToken(savedUser, jwtToken);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK, "Register successfully !", AuthenticationResponse.builder().accessToken(jwtToken).refresh_token(refreshToken).build()));
     }
 
     @Override

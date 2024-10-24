@@ -14,6 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "Users")
@@ -41,11 +42,6 @@ public class User extends CommonEntity implements UserDetails {
     @Column(name = "images_src")
     private String images_src;
 
-    public User() {
-        role = "USER";
-        status = "ACTIVE";
-    }
-
     public User(String user_name, String password) {
         this.user_name = user_name;
         this.password = password;
@@ -60,7 +56,6 @@ public class User extends CommonEntity implements UserDetails {
         this.date_of_birth = date_of_birth;
         this.email = email;
         this.address = address;
-        this.role = "USER";
         status = "ACTIVE";
     }
 
@@ -72,7 +67,6 @@ public class User extends CommonEntity implements UserDetails {
         this.date_of_birth = date_of_birth;
         this.email = Email;
         this.address = Address;
-        this.role = "USER";
         status = "ACTIVE";
     }
 

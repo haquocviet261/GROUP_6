@@ -17,10 +17,6 @@ public interface UserService {
 
     ResponseEntity<ResponseObject> getAllUsers();
 
-    ResponseEntity<ResponseObject> findByUserId(Long user_id);
-
-    ResponseEntity<ResponseObject> addUser(RegisterRequest request);
-
     ResponseEntity<ResponseObject> editUser(EditUserDTO editUserDTO);
 
     ResponseEntity<ResponseObject> authenticated(UserDTO request);
@@ -31,7 +27,7 @@ public interface UserService {
 
     ResponseEntity<String> resetPassword(String email) throws MessagingException;
 
-    ResponseEntity<String> register(String email) throws MessagingException;
+    ResponseEntity<String> register(RegisterRequest request) throws MessagingException;
 
     ResponseEntity<String> verifyAccount(String email) throws MessagingException;
 

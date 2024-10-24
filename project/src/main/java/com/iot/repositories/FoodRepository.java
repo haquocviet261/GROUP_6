@@ -26,4 +26,11 @@ public interface FoodRepository extends JpaRepository<Food,Long> {
     @Query("SELECT f FROM Food f WHERE f.id = :id AND f.deleted_at IS NULL")
     Optional<Food> findById(@Param("id") Integer food_id);
 
+    @Query("SELECT f.name FROM Food f WHERE f.id = :id AND f.deleted_at IS NULL")
+    String findFoodNameById(@Param("id") Integer food_id);
+
+    @Query("SELECT f FROM Food f WHERE LOWER(f.name) = LOWER(:name) AND f.deleted_at IS NULL")
+    Optional<Food> findByFoodName(@Param("name") String name);
+
+
 }

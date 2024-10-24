@@ -1,6 +1,7 @@
 package com.iot.controller;
 
 import com.iot.model.dto.request.ChangePasswordRequest;
+import com.iot.model.dto.request.RegisterRequest;
 import com.iot.model.dto.response.ResponseObject;
 import com.iot.model.dto.request.EditUserDTO;
 import com.iot.model.dto.request.UserDTO;
@@ -50,9 +51,14 @@ public class UserController {
         return userServiceImp.getUserProfileById(user_id);
     }
 
+    @PostMapping("/register-admin")
+    public ResponseEntity<String> registerAdmin(@RequestBody RegisterRequest request) throws MessagingException {
+        return userServiceImp.registerAdmin(request);
+    }
+
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody String email) throws MessagingException {
-        return userServiceImp.register(email);
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) throws MessagingException {
+        return userServiceImp.register(request);
     }
 
     @GetMapping("/verify-account")
