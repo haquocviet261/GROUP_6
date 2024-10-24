@@ -46,6 +46,11 @@ public class FoodServiceImp implements FoodService {
 
     @Override
     public ResponseEntity<ResponseObject> addFood(Food food) {
+        Optional<Food> foodOptional = foodRepository.findByFoodName(food.getName());
+        if(foodOptional.isPresent()){
+            ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ResponseObject(Validation.FAIL, "Food_name is exist!!!", null));
+        }
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Successfully!!!", foodRepository.save(food)));
     }
 
