@@ -1,6 +1,8 @@
 package com.iot.model.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 
 @Getter
@@ -9,12 +11,10 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "Device")
-public class Device extends CommonEntity{
+@Table(name = "Company")
+public class Company extends CommonEntity {
     @Column(name = "name")
     private String name;
-    @Column(name = "mac_address")
-    private String mac_address;
     @Column(name = "user_id")
     private Long user_id;
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.Date;
+
 @MappedSuperclass
 @Data
 public class CommonEntity {
@@ -19,4 +20,15 @@ public class CommonEntity {
     private Date deleted_at;
     @Column(name = "updated_by")
     private String updated_by;
+
+    @PrePersist
+    public void prePersist() {
+        created_at = new Date();
+        updated_at = new Date();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updated_at = new Date();
+    }
 }

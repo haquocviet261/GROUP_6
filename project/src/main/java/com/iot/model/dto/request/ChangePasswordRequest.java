@@ -1,12 +1,10 @@
 package com.iot.model.dto.request;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
-@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChangePasswordRequest {
     private String currentPassword;
     private String newPassword;

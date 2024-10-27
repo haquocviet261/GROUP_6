@@ -17,8 +17,6 @@ public class EditUserDTO {
     private String phone_number;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date date_of_birth;
-    private String email;
     private String address;
     private String images_src;
-
 }

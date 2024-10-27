@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.iot.repositories.TokenRepository;
 import com.iot.services.imp.JwtServiceImp;
+import com.iot.services.imp.UserDetailsServiceImp;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +22,6 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -36,7 +36,7 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
     @Autowired
     private JwtServiceImp jwtServiceImp;
     @Autowired
-    private UserDetailsService userDetailsService;
+    private UserDetailsServiceImp userDetailsServiceImp;
     @Autowired
     private TokenRepository tokenRepository;
 
@@ -81,9 +81,9 @@ public class MessageBrokerConfig implements WebSocketMessageBrokerConfigurer {
                     String jwtToken = accessor.getFirstNativeHeader("X-Authorization");
                     if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
                         String jwt = jwtToken.substring(7);
-                        String username = jwtServiceImp.extractUsername(jwt);
-                        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                        Long userId = jwtServiceImp.extractUserId(jwt);
+                        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                            UserDetails userDetails = userDetailsServiceImp.loadUserById(userId);
                             boolean isTokenValid = tokenRepository.findByToken(jwt)
                                     .map(t -> !t.isExpired() && !t.isRevoked())
                                     .orElse(false);

@@ -1,52 +1,33 @@
 package com.iot.controller;
 
-
 import com.iot.model.dto.request.ChangePasswordRequest;
 import com.iot.model.dto.response.ResponseObject;
-
 import com.iot.model.dto.request.EditUserDTO;
-import com.iot.model.dto.request.RegisterRequest;
 import com.iot.model.dto.request.UserDTO;
-import com.iot.repositories.UserRepository;
 import com.iot.services.imp.UserServiceImp;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.security.Principal;
 
 @Controller
 @RequestMapping("api/user")
 public class UserController {
     @Autowired
     private UserServiceImp userServiceImp;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    SimpMessagingTemplate simpMessagingTemplate;
-    @MessageMapping
-    public void handleMessgae(@Payload String message){
-        simpMessagingTemplate.convertAndSendToUser("15","/15/message",message);
-    }
+
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        userServiceImp.refreshToken(request, response);
-        return "Logout Successfully !";
+    public ResponseEntity<ResponseObject> logout(HttpServletRequest request, HttpServletResponse response){
+        return userServiceImp.logout(request, response);
     }
 
     @PatchMapping("/change-password")
     public ResponseEntity<ResponseObject> changePassword
-            (@RequestBody ChangePasswordRequest request, Principal connectedUser) {
-        return userServiceImp.changePassword(request, connectedUser);
-
+            (@RequestBody ChangePasswordRequest request) {
+        return userServiceImp.changePassword(request);
     }
 
     @GetMapping
@@ -54,35 +35,29 @@ public class UserController {
         return userServiceImp.getAllUsers();
     }
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotpassword(@RequestBody String email) throws MessagingException {
-        return userServiceImp.forgotPassword(email);
-    }
-
-    @GetMapping("/verify-account")
-    public ResponseEntity<String> verifyAccount(@RequestParam(name = "email") String email, @RequestParam(name = "jwt") String jwt) {
-
-        return userServiceImp.verifyAccount(email, jwt);
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody String email) throws MessagingException {
+        return userServiceImp.resetPassword(email);
     }
 
     @PutMapping("/set-password")
     public ResponseEntity<String> setPassword(@RequestBody String email, @RequestBody String newPassword) {
-        return ResponseEntity.ok(userServiceImp.setPassword(email, newPassword));
+        return userServiceImp.setPassword(email, newPassword);
     }
 
     @GetMapping("/profile")
     public ResponseEntity<ResponseObject> showProfile(@RequestParam Long user_id) {
-        return userServiceImp.findById(user_id);
-    }
-
-    @GetMapping("/edit_user")
-    public ResponseEntity<?> editProfile(@RequestBody EditUserDTO editUserDTO, Principal connectedUser) {
-        return ResponseEntity.ok(userServiceImp.editUser(editUserDTO, connectedUser));
+        return userServiceImp.getUserProfileById(user_id);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseObject> register(@RequestBody RegisterRequest request) {
-        return userServiceImp.addUser(request);
+    public ResponseEntity<String> register(@RequestBody String email) throws MessagingException {
+        return userServiceImp.register(email);
+    }
+
+    @GetMapping("/verify-account")
+    public ResponseEntity<String> verifyAccount(@RequestParam("token") String token) throws MessagingException {
+        return userServiceImp.verifyAccount(token);
     }
 
     @GetMapping("/all")
@@ -90,19 +65,14 @@ public class UserController {
         return userServiceImp.getAllUsers();
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<ResponseObject> addUser(@RequestBody UserDTO request) {
-        return userServiceImp.addUser(request);
-    }
-
     @PostMapping("/delete/{user_id}")
     public ResponseEntity<ResponseObject> deleteUser(@PathVariable Long user_id) {
         return userServiceImp.deleteUser(user_id);
     }
 
-    @PostMapping("/update/{user_id}")
-    public ResponseEntity<ResponseObject> updateUser(@RequestBody EditUserDTO request, @PathVariable Long user_id) {
-        return userServiceImp.updateUser(request, user_id);
+    @PostMapping("/edit-user")
+    public ResponseEntity<ResponseObject> editUser(@RequestBody EditUserDTO request) {
+        return userServiceImp.editUser(request);
     }
 
     @PostMapping("/authenticate")
@@ -112,11 +82,11 @@ public class UserController {
 
     @GetMapping("/oauth2/google")
     public ResponseEntity<ResponseObject> getToken() {
-        return userServiceImp.extracUser();
+        return userServiceImp.extractUser();
     }
 
-    @GetMapping("/{user_id}")
-    public ResponseEntity<ResponseObject> findUserByUserID(@PathVariable Long user_id) {
-        return userServiceImp.findByUserId(user_id);
+    @GetMapping("/search")
+    public ResponseEntity<ResponseObject> searchUsers(@RequestParam(name = "keyword") String keyword){
+        return userServiceImp.searchUsers(keyword);
     }
 }

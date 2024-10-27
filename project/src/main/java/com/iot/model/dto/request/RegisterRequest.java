@@ -14,11 +14,11 @@ import java.sql.Date;
 public class RegisterRequest {
     private String username;
     private String password;
-    private String firstname;
-    private String lastname;
-    private String phonenumber;
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date  dateofbirth;
+    private Date dob;
     private String email;
     private String address;
 }

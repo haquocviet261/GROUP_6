@@ -14,7 +14,6 @@ import java.util.List;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "Users")
@@ -42,9 +41,14 @@ public class User extends CommonEntity implements UserDetails {
     @Column(name = "images_src")
     private String images_src;
 
-    public User(String UserName, String Password) {
-        this.user_name = UserName;
-        this.password = Password;
+    public User() {
+        role = "USER";
+        status = "ACTIVE";
+    }
+
+    public User(String user_name, String password) {
+        this.user_name = user_name;
+        this.password = password;
     }
 
     public User(String UserName, String Password, String FirstName, String lastname, String phone_number, Date date_of_birth, String email, String address) {
@@ -84,6 +88,7 @@ public class User extends CommonEntity implements UserDetails {
         return password;
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
         return user_name;
