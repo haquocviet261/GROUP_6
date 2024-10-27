@@ -1,6 +1,7 @@
 package com.iot.config.ws;
 
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
@@ -17,7 +18,21 @@ public class TextHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         log.info("Message from handleTextMessage {}",message.getPayload());
-        broadcastMessage(message.getPayload());
+        String payload = message.getPayload();
+        System.out.println("Received message: " + payload);
+
+        // Phân tích dữ liệu JSON
+        JSONObject jsonObject = new JSONObject(payload);
+        int companyId = jsonObject.getInt("company_id");
+        double temperature = jsonObject.getDouble("temperature");
+        double humidity = jsonObject.getDouble("humidity");
+        double weight = jsonObject.getDouble("weight");
+        System.out.println("Company ID: " + companyId);
+        System.out.println("Temperature: " + temperature);
+        System.out.println("Humidity: " + humidity);
+        System.out.println("Weight: " + weight);
+
+        session.sendMessage(new TextMessage("Data received: " + payload));
     }
 
     @Override
@@ -31,7 +46,6 @@ public class TextHandler extends TextWebSocketHandler {
         sessions.remove(session);
         log.info("Session removed: {}", session.getId());
     }
-
 
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
