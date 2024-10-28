@@ -27,7 +27,7 @@ public interface UserService {
 
     ResponseEntity<String> resetPassword(String email) throws MessagingException;
 
-    ResponseEntity<String> register(RegisterRequest request) throws MessagingException;
+    ResponseEntity<ResponseObject> register(RegisterRequest request) throws MessagingException;
 
     ResponseEntity<String> verifyAccount(String email) throws MessagingException;
 

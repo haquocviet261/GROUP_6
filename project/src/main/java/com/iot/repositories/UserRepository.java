@@ -1,6 +1,6 @@
 package com.iot.repositories;
 
-import com.iot.model.dto.request.UserDTO;
+import com.iot.model.dto.response.UserResponse;
 import com.iot.model.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -28,14 +28,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.user_name = :user_name AND u.deleted_at IS NULL AND u.status = 'ACTIVE'")
     List<User> findByUserNameList(@Param("user_name") String user_name);
 
-    @Query("SELECT new com.iot.model.dto.request.UserDTO(u.user_name, u.password) FROM User u Where u.deleted_at IS NULL AND u.status = 'ACTIVE'")
-    List<UserDTO> getAllUser();
+    @Query("SELECT new com.iot.model.dto.response.UserResponse(u.id, u.user_name, u.firstname, u.lastname, u.phone_number," +
+            " u.date_of_birth, u.email, u.address, u.role, u.status, u.images_src, c.name) " +
+            "FROM User u JOIN Company c ON u.id = c.user_id  " +
+            "WHERE u.deleted_at IS NULL AND u.status = 'ACTIVE' AND LOWER(u.role) != LOWER('Admin')")
+    List<UserResponse> getAllUser();
 
-    @Query("SELECT u FROM User u WHERE " +
-            "(u.user_name LIKE %:keyword% OR " +
+    @Query("SELECT c.name FROM User u JOIN Company c ON u.id = c.user_id WHERE u.deleted_at IS NULL AND u.status = 'ACTIVE' AND u.id = :user_id")
+    String getCompanyNameIdByUserId(@Param("user_id") Long user_id);
+
+    @Query("SELECT new com.iot.model.dto.response.UserResponse(u.id, u.user_name, u.firstname, u.lastname, u.phone_number," +
+            " u.date_of_birth, u.email, u.address, u.role, u.status, u.images_src, c.name) " +
+            "FROM User u JOIN Company c ON u.id = c.user_id " +
+            "WHERE (u.user_name LIKE %:keyword% OR " +
             "u.email LIKE %:keyword% OR " +
-            "u.id IN (SELECT c.user_id FROM Company c WHERE c.name LIKE %:keyword%)) " +
-            "AND u.deleted_at IS NULL AND u.status = 'ACTIVE'")
-    List<User> searchUsers(@Param("keyword") String keyword);
+            "c.name LIKE %:keyword%) " +
+            "AND u.deleted_at IS NULL AND u.status = 'ACTIVE' AND LOWER(u.role) != LOWER('Admin')")
+    List<UserResponse> searchUsers(@Param("keyword") String keyword);
 
 }

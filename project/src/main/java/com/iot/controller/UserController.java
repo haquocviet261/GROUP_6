@@ -21,7 +21,7 @@ public class UserController {
     private UserServiceImp userServiceImp;
 
     @GetMapping("/logout")
-    public ResponseEntity<ResponseObject> logout(HttpServletRequest request, HttpServletResponse response){
+    public ResponseEntity<ResponseObject> logout(HttpServletRequest request, HttpServletResponse response) {
         return userServiceImp.logout(request, response);
     }
 
@@ -46,18 +46,18 @@ public class UserController {
         return userServiceImp.setPassword(email, newPassword);
     }
 
-    @GetMapping("/profile")
-    public ResponseEntity<ResponseObject> showProfile(@RequestParam Long user_id) {
+    @GetMapping("/profile/{user_id}")
+    public ResponseEntity<ResponseObject> showProfile(@PathVariable Long user_id) {
         return userServiceImp.getUserProfileById(user_id);
     }
 
     @PostMapping("/register-admin")
-    public ResponseEntity<String> registerAdmin(@RequestBody RegisterRequest request) throws MessagingException {
+    public ResponseEntity<String> registerAdmin(@RequestBody RegisterRequest request){
         return userServiceImp.registerAdmin(request);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) throws MessagingException {
+    public ResponseEntity<ResponseObject> register(@RequestBody RegisterRequest request) throws MessagingException {
         return userServiceImp.register(request);
     }
 
@@ -92,7 +92,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ResponseObject> searchUsers(@RequestParam(name = "keyword") String keyword){
+    public ResponseEntity<ResponseObject> searchUsers(@RequestParam(name = "keyword") String keyword) {
         return userServiceImp.searchUsers(keyword);
     }
 }

@@ -11,8 +11,10 @@ import com.iot.model.dto.request.RegisterRequest;
 import com.iot.model.dto.request.UserDTO;
 import com.iot.model.dto.response.AuthenticationResponse;
 import com.iot.model.dto.response.ResponseObject;
+import com.iot.model.entity.Company;
 import com.iot.model.entity.Token;
 import com.iot.model.entity.User;
+import com.iot.repositories.CompanyRepository;
 import com.iot.repositories.TokenRepository;
 import com.iot.repositories.UserRepository;
 import com.iot.services.interfaces.UserService;
@@ -40,6 +42,8 @@ public class UserServiceImp implements UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private CompanyRepository companyRepository;
+    @Autowired
     private JwtServiceImp jwtServiceImp;
     @Autowired
     private TokenRepository tokenRepository;
@@ -51,8 +55,6 @@ public class UserServiceImp implements UserService {
     private JwtDecoder jwtDecoder;
     @Autowired
     HttpServletRequest request;
-    @Autowired
-    private UserRepository userrepository;
     @Autowired
     private EmailUtils emailUtil;
 
@@ -68,23 +70,18 @@ public class UserServiceImp implements UserService {
                     .body(new ResponseObject(Validation.FAIL, "The new password and confirmation password do not match. Please try again.", null));
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userrepository.save(user);
+        userRepository.save(user);
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Change Password successfully !", null));
     }
 
     @Override
     public ResponseEntity<ResponseObject> getAllUsers() {
-        List<UserDTO> userDTOS = userrepository.getAllUser();
-        if (userDTOS.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseObject(Validation.FAIL, "No users found", null));
-        }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userDTOS));
+                .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userRepository.getAllUser()));
     }
 
     public ResponseEntity<ResponseObject> deleteUser(Long id) {
-        Optional<User> optionalUser = userrepository.findById(id);
+        Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "userId" + id + " is not exist", ""));
         }
@@ -92,7 +89,7 @@ public class UserServiceImp implements UserService {
         user.setDeleted_at(new Date());
         user.setStatus("INACTIVE");
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject(Validation.OK, "Deleted User" + id + " successfully!", userrepository.save(user)));
+                .body(new ResponseObject(Validation.OK, "Deleted User" + id + " successfully!", userRepository.save(user)));
     }
 
     @Override
@@ -100,12 +97,12 @@ public class UserServiceImp implements UserService {
         User user = CommonUtils.getUserInforLogin();
         BeanUtils.copyProperties(editUserDTO, user);
         user.setUpdated_by(user.getUser_name());
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated successfully!", userrepository.save(user)));
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated successfully!", userRepository.save(user)));
     }
 
     @Override
     public ResponseEntity<String> resetPassword(String email) throws MessagingException {
-        Optional<User> optionalUser = userrepository.findByEmail(email);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " not found !");
         }
@@ -113,7 +110,7 @@ public class UserServiceImp implements UserService {
         String newPassword = PasswordGenerator.generateRandomPassword(8);
         emailUtil.sendEmailToResetPassword(email, user.getUser_name(), newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
-        userrepository.save(user);
+        userRepository.save(user);
         return ResponseEntity.ok("Your password has been successfully reset! Please check your email for further instructions and your new password.");
     }
 
@@ -125,17 +122,18 @@ public class UserServiceImp implements UserService {
         user.setPassword(passwordEncoder.encode("11122002"));
         user.setEmail(email);
         user.setStatus("ACTIVE");
-        userrepository.save(user);
+        userRepository.save(user);
         return ResponseEntity.ok("Ok!!!!");
     }
 
     @Override
-    public ResponseEntity<String> register(RegisterRequest request) throws MessagingException {
+    public ResponseEntity<ResponseObject> register(RegisterRequest request) throws MessagingException {
         User user = CommonUtils.getUserInforLogin();
         String email = request.getEmail();
-        Optional<User> optionalUser = userrepository.findByEmail(email);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " is exist !");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject(Validation.FAIL, "Email " + email + " is exist !", null));
         }
         //Create new User with Status is INACTIVE
         User newUser = new User();
@@ -147,12 +145,18 @@ public class UserServiceImp implements UserService {
         } else {
             newUser.setRole(CommonConstant.STAFF);
         }
+
         newUser.setStatus("INACTIVE");
-        userrepository.save(newUser);
+        userRepository.save(newUser);
+
+
+        String companyName = userRepository.getCompanyNameIdByUserId(user.getId());
+        Company company = new Company(companyName, newUser.getId());
+        companyRepository.save(company);
 
         String token = jwtServiceImp.generateToken(newUser);
         emailUtil.confirmAccount(email, token);
-        return ResponseEntity.ok("Please check email " + email);
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
     }
 
     @Override
@@ -161,7 +165,7 @@ public class UserServiceImp implements UserService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token is expired !!!");
         }
         Long userId = jwtServiceImp.extractUserId(token);
-        Optional<User> optionalUser = userrepository.findById2(userId);
+        Optional<User> optionalUser = userRepository.findById2(userId);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Found !!!");
         }
@@ -169,35 +173,30 @@ public class UserServiceImp implements UserService {
         String password = PasswordGenerator.generateRandomPassword(8);
         user.setPassword(passwordEncoder.encode(password));
         user.setStatus("ACTIVE");
-        userrepository.save(user);
+        userRepository.save(user);
         emailUtil.sendEmailWithInforNewAccount(user.getEmail(), user.getUser_name(), password);
         return ResponseEntity.ok("Account created successfully! Please check your email for login details.");
     }
 
     @Override
     public ResponseEntity<ResponseObject> searchUsers(String keyword) {
-        List<User> users = userRepository.searchUsers(keyword);
-        if (users.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseObject(Validation.FAIL, "Not found", null));
-        }
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Users found successfully !!!", users));
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Users found successfully !!!", userRepository.searchUsers(keyword)));
     }
 
     public ResponseEntity<String> setPassword(String email, String newPassword) {
-        Optional<User> optionalUser = userrepository.findByEmail(email);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found!");
         }
         User user = optionalUser.get();
         user.setPassword(passwordEncoder.encode(newPassword));
-        userrepository.save(user);
+        userRepository.save(user);
         return ResponseEntity.ok("Set new Password successfully !");
     }
 
     public ResponseEntity<ResponseObject> getUserProfileById(Long userId) {
-        Optional<User> optionalUser = userrepository.findById(userId);
-        return optionalUser.map(user -> ResponseEntity.ok(new ResponseObject("OK", "User profile", user)))
+        Optional<User> optionalUser = userRepository.findById(userId);
+        return optionalUser.map(user -> ResponseEntity.ok(new ResponseObject(Validation.OK, "User profile", user)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "userId" + userId + " is not exist", null)));
     }
 
