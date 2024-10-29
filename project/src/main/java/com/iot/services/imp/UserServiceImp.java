@@ -33,6 +33,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
@@ -226,11 +227,11 @@ public class UserServiceImp implements UserService {
     public ResponseEntity<ResponseObject> authenticated(UserDTO request) {
         Optional<User> optionalUser = userRepository.findByUserName(request.getUser_name());
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "User Name are incorrect !", ""));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Username incorrect", "Username are incorrect !", ""));
         } else if (!passwordEncoder.matches(request.getPassword(), optionalUser.get().getPassword())) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Password are incorrect !", ""));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Password incorrect", "Password are incorrect !", ""));
         } else if (optionalUser.get().getStatus().equals("INACTIVE")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Inactive account !", ""));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Account inactive", "Inactive account !", ""));
         }
         User user = optionalUser.get();
         var jwt = jwtServiceImp.generateToken(user);
@@ -268,16 +269,13 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> extractUser() {
-        User user;
-        String jwt;
-        String refreshToken;
         String header = request.getHeader("Authorization");
         Map<String, Object> userInformation = extractUserInfoFromToken(header.substring(7));
         Optional<User> checkMailExist = userRepository.findByEmail(userInformation.get("email").toString().trim());
         if (checkMailExist.isPresent()) {
-            user = checkMailExist.get();
-            jwt = jwtServiceImp.generateToken(user);
-            refreshToken = jwtServiceImp.generateRefreshToken(user);
+            User user = checkMailExist.get();
+            String jwt = jwtServiceImp.generateToken(user);
+            String refreshToken = jwtServiceImp.generateRefreshToken(user);
             revokeAllUserTokens(user);
             saveUserToken(user, jwt);
             return ResponseEntity.ok(new ResponseObject("OK", "Handle authorization code and state successfully!", AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
