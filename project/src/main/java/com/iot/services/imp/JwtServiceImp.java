@@ -33,10 +33,6 @@ public class JwtServiceImp {
         return Long.parseLong(extractClaim(token, Claims::getSubject));
     }
 
-    public String extractEmail(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
-
     public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
@@ -63,14 +59,6 @@ public class JwtServiceImp {
         return buildToken(new HashMap<>(), userDetails, refreshExpiration);
     }
 
-    public String generateToken(String email) {
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 5))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         return Jwts

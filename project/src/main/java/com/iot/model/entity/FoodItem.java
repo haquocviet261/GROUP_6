@@ -1,7 +1,5 @@
 package com.iot.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.*;
@@ -24,7 +22,7 @@ public class FoodItem extends CommonEntity{
     @Column(name = "expired_date")
     private Integer expired_date;
     @Column(name = "quantity")
-    private String quantity;
+    private Integer quantity;
     @Column(name = "device_id")
     private Integer device_id;
 }

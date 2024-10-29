@@ -1,5 +1,6 @@
 package com.iot.services.imp;
 
+import com.iot.common.constant.CommonConstant;
 import com.iot.common.utils.CommonUtils;
 import com.iot.common.utils.EmailUtils;
 import com.iot.common.utils.PasswordGenerator;
@@ -10,8 +11,10 @@ import com.iot.model.dto.request.RegisterRequest;
 import com.iot.model.dto.request.UserDTO;
 import com.iot.model.dto.response.AuthenticationResponse;
 import com.iot.model.dto.response.ResponseObject;
+import com.iot.model.entity.Company;
 import com.iot.model.entity.Token;
 import com.iot.model.entity.User;
+import com.iot.repositories.CompanyRepository;
 import com.iot.repositories.TokenRepository;
 import com.iot.repositories.UserRepository;
 import com.iot.services.interfaces.UserService;
@@ -39,6 +42,8 @@ public class UserServiceImp implements UserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private CompanyRepository companyRepository;
+    @Autowired
     private JwtServiceImp jwtServiceImp;
     @Autowired
     private TokenRepository tokenRepository;
@@ -50,8 +55,6 @@ public class UserServiceImp implements UserService {
     private JwtDecoder jwtDecoder;
     @Autowired
     HttpServletRequest request;
-    @Autowired
-    private UserRepository userrepository;
     @Autowired
     private EmailUtils emailUtil;
 
@@ -67,30 +70,26 @@ public class UserServiceImp implements UserService {
                     .body(new ResponseObject(Validation.FAIL, "The new password and confirmation password do not match. Please try again.", null));
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userrepository.save(user);
+        userRepository.save(user);
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Change Password successfully !", null));
     }
 
     @Override
     public ResponseEntity<ResponseObject> getAllUsers() {
-        List<UserDTO> userDTOS = userrepository.getAllUser();
-        if (userDTOS.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseObject(Validation.FAIL, "No users found", null));
-        }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userDTOS));
+                .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userRepository.getAllUser()));
     }
 
     public ResponseEntity<ResponseObject> deleteUser(Long id) {
-        Optional<User> user = userrepository.findById(id);
-        if (user.isEmpty()) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "userId" + id + " is not exist", ""));
         }
-        user.get().setDeleted_at(new Date());
-        user.get().setStatus("INACTIVE");
+        User user = optionalUser.get();
+        user.setDeleted_at(new Date());
+        user.setStatus("INACTIVE");
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject(Validation.OK, "Deleted User" + id + " successfully!", userrepository.save(user.get())));
+                .body(new ResponseObject(Validation.OK, "Deleted User" + id + " successfully!", userRepository.save(user)));
     }
 
     @Override
@@ -98,12 +97,12 @@ public class UserServiceImp implements UserService {
         User user = CommonUtils.getUserInforLogin();
         BeanUtils.copyProperties(editUserDTO, user);
         user.setUpdated_by(user.getUser_name());
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated successfully!", userrepository.save(user)));
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated successfully!", userRepository.save(user)));
     }
 
     @Override
     public ResponseEntity<String> resetPassword(String email) throws MessagingException {
-        Optional<User> optionalUser = userrepository.findByEmail(email);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " not found !");
         }
@@ -111,19 +110,53 @@ public class UserServiceImp implements UserService {
         String newPassword = PasswordGenerator.generateRandomPassword(8);
         emailUtil.sendEmailToResetPassword(email, user.getUser_name(), newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
-        userrepository.save(user);
+        userRepository.save(user);
         return ResponseEntity.ok("Your password has been successfully reset! Please check your email for further instructions and your new password.");
     }
 
+    public ResponseEntity<String> registerAdmin(RegisterRequest request) {
+        String email = request.getEmail();
+        User user = new User();
+        user.setRole(CommonConstant.ADMIN);
+        user.setUser_name(email.split("@")[0]);
+        user.setPassword(passwordEncoder.encode("11122002"));
+        user.setEmail(email);
+        user.setStatus("ACTIVE");
+        userRepository.save(user);
+        return ResponseEntity.ok("Ok!!!!");
+    }
+
     @Override
-    public ResponseEntity<String> register(String email) throws MessagingException {
-        Optional<User> optionalUser = userrepository.findByEmail(email);
+    public ResponseEntity<ResponseObject> register(RegisterRequest request) throws MessagingException {
+        User user = CommonUtils.getUserInforLogin();
+        String email = request.getEmail();
+        Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " is exist !");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseObject(Validation.FAIL, "Email " + email + " is exist !", null));
         }
-        String token = jwtServiceImp.generateToken(email);
+        //Create new User with Status is INACTIVE
+        User newUser = new User();
+        newUser.setUser_name(email.split("@")[0]);
+        newUser.setPassword("temporary-password");
+        newUser.setEmail(email);
+        if (user.getRole().equals(CommonConstant.ADMIN)) {
+            newUser.setRole(CommonConstant.MANAGER);
+        } else {
+            newUser.setRole(CommonConstant.STAFF);
+        }
+
+        newUser.setStatus("INACTIVE");
+        userRepository.save(newUser);
+
+
+        String companyName = userRepository.getCompanyNameIdByUserId(user.getId());
+        Company company = new Company(companyName, newUser.getId());
+        companyRepository.save(company);
+
+        String token = jwtServiceImp.generateToken(newUser);
         emailUtil.confirmAccount(email, token);
-        return ResponseEntity.ok("Please check email " + email);
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
     }
 
     @Override
@@ -131,54 +164,40 @@ public class UserServiceImp implements UserService {
         if (jwtServiceImp.isTokenExpired(token)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Token is expired !!!");
         }
-        String email = jwtServiceImp.extractEmail(token);
-        Optional<User> optionalUser = userrepository.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " is exist !");
+        Long userId = jwtServiceImp.extractUserId(token);
+        Optional<User> optionalUser = userRepository.findById2(userId);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Found !!!");
         }
-        User newUser = new User();
-        String username = email.split("@")[0];
+        User user = optionalUser.get();
         String password = PasswordGenerator.generateRandomPassword(8);
-        newUser.setUser_name(username);
-        newUser.setPassword(passwordEncoder.encode(password));
-        newUser.setEmail(email);
-        userrepository.save(newUser);
-        emailUtil.sendEmailWithInforNewAccount(email, username, password);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setStatus("ACTIVE");
+        userRepository.save(user);
+        emailUtil.sendEmailWithInforNewAccount(user.getEmail(), user.getUser_name(), password);
         return ResponseEntity.ok("Account created successfully! Please check your email for login details.");
     }
 
     @Override
     public ResponseEntity<ResponseObject> searchUsers(String keyword) {
-        List<User> users = userRepository.searchUsers(keyword);
-        if (users.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseObject(Validation.FAIL, "Not found", null));
-        }
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Users found successfully !!!", users));
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Users found successfully !!!", userRepository.searchUsers(keyword)));
     }
 
     public ResponseEntity<String> setPassword(String email, String newPassword) {
-        Optional<User> optionalUser = userrepository.findByEmail(email);
+        Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found!");
         }
         User user = optionalUser.get();
         user.setPassword(passwordEncoder.encode(newPassword));
-        userrepository.save(user);
+        userRepository.save(user);
         return ResponseEntity.ok("Set new Password successfully !");
     }
 
     public ResponseEntity<ResponseObject> getUserProfileById(Long userId) {
-        Optional<User> optionalUser = userrepository.findById(userId);
-        return optionalUser.map(user -> ResponseEntity.ok(new ResponseObject("OK", "User profile", user)))
+        Optional<User> optionalUser = userRepository.findById(userId);
+        return optionalUser.map(user -> ResponseEntity.ok(new ResponseObject(Validation.OK, "User profile", user)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "userId" + userId + " is not exist", null)));
-    }
-
-    @Override
-    public ResponseEntity<ResponseObject> findByUserId(Long user_id) {
-        Optional<User> user = userrepository.findById(user_id);
-        return user.map(value -> ResponseEntity.ok(new ResponseObject(Validation.OK, "Find user successfully", value)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Cannot find user with username:" + user_id, "")));
     }
 
     private void saveUserToken(User user, String jwtToken) {
@@ -204,40 +223,14 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public ResponseEntity<ResponseObject> addUser(RegisterRequest request) {
-        List<User> list = userRepository.findAll();
-        for (User value : list) {
-            if (value.getUsername().equals(request.getUsername())) {
-                return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(Validation.FAIL, "User Name are exist !", ""));
-            } else {
-                if (value.getEmail().equals(request.getEmail())) {
-                    return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(Validation.FAIL, "Email are exist !", ""));
-                } else if (request.getPhoneNumber().equals(value.getPhone_number())) {
-                    return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseObject(Validation.FAIL, "Phone number are exist !", ""));
-                }
-            }
-        }
-        var user = User.builder().user_name(request.getUsername()).firstname(request.getFirstName())
-                .lastname(request.getLastName()).email(request.getEmail()).address(request.getAddress())
-                .phone_number(request.getPhoneNumber()).password(passwordEncoder.encode(request.getPassword())).role("USER").status("ACTIVE")
-                .date_of_birth(request.getDob())
-                .build();
-        var savedUser = userRepository.save(user);
-        var jwtToken = jwtServiceImp.generateToken(user);
-        var refreshToken = jwtServiceImp.generateRefreshToken(user);
-        saveUserToken(savedUser, jwtToken);
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK, "Register successfully !", AuthenticationResponse.builder().accessToken(jwtToken).refresh_token(refreshToken).build()));
-    }
-
-    @Override
     public ResponseEntity<ResponseObject> authenticated(UserDTO request) {
         Optional<User> optionalUser = userRepository.findByUserName(request.getUser_name());
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "User Name are incorrect !", ""));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Username incorrect", "Username are incorrect !", ""));
         } else if (!passwordEncoder.matches(request.getPassword(), optionalUser.get().getPassword())) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Password are incorrect !", ""));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Password incorrect", "Password are incorrect !", ""));
         } else if (optionalUser.get().getStatus().equals("INACTIVE")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Inactive account !", ""));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject("Account inactive", "Inactive account !", ""));
         }
         User user = optionalUser.get();
         var jwt = jwtServiceImp.generateToken(user);
@@ -275,16 +268,13 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> extractUser() {
-        User user;
-        String jwt;
-        String refreshToken;
         String header = request.getHeader("Authorization");
         Map<String, Object> userInformation = extractUserInfoFromToken(header.substring(7));
         Optional<User> checkMailExist = userRepository.findByEmail(userInformation.get("email").toString().trim());
         if (checkMailExist.isPresent()) {
-            user = checkMailExist.get();
-            jwt = jwtServiceImp.generateToken(user);
-            refreshToken = jwtServiceImp.generateRefreshToken(user);
+            User user = checkMailExist.get();
+            String jwt = jwtServiceImp.generateToken(user);
+            String refreshToken = jwtServiceImp.generateRefreshToken(user);
             revokeAllUserTokens(user);
             saveUserToken(user, jwt);
             return ResponseEntity.ok(new ResponseObject("OK", "Handle authorization code and state successfully!", AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));

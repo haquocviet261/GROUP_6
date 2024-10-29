@@ -24,8 +24,8 @@ public class FoodController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ResponseObject> addFood(@RequestBody Food food){
-        return foodServiceImp.addFood(food);
+    public ResponseEntity<ResponseObject> addFood(@RequestBody Food newFood){
+        return foodServiceImp.addFood(newFood);
     }
 
     @PostMapping("/delete/{food_id}")
@@ -34,8 +34,8 @@ public class FoodController {
     }
 
     @PostMapping("/update/{food_id}")
-    public ResponseEntity<ResponseObject> updateFood(@PathVariable Integer food_id,@RequestBody Food newFood ){
-        return foodServiceImp.updateFood(food_id,newFood);
+    public ResponseEntity<ResponseObject> updateFood(@PathVariable Long food_id,@RequestBody Food food ){
+        return foodServiceImp.updateFood(food_id,food);
     }
 
     @GetMapping("/{food_id}")
