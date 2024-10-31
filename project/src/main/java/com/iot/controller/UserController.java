@@ -31,11 +31,6 @@ public class UserController {
         return userServiceImp.changePassword(request);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAllUsers() {
-        return userServiceImp.getAllUsers();
-    }
-
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody String email) throws MessagingException {
         return userServiceImp.resetPassword(email);

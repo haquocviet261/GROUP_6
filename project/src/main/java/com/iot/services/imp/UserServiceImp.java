@@ -76,8 +76,14 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> getAllUsers() {
+        User user = CommonUtils.getUserInforLogin();
+        if (user.getRole().equals(CommonConstant.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userRepository.getAllUserForAdmin()));
+        }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userRepository.getAllUser()));
+                .body(new ResponseObject(Validation.OK, "Retrieved users successfully"
+                        , userRepository.getAllUserByCompanyExceptManager(userRepository.getCompanyNameIdByUserId(user.getId()))));
     }
 
     public ResponseEntity<ResponseObject> deleteUser(Long id) {
@@ -180,7 +186,12 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> searchUsers(String keyword) {
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Users found successfully !!!", userRepository.searchUsers(keyword)));
+        User user = CommonUtils.getUserInforLogin();
+        if (user.getRole().equals(CommonConstant.ADMIN)) {
+            return ResponseEntity.ok(new ResponseObject(Validation.OK, "ListUser found successfully !!!", userRepository.searchUsersForAdmin(keyword)));
+        }
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "ListUser found successfully !!!"
+                , userRepository.searchUsersForManager(keyword, userRepository.getCompanyNameIdByUserId(user.getId()))));
     }
 
     public ResponseEntity<String> setPassword(String email, String newPassword) {
