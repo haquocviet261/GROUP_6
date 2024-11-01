@@ -5,10 +5,7 @@ import com.iot.common.utils.CommonUtils;
 import com.iot.common.utils.EmailUtils;
 import com.iot.common.utils.PasswordGenerator;
 import com.iot.common.utils.Validation;
-import com.iot.model.dto.request.ChangePasswordRequest;
-import com.iot.model.dto.request.EditUserDTO;
-import com.iot.model.dto.request.RegisterRequest;
-import com.iot.model.dto.request.UserDTO;
+import com.iot.model.dto.request.*;
 import com.iot.model.dto.response.AuthenticationResponse;
 import com.iot.model.dto.response.ResponseObject;
 import com.iot.model.entity.Company;
@@ -107,17 +104,18 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public ResponseEntity<String> resetPassword(String email) throws MessagingException {
+    public ResponseEntity<ResponseObject> resetPassword(ForgotPasswordRequest request) throws MessagingException{
+        String email = request.getEmail();
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " not found !");
+            return ResponseEntity.ok(new ResponseObject(Validation.FAIL,"Email " + email + " not found !",""));
         }
         User user = optionalUser.get();
         String newPassword = PasswordGenerator.generateRandomPassword(8);
         emailUtil.sendEmailToResetPassword(email, user.getUser_name(), newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        return ResponseEntity.ok("Your password has been successfully reset! Please check your email for further instructions and your new password.");
+        return ResponseEntity.ok( new ResponseObject(Validation.OK,"Password reset successful! Check your email for details.",""));
     }
 
     public ResponseEntity<String> registerAdmin(RegisterRequest request) {
