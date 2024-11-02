@@ -13,6 +13,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.user_name = :user_name AND u.deleted_at IS NULL AND u.status = 'ACTIVE'")
     Optional<User> findByUserName(@Param("user_name") String user_name);
 
+    @Query("SELECT u FROM User u WHERE u.user_name = :user_name AND u.deleted_at IS NULL")
+    Optional<User> findByUserNameForRegister(@Param("user_name") String user_name);
+
     @Query("SELECT u FROM User u WHERE u.id = :user_id AND u.deleted_at IS NULL AND u.status = 'ACTIVE'")
     Optional<User> findById(@Param("user_id") Long user_id);
 
@@ -21,6 +24,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.email = :email AND u.deleted_at IS NULL AND u.status = 'ACTIVE'")
     Optional<User> findByEmail(@Param("email") String email);
+
+    @Query("SELECT u FROM User u WHERE u.email = :email AND u.deleted_at IS NULL")
+    Optional<User> findByEmailForRegister(@Param("email") String email);
 
     @Query("SELECT u FROM User u WHERE u.phone_number = :phone_number AND u.deleted_at IS NULL AND u.status = 'ACTIVE'")
     Optional<User> findByPhone(@Param("phone_number") String phone_number);
