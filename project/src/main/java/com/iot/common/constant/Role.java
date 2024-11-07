@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum Role {
-    manager,
-    staff,
-    admin;
+    Manager,
+    Staff,
+    Admin;
 
 }

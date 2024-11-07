@@ -1,13 +1,13 @@
 package com.iot.model.dto.request;
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FoodItemRequest {
-    private String name;
-    private Integer expired_date;
+public class ForgotPasswordRequest {
+    private String email;
 }

@@ -46,7 +46,11 @@ public class FoodServiceImp implements FoodService {
 
     @Override
     public ResponseEntity<ResponseObject> addFood(Food food) {
-        food.setCreated_at(new Date());
+        Optional<Food> foodOptional = foodRepository.findByFoodName(food.getName());
+        if(foodOptional.isPresent()){
+            ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ResponseObject(Validation.FAIL, "Food_name is exist!!!", null));
+        }
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Successfully!!!", foodRepository.save(food)));
     }
 
@@ -63,7 +67,7 @@ public class FoodServiceImp implements FoodService {
     }
 
     @Override
-    public ResponseEntity<ResponseObject> updateFood(Integer id, Food newFood) {
+    public ResponseEntity<ResponseObject> updateFood(Long id, Food newFood) {
         Optional<Food> optionalFood = foodRepository.findById(id);
         if (optionalFood.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -73,7 +77,6 @@ public class FoodServiceImp implements FoodService {
         food.setName(newFood.getName());
         food.setCategory_id(newFood.getCategory_id());
         food.setExpired_date(newFood.getExpired_date());
-        food.setUpdated_at(new Date());
         food.setUpdated_by(CommonUtils.getUserInforLogin().getUser_name());
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated successfully!!!", foodRepository.save(food)));
     }
@@ -84,5 +87,10 @@ public class FoodServiceImp implements FoodService {
         return optionalFood.map(food -> ResponseEntity.ok(new ResponseObject(Validation.OK, "Successfully!!!", food)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ResponseObject(Validation.FAIL, "Not Found!!!", null)));
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> getListFoodNameByKeyword(String keyword) {
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Success !!!", foodRepository.getFoodNameByKeyword(keyword)));
     }
 }

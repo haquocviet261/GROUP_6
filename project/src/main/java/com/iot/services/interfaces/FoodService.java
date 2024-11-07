@@ -10,6 +10,8 @@ public interface FoodService {
     ResponseEntity<ResponseObject> getFoodByCategoryId(Integer category_id);
     ResponseEntity<ResponseObject> addFood(Food food);
     ResponseEntity<ResponseObject> deleteFood(Integer id);
-    ResponseEntity<ResponseObject> updateFood(Integer id, Food food);
+    ResponseEntity<ResponseObject> updateFood(Long id, Food food);
     ResponseEntity<ResponseObject> findByFoodId(Integer id);
+    ResponseEntity<ResponseObject> getListFoodNameByKeyword(String keyword);
+
 }

@@ -1,7 +1,5 @@
 package com.iot.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.*;
@@ -14,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Entity
 @Table(name = "FoodItem")
-public class FoodItem extends CommonEntity{
+public class FoodItem extends CommonEntity {
     @Column(name = "food_id")
     private Integer food_id;
     @Column(name = "name")
