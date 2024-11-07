@@ -5,4 +5,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface DeviceService {
     ResponseEntity<ResponseObject> getAllDevice();
+    ResponseEntity<ResponseObject> getDeviceByCompanyId(Long company_id);
 }

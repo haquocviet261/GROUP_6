@@ -15,6 +15,6 @@ public class Device extends CommonEntity{
     private String name;
     @Column(name = "mac_address")
     private String mac_address;
-    @Column(name = "user_id")
-    private Long user_id;
+    @Column(name = "company_id")
+    private Long companyId;
 }

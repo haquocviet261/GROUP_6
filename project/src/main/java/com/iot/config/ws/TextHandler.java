@@ -1,40 +1,55 @@
 package com.iot.config.ws;
 
+import com.iot.model.entity.TemperatureHumidity;
+import com.iot.repositories.TemperatureHumidityRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class TextHandler extends TextWebSocketHandler {
+    @Autowired
+    SimpMessagingTemplate template;
+    @Autowired
+    private TemperatureHumidityRepository temperatureHumidityRepository;
     private final Set<WebSocketSession> sessions = Collections.newSetFromMap(new ConcurrentHashMap<>());
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        log.info("Message from handleTextMessage {}",message.getPayload());
         String payload = message.getPayload();
-        System.out.println("Received message: " + payload);
-
+        log.info("Message from device {}",payload);
         // Phân tích dữ liệu JSON
         JSONObject jsonObject = new JSONObject(payload);
         int companyId = jsonObject.getInt("company_id");
         double temperature = jsonObject.getDouble("temperature");
         double humidity = jsonObject.getDouble("humidity");
-        double weight = jsonObject.getDouble("weight");
-        System.out.println("Company ID: " + companyId);
-        System.out.println("Temperature: " + temperature);
-        System.out.println("Humidity: " + humidity);
-        System.out.println("Weight: " + weight);
+        JSONArray weightArray = jsonObject.getJSONArray("weight");
+        List<Double> weights = new ArrayList<>();
+        for (int i = 0; i < weightArray.length(); i++) {
+            weights.add(weightArray.getDouble(i));
+        }
+        temperatureHumidityRepository.save(new TemperatureHumidity(null, temperature, humidity, companyId, new Date()));
+        session.sendMessage(new TextMessage(jsonObject.toString()));
+        checkTemperatureHumidity(temperature, humidity);
 
-        session.sendMessage(new TextMessage("Data received: " + payload));
     }
-
+    public void checkTemperatureHumidity(double temperature, double humidity) {
+        if (humidity > 20 ) {
+            template.convertAndSend("/topic/humidity", "Alert humidity, please check your inventory !");
+        }
+        if (temperature > 10) {
+            template.convertAndSend("/topic/temperature", "Alert temperature please check your inventory !");
+        }
+    }
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         sessions.add(session);
@@ -53,7 +68,6 @@ public class TextHandler extends TextWebSocketHandler {
         if (message instanceof TextMessage) {
             broadcastMessage(((TextMessage) message).getPayload());
         }
-
     }
     private void broadcastMessage(String message) throws Exception {
         for (WebSocketSession s : sessions) {
