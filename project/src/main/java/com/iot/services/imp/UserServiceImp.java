@@ -1,14 +1,8 @@
 package com.iot.services.imp;
 
 import com.iot.common.constant.CommonConstant;
-import com.iot.common.utils.CommonUtils;
-import com.iot.common.utils.EmailUtils;
-import com.iot.common.utils.PasswordGenerator;
-import com.iot.common.utils.Validation;
-import com.iot.model.dto.request.ChangePasswordRequest;
-import com.iot.model.dto.request.EditUserDTO;
-import com.iot.model.dto.request.RegisterRequest;
-import com.iot.model.dto.request.UserDTO;
+import com.iot.common.utils.*;
+import com.iot.model.dto.request.*;
 import com.iot.model.dto.response.AuthenticationResponse;
 import com.iot.model.dto.response.ResponseObject;
 import com.iot.model.entity.Company;
@@ -62,12 +56,7 @@ public class UserServiceImp implements UserService {
     public ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request) {
         User user = CommonUtils.getUserInforLogin();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body(new ResponseObject(Validation.FAIL, "The current password you entered is incorrect. Please try again.", null));
-        }
-        if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body(new ResponseObject(Validation.FAIL, "The new password and confirmation password do not match. Please try again.", null));
+            return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "The current password you entered is incorrect. Please try again.", null));
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -76,8 +65,14 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> getAllUsers() {
+        User user = CommonUtils.getUserInforLogin();
+        if (user.getRole().equals(CommonConstant.ADMIN)) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userRepository.getAllUserForAdmin()));
+        }
         return ResponseEntity.status(HttpStatus.OK)
-                .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userRepository.getAllUser()));
+                .body(new ResponseObject(Validation.OK, "Retrieved users successfully"
+                        , userRepository.getAllUserByCompanyExceptManager(userRepository.getCompanyNameIdByUserId(user.getId()))));
     }
 
     public ResponseEntity<ResponseObject> deleteUser(Long id) {
@@ -101,17 +96,18 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public ResponseEntity<String> resetPassword(String email) throws MessagingException {
+    public ResponseEntity<ResponseObject> resetPassword(ForgotPasswordRequest request) throws MessagingException {
+        String email = request.getEmail();
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email " + email + " not found !");
+            return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "Email " + email + " not found !", ""));
         }
         User user = optionalUser.get();
         String newPassword = PasswordGenerator.generateRandomPassword(8);
         emailUtil.sendEmailToResetPassword(email, user.getUser_name(), newPassword);
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        return ResponseEntity.ok("Your password has been successfully reset! Please check your email for further instructions and your new password.");
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Password reset successful! Check your email for details.", ""));
     }
 
     public ResponseEntity<String> registerAdmin(RegisterRequest request) {
@@ -130,33 +126,35 @@ public class UserServiceImp implements UserService {
     public ResponseEntity<ResponseObject> register(RegisterRequest request) throws MessagingException {
         User user = CommonUtils.getUserInforLogin();
         String email = request.getEmail();
-        Optional<User> optionalUser = userRepository.findByEmail(email);
-        if (optionalUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseObject(Validation.FAIL, "Email " + email + " is exist !", null));
+        Optional<User> optionalUser = userRepository.findByEmailForRegister(email);
+        if (optionalUser.isEmpty()) {
+            //Create new User with Status is INACTIVE
+            User newUser = new User();
+            newUser.setUser_name(generateUsername(email));
+            newUser.setPassword("temporary-password");
+            newUser.setEmail(email);
+            if (user.getRole().equals(CommonConstant.ADMIN)) {
+                newUser.setRole(CommonConstant.MANAGER);
+            } else {
+                newUser.setRole(CommonConstant.STAFF);
+            }
+            newUser.setStatus("INACTIVE");
+            userRepository.save(newUser);
+
+            String companyName = userRepository.getCompanyNameIdByUserId(user.getId());
+            Company company = new Company(companyName, newUser.getId());
+            companyRepository.save(company);
+
+            String token = jwtServiceImp.generateToken(newUser);
+            emailUtil.confirmAccount(email, token);
+            return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
         }
-        //Create new User with Status is INACTIVE
-        User newUser = new User();
-        newUser.setUser_name(email.split("@")[0]);
-        newUser.setPassword("temporary-password");
-        newUser.setEmail(email);
-        if (user.getRole().equals(CommonConstant.ADMIN)) {
-            newUser.setRole(CommonConstant.MANAGER);
-        } else {
-            newUser.setRole(CommonConstant.STAFF);
+        if (optionalUser.get().getStatus().equals("INACTIVE")) {
+            String token = jwtServiceImp.generateToken(optionalUser.get());
+            emailUtil.confirmAccount(email, token);
+            return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
         }
-
-        newUser.setStatus("INACTIVE");
-        userRepository.save(newUser);
-
-
-        String companyName = userRepository.getCompanyNameIdByUserId(user.getId());
-        Company company = new Company(companyName, newUser.getId());
-        companyRepository.save(company);
-
-        String token = jwtServiceImp.generateToken(newUser);
-        emailUtil.confirmAccount(email, token);
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
+        return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "Email " + email + " is exist !", null));
     }
 
     @Override
@@ -180,7 +178,12 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> searchUsers(String keyword) {
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Users found successfully !!!", userRepository.searchUsers(keyword)));
+        User user = CommonUtils.getUserInforLogin();
+        if (user.getRole().equals(CommonConstant.ADMIN)) {
+            return ResponseEntity.ok(new ResponseObject(Validation.OK, "ListUser found successfully !!!", userRepository.searchUsersForAdmin(keyword)));
+        }
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "ListUser found successfully !!!"
+                , userRepository.searchUsersForManager(keyword, userRepository.getCompanyNameIdByUserId(user.getId()))));
     }
 
     public ResponseEntity<String> setPassword(String email, String newPassword) {
@@ -292,5 +295,21 @@ public class UserServiceImp implements UserService {
         userInfo.put("iat", jwt.getClaim("iat"));
         userInfo.put("exp", jwt.getClaim("exp"));
         return userInfo;
+    }
+
+    private String generateUsername(String email) {
+        String usernameBase = email.split("@")[0];
+        String newUsername = usernameBase;
+        int suffix = 1;
+
+        while (checkUsernameExists(newUsername)) {
+            newUsername = usernameBase + suffix;
+            suffix++;
+        }
+        return newUsername;
+    }
+
+    private boolean checkUsernameExists(String username) {
+        return userRepository.findByUserNameForRegister(username).isPresent();
     }
 }

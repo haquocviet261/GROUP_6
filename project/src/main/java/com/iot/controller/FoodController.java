@@ -42,4 +42,8 @@ public class FoodController {
     public ResponseEntity<ResponseObject> findFoodByFoodID(@PathVariable Integer food_id) {
         return foodServiceImp.findByFoodId(food_id);
     }
+    @GetMapping("/search")
+    public ResponseEntity<ResponseObject> getListFoodNameByKeyword(@RequestParam(name = "food-name") String keyword) {
+        return foodServiceImp.getListFoodNameByKeyword(keyword);
+    }
 }

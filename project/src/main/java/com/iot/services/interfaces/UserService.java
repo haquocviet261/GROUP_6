@@ -1,9 +1,6 @@
 package com.iot.services.interfaces;
 
-import com.iot.model.dto.request.ChangePasswordRequest;
-import com.iot.model.dto.request.EditUserDTO;
-import com.iot.model.dto.request.RegisterRequest;
-import com.iot.model.dto.request.UserDTO;
+import com.iot.model.dto.request.*;
 import com.iot.model.dto.response.ResponseObject;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,7 +22,7 @@ public interface UserService {
 
     ResponseEntity<ResponseObject> extractUser();
 
-    ResponseEntity<String> resetPassword(String email) throws MessagingException;
+    ResponseEntity<ResponseObject> resetPassword(ForgotPasswordRequest request) throws MessagingException;
 
     ResponseEntity<ResponseObject> register(RegisterRequest request) throws MessagingException;
 

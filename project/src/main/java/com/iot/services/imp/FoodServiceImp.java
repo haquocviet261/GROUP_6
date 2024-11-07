@@ -88,4 +88,9 @@ public class FoodServiceImp implements FoodService {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ResponseObject(Validation.FAIL, "Not Found!!!", null)));
     }
+
+    @Override
+    public ResponseEntity<ResponseObject> getListFoodNameByKeyword(String keyword) {
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Success !!!", foodRepository.getFoodNameByKeyword(keyword)));
+    }
 }

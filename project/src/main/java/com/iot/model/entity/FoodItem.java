@@ -23,6 +23,6 @@ public class FoodItem extends CommonEntity{
     private Integer expired_date;
     @Column(name = "quantity")
     private Integer quantity;
-    @Column(name = "device_id")
-    private Integer device_id;
+    @Column(name = "company_id")
+    private Integer company_id;
 }

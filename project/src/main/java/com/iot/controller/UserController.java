@@ -1,10 +1,7 @@
 package com.iot.controller;
 
-import com.iot.model.dto.request.ChangePasswordRequest;
-import com.iot.model.dto.request.RegisterRequest;
+import com.iot.model.dto.request.*;
 import com.iot.model.dto.response.ResponseObject;
-import com.iot.model.dto.request.EditUserDTO;
-import com.iot.model.dto.request.UserDTO;
 import com.iot.services.imp.UserServiceImp;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,19 +23,13 @@ public class UserController {
     }
 
     @PatchMapping("/change-password")
-    public ResponseEntity<ResponseObject> changePassword
-            (@RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<ResponseObject> changePassword(@RequestBody ChangePasswordRequest request) {
         return userServiceImp.changePassword(request);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAllUsers() {
-        return userServiceImp.getAllUsers();
-    }
-
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody String email) throws MessagingException {
-        return userServiceImp.resetPassword(email);
+    public ResponseEntity<?> resetPassword(@RequestBody ForgotPasswordRequest request) throws MessagingException {
+        return userServiceImp.resetPassword(request);
     }
 
     @PutMapping("/set-password")
