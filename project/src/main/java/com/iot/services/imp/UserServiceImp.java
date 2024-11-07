@@ -56,12 +56,7 @@ public class UserServiceImp implements UserService {
     public ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request) {
         User user = CommonUtils.getUserInforLogin();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body(new ResponseObject(Validation.FAIL, "The current password you entered is incorrect. Please try again.", null));
-        }
-        if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-                    .body(new ResponseObject(Validation.FAIL, "The new password and confirmation password do not match. Please try again.", null));
+            return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "The current password you entered is incorrect. Please try again.", null));
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
@@ -153,15 +148,13 @@ public class UserServiceImp implements UserService {
             String token = jwtServiceImp.generateToken(newUser);
             emailUtil.confirmAccount(email, token);
             return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
-        } else {
-            if (optionalUser.get().getStatus().equals("INACTIVE")) {
-                String token = jwtServiceImp.generateToken(optionalUser.get());
-                emailUtil.confirmAccount(email, token);
-                return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
-            }
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponseObject(Validation.FAIL, "Email " + email + " is exist !", null));
         }
+        if (optionalUser.get().getStatus().equals("INACTIVE")) {
+            String token = jwtServiceImp.generateToken(optionalUser.get());
+            emailUtil.confirmAccount(email, token);
+            return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
+        }
+        return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "Email " + email + " is exist !", null));
     }
 
     @Override

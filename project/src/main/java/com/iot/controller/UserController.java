@@ -23,8 +23,7 @@ public class UserController {
     }
 
     @PatchMapping("/change-password")
-    public ResponseEntity<ResponseObject> changePassword
-            (@RequestBody ChangePasswordRequest request) {
+    public ResponseEntity<ResponseObject> changePassword(@RequestBody ChangePasswordRequest request) {
         return userServiceImp.changePassword(request);
     }
 

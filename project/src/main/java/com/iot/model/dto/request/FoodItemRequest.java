@@ -10,6 +10,4 @@ import lombok.NoArgsConstructor;
 public class FoodItemRequest {
     private String name;
     private Integer expired_date;
-    private Integer quantity;
-    private String type_unit;
 }

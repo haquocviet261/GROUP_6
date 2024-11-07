@@ -8,8 +8,10 @@ import com.iot.model.entity.FoodItem;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -24,13 +26,22 @@ public class FoodItemResponseMapper implements Mapper<FoodItem, FoodItemResponse
     public FoodItemResponse mapTo(FoodItem foodItem) {
         FoodItemResponse response = modelMapper.map(foodItem, FoodItemResponse.class);
 
-        response.setUnit(foodItem.getQuantity() + foodItem.getType_unit());
+        if (foodItem.getType_unit() == null) {
+            response.setUnit(null);
+        } else {
+            response.setUnit(foodItem.getQuantity() + foodItem.getType_unit());
+        }
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(foodItem.getCreated_at());
-        calendar.add(Calendar.DAY_OF_YEAR, foodItem.getExpired_date());
-        response.setExpiration_date(calendar.getTime());
+        if (foodItem.getExpired_date() == null) {
+            response.setExpiration_date(null);
+        } else {
+            LocalDate localDate = foodItem.getUpdated_at().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
 
+            LocalDate updatedLocalDate = localDate.plusDays(foodItem.getExpired_date());
+            response.setExpiration_date(Date.from(updatedLocalDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        }
         return response;
     }
 

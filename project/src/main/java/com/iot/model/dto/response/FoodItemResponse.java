@@ -12,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FoodItemResponse {
+    private Integer id;
     private String name;
     private String unit;
     private Date expiration_date;

@@ -2,7 +2,6 @@ package com.iot.controller;
 
 import com.iot.model.dto.request.FoodItemRequest;
 import com.iot.model.dto.response.ResponseObject;
-import com.iot.model.entity.FoodItem;
 import com.iot.services.imp.FoodItemServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,26 +18,6 @@ public class FoodItemController {
         return foodItemServiceImp.getAllFoodItem();
     }
 
-    @GetMapping("/all/sort-name-asc")
-    public ResponseEntity<ResponseObject> getAllFoodItemSortByNameAsc() {
-        return foodItemServiceImp.getAllFoodItemSortByNameAsc();
-    }
-
-    @GetMapping("/all/sort-name-desc")
-    public ResponseEntity<ResponseObject> getAllFoodItemSortByNameDesc() {
-        return foodItemServiceImp.getAllFoodItemSortByNameDesc();
-    }
-
-    @GetMapping("/all/sort-expiration-asc")
-    public ResponseEntity<ResponseObject> getAllFoodItemSortByExpirationDateAsc() {
-        return foodItemServiceImp.getAllFoodItemSortByExpirationDateAsc();
-    }
-
-    @GetMapping("/all/sort-expiration-desc")
-    public ResponseEntity<ResponseObject> getAllFoodItemSortByExpirationDateDesc() {
-        return foodItemServiceImp.getAllFoodItemSortByExpirationDateDesc();
-    }
-
     @PostMapping("/add")
     public ResponseEntity<ResponseObject> addFoodItem(@RequestBody FoodItemRequest foodItemRequest) {
         return foodItemServiceImp.addFoodItem(foodItemRequest);
@@ -50,7 +29,7 @@ public class FoodItemController {
     }
 
     @GetMapping("/clear-data/{foodItem_id}")
-    public ResponseEntity<String> clearDataFoodItem(@PathVariable Long foodItem_id){
+    public ResponseEntity<ResponseObject> clearDataFoodItem(@PathVariable Long foodItem_id){
         return foodItemServiceImp.clearDataFoodItem(foodItem_id);
     }
 
@@ -58,4 +37,15 @@ public class FoodItemController {
     public ResponseEntity<ResponseObject> searchFoodItem(@RequestParam(name = "keyword") String keyword){
         return foodItemServiceImp.searchFoodItem(keyword);
     }
+
+    @GetMapping("/category/{category_id}")
+    public ResponseEntity<ResponseObject> getFoodItemByCategory(@PathVariable(name = "category_id") Integer category_id) {
+        return foodItemServiceImp.getFoodItemByCategory(category_id);
+    }
+
+    @GetMapping("/id/{foodItemId}")
+    public ResponseEntity<ResponseObject> getFoodItemById(@PathVariable(name = "foodItemId") Integer foodItemId) {
+        return foodItemServiceImp.getFoodItemById(foodItemId);
+    }
+
 }
