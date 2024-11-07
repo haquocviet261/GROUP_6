@@ -26,4 +26,5 @@ public interface FoodItemRepository extends JpaRepository<FoodItem,Long> {
     List<FoodItem> getListFoodItemByCategory(@Param("category_id") Integer category_id);
     
     @Query(value = "SELECT * FROM FoodItem f WHERE f.company_id = :company_id", nativeQuery = true)
+    List<FoodItem> findByCompanyId(@Param("company_id") Long company_id);
 }

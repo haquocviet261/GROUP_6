@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -45,13 +44,14 @@ public class ScheduledTask {
 
             if (cal.getTime().before(currentDate)) {
                 // Food item is expired
-                template.convertAndSendToUser(foodItem.getCompanyId().toString(), "/topic/food", foodItem.getName() + " is expired!");
+                template.convertAndSendToUser(foodItem.getCompanyId() != null ? foodItem.getCompanyId().toString() : "", "/topic/food", foodItem.getName() + " is expired!");
             } else if (cal.getTime().before(warningCal.getTime())) {
                 // Food item will expire within the next 3 days
-                template.convertAndSendToUser(foodItem.getCompanyId().toString(),"/topic/food", foodItem.getName() + " will expire in less than 3 days!");
+                template.convertAndSendToUser(foodItem.getCompanyId() != null ? foodItem.getCompanyId().toString() : "", "/topic/food", foodItem.getName() + " will expire in less than 3 days!");
             }
         }
     }
+
     @Scheduled(cron = "0 0 0 * * MON")
     public void removeTemperatureHumidity() {
         log.info("Delete Temperature & Humidity {}", dateFormat.format(new java.util.Date()));

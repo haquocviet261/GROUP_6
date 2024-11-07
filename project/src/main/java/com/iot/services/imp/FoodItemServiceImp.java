@@ -16,8 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class FoodItemServiceImp implements FoodItemService {
@@ -141,10 +140,5 @@ public class FoodItemServiceImp implements FoodItemService {
         }
         return ResponseEntity
                 .ok(new ResponseObject(HttpStatus.OK.toString(), "Get food expired successfully !", expiredItems));
-    }
-
-    @Override
-    public ResponseEntity<ResponseObject> addFoodItem(FoodItemRequest foodItemRequest) {
-        return null;
     }
 }
