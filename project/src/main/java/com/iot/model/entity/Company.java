@@ -15,6 +15,4 @@ import lombok.*;
 public class Company extends CommonEntity {
     @Column(name = "name")
     private String name;
-    @Column(name = "user_id")
-    private Long user_id;
 }

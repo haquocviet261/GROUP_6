@@ -17,6 +17,6 @@ public class Notification extends CommonEntity{
     private String type_notification;
     @Column(name = "message")
     private String message;
-    @Column(name = "user_id")
-    private Long user_id;
+    @Column(name = "company_id")
+    private Long companyId;
 }

@@ -2,17 +2,15 @@ package com.iot.repositories;
 
 import com.iot.model.entity.FoodItem;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface FoodItemRepository extends JpaRepository<FoodItem,Long> {
-    @Query("SELECT fi FROM FoodItem fi WHERE fi.deleted_at IS NULL")
-    List<FoodItem> getAllFoodItem();
+public interface FoodItemRepository extends JpaRepository<FoodItem, Long> {
+    @Query("SELECT fi FROM FoodItem fi WHERE fi.deleted_at IS NULL AND fi.companyId = :company_id")
+    List<FoodItem> getAllFoodItem(@Param("company_id") Integer company_id);
 
     @Query("SELECT fi FROM FoodItem fi WHERE fi.id = :id AND fi.deleted_at IS NULL")
     Optional<FoodItem> getFoodItemById(@Param("id") Integer foodItem_id);
@@ -24,7 +22,7 @@ public interface FoodItemRepository extends JpaRepository<FoodItem,Long> {
             "JOIN Food f ON fi.food_id = f.id " +
             "WHERE f.category_id = :category_id AND fi.deleted_at IS NULL")
     List<FoodItem> getListFoodItemByCategory(@Param("category_id") Integer category_id);
-    
+
     @Query(value = "SELECT * FROM FoodItem f WHERE f.company_id = :company_id", nativeQuery = true)
     List<FoodItem> findByCompanyId(@Param("company_id") Long company_id);
 }

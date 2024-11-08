@@ -5,10 +5,8 @@ import com.iot.common.utils.*;
 import com.iot.model.dto.request.*;
 import com.iot.model.dto.response.AuthenticationResponse;
 import com.iot.model.dto.response.ResponseObject;
-import com.iot.model.entity.Company;
 import com.iot.model.entity.Token;
 import com.iot.model.entity.User;
-import com.iot.repositories.CompanyRepository;
 import com.iot.repositories.TokenRepository;
 import com.iot.repositories.UserRepository;
 import com.iot.services.interfaces.UserService;
@@ -35,8 +33,6 @@ public class UserServiceImp implements UserService {
 
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private CompanyRepository companyRepository;
     @Autowired
     private JwtServiceImp jwtServiceImp;
     @Autowired
@@ -72,7 +68,7 @@ public class UserServiceImp implements UserService {
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseObject(Validation.OK, "Retrieved users successfully"
-                        , userRepository.getAllUserByCompanyExceptManager(userRepository.getCompanyNameIdByUserId(user.getId()))));
+                        , userRepository.getAllUserByCompanyExceptManager(user.getCompany_id())));
     }
 
     public ResponseEntity<ResponseObject> deleteUser(Long id) {
@@ -139,11 +135,8 @@ public class UserServiceImp implements UserService {
                 newUser.setRole(CommonConstant.STAFF);
             }
             newUser.setStatus("INACTIVE");
+            newUser.setCompany_id(user.getCompany_id());
             userRepository.save(newUser);
-
-            String companyName = userRepository.getCompanyNameIdByUserId(user.getId());
-            Company company = new Company(companyName, newUser.getId());
-            companyRepository.save(company);
 
             String token = jwtServiceImp.generateToken(newUser);
             emailUtil.confirmAccount(email, token);
@@ -183,7 +176,7 @@ public class UserServiceImp implements UserService {
             return ResponseEntity.ok(new ResponseObject(Validation.OK, "ListUser found successfully !!!", userRepository.searchUsersForAdmin(keyword)));
         }
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "ListUser found successfully !!!"
-                , userRepository.searchUsersForManager(keyword, userRepository.getCompanyNameIdByUserId(user.getId()))));
+                , userRepository.searchUsersForManager(keyword, user.getCompany_id())));
     }
 
     public ResponseEntity<String> setPassword(String email, String newPassword) {

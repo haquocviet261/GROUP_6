@@ -41,13 +41,15 @@ public class User extends CommonEntity implements UserDetails {
     private String status;
     @Column(name = "images_src")
     private String images_src;
+    @Column(name = "company_id")
+    private Integer company_id;
 
     public User(String user_name, String password) {
         this.user_name = user_name;
         this.password = password;
     }
 
-    public User(String UserName, String Password, String FirstName, String lastname, String phone_number, Date date_of_birth, String email, String address) {
+    public User(String UserName, String Password, String FirstName, String lastname, String phone_number, Date date_of_birth, String email, String address, Integer company_id) {
         this.user_name = UserName;
         this.password = Password;
         this.firstname = FirstName;
@@ -56,10 +58,11 @@ public class User extends CommonEntity implements UserDetails {
         this.date_of_birth = date_of_birth;
         this.email = email;
         this.address = address;
+        this.company_id = company_id;
         status = "ACTIVE";
     }
 
-    public User(String UserName, String FirstName, String lastname, String phone_number, Date date_of_birth, String Email, String Address) {
+    public User(String UserName, String FirstName, String lastname, String phone_number, Date date_of_birth, String Email, String Address, Integer company_id) {
         this.user_name = UserName;
         this.firstname = FirstName;
         this.lastname = lastname;
@@ -67,6 +70,7 @@ public class User extends CommonEntity implements UserDetails {
         this.date_of_birth = date_of_birth;
         this.email = Email;
         this.address = Address;
+        this.company_id = company_id;
         status = "ACTIVE";
     }
 

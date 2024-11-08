@@ -7,6 +7,7 @@ import com.iot.model.dto.request.FoodItemRequest;
 import com.iot.model.dto.response.ResponseObject;
 import com.iot.model.entity.Food;
 import com.iot.model.entity.FoodItem;
+import com.iot.model.entity.User;
 import com.iot.repositories.FoodItemRepository;
 import com.iot.repositories.FoodRepository;
 import com.iot.services.interfaces.FoodItemService;
@@ -29,7 +30,8 @@ public class FoodItemServiceImp implements FoodItemService {
 
     @Override
     public ResponseEntity<ResponseObject> getAllFoodItem() {
-        List<FoodItem> foodItemList = foodItemRepository.getAllFoodItem();
+        User user = CommonUtils.getUserInforLogin();
+        List<FoodItem> foodItemList = foodItemRepository.getAllFoodItem(user.getCompany_id());
         return ResponseEntity.ok(
                 new ResponseObject(Validation.OK, "Successfully !!!", foodItemResponseMapper.mapListTo(foodItemList)));
     }

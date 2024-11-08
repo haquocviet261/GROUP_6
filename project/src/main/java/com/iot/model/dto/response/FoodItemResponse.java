@@ -16,5 +16,5 @@ public class FoodItemResponse {
     private String name;
     private String unit;
     private Date expiration_date;
-    private Integer device_id;
+    private Integer companyId;
 }
