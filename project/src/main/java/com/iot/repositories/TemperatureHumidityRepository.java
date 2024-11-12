@@ -16,4 +16,7 @@ public interface TemperatureHumidityRepository extends JpaRepository<Temperature
     void deledeBydeviceId();
     @Query("SELECT th FROM TemperatureHumidity th WHERE th.companyId =:company_id")
     List<TemperatureHumidity> getAllTemperatureHumidityByCompanyId(@Param("company_id") Long company_id);
+
+    @Query("SELECT th FROM TemperatureHumidity th WHERE th.companyId = :companyId ORDER BY th.created_at DESC")
+    List<TemperatureHumidity> getAllByCompanyIdAndCreatedAtDesc(@Param("companyId") Long companyId);
 }

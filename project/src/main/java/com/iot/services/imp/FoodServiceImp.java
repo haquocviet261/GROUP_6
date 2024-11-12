@@ -77,7 +77,7 @@ public class FoodServiceImp implements FoodService {
         food.setName(newFood.getName());
         food.setCategory_id(newFood.getCategory_id());
         food.setExpired_date(newFood.getExpired_date());
-        food.setUpdated_by(CommonUtils.getUserInforLogin().getUser_name());
+        food.setUpdated_by(CommonUtils.getUserInformationLogin().getUser_name());
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated successfully!!!", foodRepository.save(food)));
     }
 

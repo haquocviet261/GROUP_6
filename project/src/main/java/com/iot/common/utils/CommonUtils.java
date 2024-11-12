@@ -7,13 +7,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 public class CommonUtils {
 
-    public static User getUserInforLogin() {
+    public static User getUserInformationLogin() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Object principal = authentication.getPrincipal();
-        if (principal instanceof User) {
-            return (User) principal;
-        } else {
-            throw new RuntimeException("Principal is not an instance of User");
-        }
+        return (User) principal;
     }
 }

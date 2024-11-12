@@ -15,6 +15,6 @@ public class CompanyServiceImp implements CompanyService {
 
     @Override
     public ResponseEntity<ResponseObject> getAllNameCompany() {
-        return ResponseEntity.ok(new ResponseObject(Validation.OK,"Successfully !!!", companyRepository.findDistinctCompanyNames()));
+        return ResponseEntity.ok(new ResponseObject(Validation.OK,"Successfully !!!", companyRepository.getAllCompany()));
     }
 }

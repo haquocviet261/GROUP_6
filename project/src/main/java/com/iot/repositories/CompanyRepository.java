@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface CompanyRepository extends JpaRepository<Company,Long> {
-    @Query("SELECT DISTINCT c.name FROM Company c")
-    List<String> findDistinctCompanyNames();
+    @Query("SELECT c.name FROM Company c")
+    List<String> getAllCompany();
 }

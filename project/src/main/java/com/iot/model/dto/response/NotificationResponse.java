@@ -12,11 +12,9 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FoodItemResponse {
-    private Integer id;
-    private String name;
-    private String type_unit;
-    private Date expiration_date;
-    private Integer companyId;
-    private Integer categoryId;
+public class NotificationResponse {
+    private String type_notification;
+    private String message;
+    private String status;
+    private Date created_at;
 }

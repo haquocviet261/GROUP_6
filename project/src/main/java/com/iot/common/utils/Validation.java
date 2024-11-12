@@ -7,7 +7,7 @@ import io.jsonwebtoken.Jwts;
 import java.security.KeyFactory;
 import java.security.PublicKey;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
+import java.util.*;
 
 public class Validation {
     public static final String OK = "Success";
@@ -31,4 +31,24 @@ public class Validation {
             return null;
         }
     }
+    public static long calculateDaysLeft(int expiredDate, Date updatedAt) {
+        Calendar expirationCal = Calendar.getInstance();
+        expirationCal.setTime(updatedAt);
+        expirationCal.add(Calendar.DAY_OF_MONTH, expiredDate);
+
+        Date expirationDate = expirationCal.getTime();
+        Date currentDate = new Date();
+
+        long diffInMillis = expirationDate.getTime() - currentDate.getTime();
+
+        return diffInMillis / (1000 * 60 * 60 * 24);
+    }
+
+    public static Date calculateExpirationDate(int expiredDate, Date updatedAt) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(updatedAt);
+        calendar.add(Calendar.DAY_OF_MONTH, expiredDate);
+        return calendar.getTime();
+    }
+
 }

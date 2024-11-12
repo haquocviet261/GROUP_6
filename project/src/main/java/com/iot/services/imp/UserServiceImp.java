@@ -50,7 +50,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request) {
-        User user = CommonUtils.getUserInforLogin();
+        User user = CommonUtils.getUserInformationLogin();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "The current password you entered is incorrect. Please try again.", null));
         }
@@ -61,7 +61,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> getAllUsers() {
-        User user = CommonUtils.getUserInforLogin();
+        User user = CommonUtils.getUserInformationLogin();
         if (user.getRole().equals(CommonConstant.ADMIN)) {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userRepository.getAllUserForAdmin()));
@@ -85,7 +85,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> editUser(EditUserDTO editUserDTO) {
-        User user = CommonUtils.getUserInforLogin();
+        User user = CommonUtils.getUserInformationLogin();
         BeanUtils.copyProperties(editUserDTO, user);
         user.setUpdated_by(user.getUser_name());
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated successfully!", userRepository.save(user)));
@@ -120,7 +120,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> register(RegisterRequest request) throws MessagingException {
-        User user = CommonUtils.getUserInforLogin();
+        User user = CommonUtils.getUserInformationLogin();
         String email = request.getEmail();
         Optional<User> optionalUser = userRepository.findByEmailForRegister(email);
         if (optionalUser.isEmpty()) {
@@ -171,7 +171,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> searchUsers(String keyword) {
-        User user = CommonUtils.getUserInforLogin();
+        User user = CommonUtils.getUserInformationLogin();
         if (user.getRole().equals(CommonConstant.ADMIN)) {
             return ResponseEntity.ok(new ResponseObject(Validation.OK, "ListUser found successfully !!!", userRepository.searchUsersForAdmin(keyword)));
         }
