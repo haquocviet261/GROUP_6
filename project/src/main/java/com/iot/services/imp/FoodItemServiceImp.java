@@ -109,7 +109,7 @@ public class FoodItemServiceImp implements FoodItemService {
 
     @Override
     public ResponseEntity<ResponseObject> getFoodItemByCategory(Integer category_id) {
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Successfully !!!",
+        return ResponseEntity.ok(new ResponseObject(HttpStatus.OK.toString(), "Successfully !!!",
                 foodItemResponseMapper.mapListTo(foodItemRepository.getListFoodItemByCategory(category_id))));
     }
 
@@ -126,9 +126,7 @@ public class FoodItemServiceImp implements FoodItemService {
     public ResponseEntity<ResponseObject> getExpiredFoodItems(Long company_id) {
         List<FoodItem> foodItems = foodItemRepository.findByCompanyId(company_id);
         List<FoodItem> expiredItems = new ArrayList<>();
-
         Date currentDate = new Date();
-
         for (FoodItem foodItem : foodItems) {
             Calendar cal = Calendar.getInstance();
             cal.setTime(foodItem.getCreated_at());

@@ -23,7 +23,7 @@ public interface FoodItemRepository extends JpaRepository<FoodItem,Long> {
     @Query("SELECT fi FROM FoodItem fi " +
             "JOIN Food f ON fi.food_id = f.id " +
             "WHERE f.category_id = :category_id AND fi.deleted_at IS NULL")
-    List<FoodItem> getListFoodItemByCategory(@Param("category_id") Integer category_id);
+    List<FoodItem>  getListFoodItemByCategory(@Param("category_id") Integer category_id);
     
     @Query(value = "SELECT * FROM FoodItem f WHERE f.company_id = :company_id", nativeQuery = true)
     List<FoodItem> findByCompanyId(@Param("company_id") Long company_id);

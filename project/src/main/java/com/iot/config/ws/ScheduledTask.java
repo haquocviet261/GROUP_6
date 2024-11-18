@@ -30,7 +30,6 @@ public class ScheduledTask {
     @Scheduled(fixedRate = 90000)
     public void sendFoodExpired() {
         log.info("Checking for expired and soon-to-expire food items {}", dateFormat.format(new java.util.Date()));
-
         List<FoodItem> foodItems = foodItemRepository.findAll();
         Date currentDate = new Date();
         Calendar warningCal = Calendar.getInstance();
@@ -46,7 +45,6 @@ public class ScheduledTask {
                 // Food item is expired
                 template.convertAndSendToUser(foodItem.getCompanyId() != null ? foodItem.getCompanyId().toString() : "", "/topic/food", foodItem.getName() + " is expired!");
             } else if (cal.getTime().before(warningCal.getTime())) {
-                // Food item will expire within the next 3 days
                 template.convertAndSendToUser(foodItem.getCompanyId() != null ? foodItem.getCompanyId().toString() : "", "/topic/food", foodItem.getName() + " will expire in less than 3 days!");
             }
         }
