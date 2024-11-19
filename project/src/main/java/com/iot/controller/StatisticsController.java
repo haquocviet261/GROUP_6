@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/statistic")
 public class StatisticsController {
-    @Autowired
-    private FoodItemService foodItemService;
-    @RequestMapping(value = "/food-expried", method = RequestMethod.GET)
-    public ResponseEntity<ResponseObject> getFoodExpired(@RequestParam("company_id") Long company_id) {
-        return foodItemService.getExpiredFoodItems(company_id);
-    }
+
+
 }
