@@ -197,13 +197,12 @@ public class ScheduledTask {
         List<FoodItem> foodItems = foodItemRepository.findAll();
         for (FoodItem foodItem : foodItems) {
             Date currentExpirationDate = Validation.calculateExpirationDate(foodItem.getExpired_date(), foodItem.getUpdated_at());
-            if(currentExpirationDate.before(new Date())){
+            if (currentExpirationDate.before(new Date())) {
                 String message = "Food Item " + foodItem.getName() + " has expired!";
                 saveNotifications(CommonConstant.EXPIRATION_WARNING, message, foodItem.getCompanyId());
                 template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/food-expired", message);
             }
         }
-
     }
 
     @Scheduled(cron = "0 0 0 * * ?")

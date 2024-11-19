@@ -49,12 +49,20 @@ public class TextHandler extends TextWebSocketHandler {
         double humidity = jsonObject.getDouble("humidity");
         JSONArray weightArray = jsonObject.getJSONArray("weights");
 
-        temperatureHumidityRepository.save(TemperatureHumidity.builder().temperature(temperature).companyId(companyId).humidity(humidity).created_at(new Date()).build());
+        temperatureHumidityRepository.save(
+                TemperatureHumidity.builder().
+                        temperature(temperature).
+                        companyId(companyId).humidity(humidity).
+                        created_at(new Date()).
+                        build());
 
-        List<FoodItem> foodItemList = foodItemRepository.getAllFoodItem(companyId);
         for (int i = 0; i < weightArray.length(); i++) {
-            FoodItem foodItem = foodItemList.get(i);
-            updateFoodItemQuantity(foodItem, weightArray.getDouble(i));
+            JSONObject weightObject = weightArray.getJSONObject(i);
+            int foodItemId = weightObject.getInt("foodItemId");
+            double weight = weightObject.getDouble("weight");
+
+            Optional<FoodItem> foodItemOptional = foodItemRepository.findById((long) foodItemId);
+            foodItemOptional.ifPresent(foodItem -> updateFoodItemQuantity(foodItem, weight));
         }
         if (message instanceof TextMessage) {
             broadcastMessage(((TextMessage) message).getPayload());

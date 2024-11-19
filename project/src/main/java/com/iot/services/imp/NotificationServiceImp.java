@@ -51,9 +51,7 @@ public class NotificationServiceImp implements NotificationService {
     public ResponseEntity<ResponseObject> clearAllNotificationByUserId() {
         User user = CommonUtils.getUserInformationLogin();
         List<Notification> notifications = notificationRepository.getAllNotification(user.getId());
-        for (Notification notification : notifications) {
-            notificationRepository.delete(notification);
-        }
+        notificationRepository.deleteAll(notifications);
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Clear notice success!", ""));
     }
 
