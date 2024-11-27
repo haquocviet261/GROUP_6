@@ -5,8 +5,10 @@ import com.iot.common.utils.*;
 import com.iot.model.dto.request.*;
 import com.iot.model.dto.response.AuthenticationResponse;
 import com.iot.model.dto.response.ResponseObject;
+import com.iot.model.entity.Company;
 import com.iot.model.entity.Token;
 import com.iot.model.entity.User;
+import com.iot.repositories.CompanyRepository;
 import com.iot.repositories.TokenRepository;
 import com.iot.repositories.UserRepository;
 import com.iot.services.interfaces.UserService;
@@ -33,6 +35,8 @@ public class UserServiceImp implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CompanyRepository companyRepository;
     @Autowired
     private JwtServiceImp jwtServiceImp;
     @Autowired
@@ -118,36 +122,53 @@ public class UserServiceImp implements UserService {
         return ResponseEntity.ok("Ok!!!!");
     }
 
+    private void createAndSaveUser(String email, String companyName, User loggedInUser) throws MessagingException {
+        User newUser = new User();
+
+        newUser.setUser_name(generateUsername(email));
+        newUser.setPassword("temporary-password");
+        newUser.setEmail(email);
+        newUser.setStatus("INACTIVE");
+
+        if (loggedInUser.getRole().equals(CommonConstant.ADMIN)) {
+            newUser.setRole(CommonConstant.MANAGER);
+
+            Optional<Company> companyOptional = companyRepository.getByCompanyName(companyName);
+            if(companyOptional.isEmpty()){
+                Company company = new Company(companyName);
+                companyRepository.save(company);
+                newUser.setCompany_id(Math.toIntExact(company.getId()));
+            }else {
+                newUser.setCompany_id(Math.toIntExact(companyOptional.get().getId()));
+            }
+        } else {
+            newUser.setRole(CommonConstant.STAFF);
+            newUser.setCompany_id(loggedInUser.getCompany_id());
+        }
+
+        userRepository.save(newUser);
+
+        String token = jwtServiceImp.generateToken(newUser);
+        emailUtil.confirmAccount(email, token);
+    }
+
     @Override
     public ResponseEntity<ResponseObject> register(RegisterRequest request) throws MessagingException {
-        User user = CommonUtils.getUserInformationLogin();
-        String email = request.getEmail();
+        final String email = request.getEmail();
+        final String companyName = request.getCompanyName();
         Optional<User> optionalUser = userRepository.findByEmailForRegister(email);
-        if (optionalUser.isEmpty()) {
-            //Create new User with Status is INACTIVE
-            User newUser = new User();
-            newUser.setUser_name(generateUsername(email));
-            newUser.setPassword("temporary-password");
-            newUser.setEmail(email);
-            if (user.getRole().equals(CommonConstant.ADMIN)) {
-                newUser.setRole(CommonConstant.MANAGER);
-            } else {
-                newUser.setRole(CommonConstant.STAFF);
-            }
-            newUser.setStatus("INACTIVE");
-            newUser.setCompany_id(user.getCompany_id());
-            userRepository.save(newUser);
 
-            String token = jwtServiceImp.generateToken(newUser);
-            emailUtil.confirmAccount(email, token);
-            return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            if (existingUser.getStatus().equals("INACTIVE")) {
+                userRepository.delete(existingUser);
+            } else {
+                return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "Email " + email + " already exists!", null));
+            }
         }
-        if (optionalUser.get().getStatus().equals("INACTIVE")) {
-            String token = jwtServiceImp.generateToken(optionalUser.get());
-            emailUtil.confirmAccount(email, token);
-            return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
-        }
-        return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "Email " + email + " is exist !", null));
+        createAndSaveUser(email, companyName, CommonUtils.getUserInformationLogin());
+
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
     }
 
     @Override

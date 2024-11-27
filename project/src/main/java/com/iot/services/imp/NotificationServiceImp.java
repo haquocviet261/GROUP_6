@@ -2,6 +2,7 @@ package com.iot.services.imp;
 
 import com.iot.common.utils.CommonUtils;
 import com.iot.common.utils.Validation;
+import com.iot.model.dto.response.NotificationResponse;
 import com.iot.model.dto.response.ResponseObject;
 import com.iot.model.entity.Notification;
 import com.iot.model.entity.User;
@@ -11,12 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class NotificationServiceImp implements NotificationService {
@@ -37,46 +38,41 @@ public class NotificationServiceImp implements NotificationService {
 
     @Override
     public ResponseEntity<ResponseObject> updateNotificationStatus(Long notificationId, String status) {
-        Optional<Notification> notificationOptional = notificationRepository.getNotificationById(notificationId);
-        if (notificationOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Not found", ""));
-        }
-        Notification notification = notificationOptional.get();
+        Notification notification = findNotificationOrThrow(notificationId);
         notification.setStatus(status);
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Notice has been " + status, notificationRepository.save(notification)));
+        notificationRepository.save(notification);
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Notice has been " + status, notification));
     }
-
 
     @Override
     public ResponseEntity<ResponseObject> clearAllNotificationByUserId() {
         User user = CommonUtils.getUserInformationLogin();
-        List<Notification> notifications = notificationRepository.getAllNotification(user.getId());
-        notificationRepository.deleteAll(notifications);
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Clear notice success!", ""));
+        int deletedCount = notificationRepository.markAllNotificationsAsDeleted(user.getId(), new Date());
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Cleared " + deletedCount + " notices successfully!", ""));
     }
 
     @Override
     public ResponseEntity<ResponseObject> clearNotificationId(Long notificationId) {
-        Optional<Notification> notificationOptional = notificationRepository.getNotificationById(notificationId);
-        if (notificationOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Not found", ""));
-        }
-        Notification notification = notificationOptional.get();
-        notificationRepository.delete(notification);
+        Notification notification = findNotificationOrThrow(notificationId);
+        notification.setDeleted_at(new Date());
+        notificationRepository.save(notification); // Batch size nhỏ, chỉ một bản ghi
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Success", ""));
     }
 
     @Override
     public ResponseEntity<ResponseObject> updateAllNotificationStatus(String status) {
         User user = CommonUtils.getUserInformationLogin();
-        List<Notification> notifications = notificationRepository.getAllNotification(user.getId());
-        for (Notification notification : notifications) {
-            notification.setStatus(status);
-            notificationRepository.save(notification);
-        }
-        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Mark notice success!", ""));
+        int updatedCount = notificationRepository.updateAllNotificationsStatus(user.getId(), status);
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated " + updatedCount + " notices successfully!", ""));
     }
 
+    private Notification findNotificationOrThrow(Long notificationId) {
+        return notificationRepository.getNotificationById(notificationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found"));
+    }
+
+
+    @Override
     public ResponseEntity<ResponseObject> getNotificationsByTimePeriod(String timePeriod, String typeNotification) {
         User user = CommonUtils.getUserInformationLogin();
         LocalDateTime start;
@@ -107,6 +103,34 @@ public class NotificationServiceImp implements NotificationService {
         }
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Success!",
                 notificationRepository.getNotificationsByTimePeriodAndType(start, end, user.getId(), typeNotification)));
+    }
+
+    @Override
+    public ResponseEntity<ResponseObject> countNotificationsByType(Date specificDate){
+        User user = CommonUtils.getUserInformationLogin();
+        Date startOfDay = Validation.startOfDay(specificDate);
+        Date endOfDay = Validation.endOfDay(specificDate);
+
+        List<Notification> notifications = notificationRepository.getAllByCompanyIdAndDateRange(user.getId(), startOfDay, endOfDay);
+        List<String> notificationTypes = Arrays.asList(
+                "EXPIRATION_WARNING",
+                "TEMPERATURE_WARNING",
+                "HUMIDITY_WARNING",
+                "FOOD_LOW_STOCK_WARNING",
+                "FOOD_INVENTORY_END_OF_DAY",
+                "UPDATE_FOOD_ITEM",
+                "FOOD_ITEM_REPLENISHED_WARNING"
+        );
+
+        List<NotificationResponse> notificationResponses = notificationTypes.stream()
+                .map(type -> new NotificationResponse(
+                        type,
+                        notifications.stream()
+                                .filter(n -> n.getType_notification().equals(type))
+                                .count()
+                ))
+                .toList();
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Success!",notificationResponses));
     }
 
 }

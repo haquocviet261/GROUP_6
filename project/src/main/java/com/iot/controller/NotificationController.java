@@ -3,8 +3,11 @@ package com.iot.controller;
 import com.iot.model.dto.response.ResponseObject;
 import com.iot.services.imp.NotificationServiceImp;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("api/notification")
@@ -47,5 +50,11 @@ public class NotificationController {
         return notificationServiceImp.getNotificationsByTimePeriod(timePeriod,typeNotification);
     }
 
+    @GetMapping("/get-count-by-date")
+    public ResponseEntity<ResponseObject> getCountTypeNotificationBySpecificDay(
+            @RequestParam(name = "specificDate") @DateTimeFormat(pattern = "yyyy-MM-dd") Date specificDate) {
+
+        return notificationServiceImp.countNotificationsByType(specificDate);
+    }
 
 }
