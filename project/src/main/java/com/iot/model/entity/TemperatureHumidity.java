@@ -1,9 +1,6 @@
 package com.iot.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.*;
 import lombok.NoArgsConstructor;
@@ -19,8 +16,9 @@ import java.util.Date;
 @Table(name = "TemperatureHumidity")
 public class TemperatureHumidity {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Long id;
     @Column(name = "temperature")
     private Double temperature;
     @Column(name = "humidity")

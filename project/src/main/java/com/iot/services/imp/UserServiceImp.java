@@ -54,7 +54,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> changePassword(ChangePasswordRequest request) {
-        User user = CommonUtils.getUserInforLogin();
+        User user = CommonUtils.getUserInformationLogin();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "The current password you entered is incorrect. Please try again.", null));
         }
@@ -65,14 +65,14 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> getAllUsers() {
-        User user = CommonUtils.getUserInforLogin();
+        User user = CommonUtils.getUserInformationLogin();
         if (user.getRole().equals(CommonConstant.ADMIN)) {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseObject(Validation.OK, "Retrieved users successfully", userRepository.getAllUserForAdmin()));
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(new ResponseObject(Validation.OK, "Retrieved users successfully"
-                        , userRepository.getAllUserByCompanyExceptManager(userRepository.getCompanyNameIdByUserId(user.getId()))));
+                        , userRepository.getAllUserByCompanyExceptManager(user.getCompany_id())));
     }
 
     public ResponseEntity<ResponseObject> deleteUser(Long id) {
@@ -89,7 +89,7 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> editUser(EditUserDTO editUserDTO) {
-        User user = CommonUtils.getUserInforLogin();
+        User user = CommonUtils.getUserInformationLogin();
         BeanUtils.copyProperties(editUserDTO, user);
         user.setUpdated_by(user.getUser_name());
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "Updated successfully!", userRepository.save(user)));
@@ -122,39 +122,53 @@ public class UserServiceImp implements UserService {
         return ResponseEntity.ok("Ok!!!!");
     }
 
+    private void createAndSaveUser(String email, String companyName, User loggedInUser) throws MessagingException {
+        User newUser = new User();
+
+        newUser.setUser_name(generateUsername(email));
+        newUser.setPassword("temporary-password");
+        newUser.setEmail(email);
+        newUser.setStatus("INACTIVE");
+
+        if (loggedInUser.getRole().equals(CommonConstant.ADMIN)) {
+            newUser.setRole(CommonConstant.MANAGER);
+
+            Optional<Company> companyOptional = companyRepository.getByCompanyName(companyName);
+            if(companyOptional.isEmpty()){
+                Company company = new Company(companyName);
+                companyRepository.save(company);
+                newUser.setCompany_id(Math.toIntExact(company.getId()));
+            }else {
+                newUser.setCompany_id(Math.toIntExact(companyOptional.get().getId()));
+            }
+        } else {
+            newUser.setRole(CommonConstant.STAFF);
+            newUser.setCompany_id(loggedInUser.getCompany_id());
+        }
+
+        userRepository.save(newUser);
+
+        String token = jwtServiceImp.generateToken(newUser);
+        emailUtil.confirmAccount(email, token);
+    }
+
     @Override
     public ResponseEntity<ResponseObject> register(RegisterRequest request) throws MessagingException {
-        User user = CommonUtils.getUserInforLogin();
-        String email = request.getEmail();
+        final String email = request.getEmail();
+        final String companyName = request.getCompanyName();
         Optional<User> optionalUser = userRepository.findByEmailForRegister(email);
-        if (optionalUser.isEmpty()) {
-            //Create new User with Status is INACTIVE
-            User newUser = new User();
-            newUser.setUser_name(generateUsername(email));
-            newUser.setPassword("temporary-password");
-            newUser.setEmail(email);
-            if (user.getRole().equals(CommonConstant.ADMIN)) {
-                newUser.setRole(CommonConstant.MANAGER);
+
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            if (existingUser.getStatus().equals("INACTIVE")) {
+                userRepository.delete(existingUser);
             } else {
-                newUser.setRole(CommonConstant.STAFF);
+                return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "Email " + email + " already exists!", null));
             }
-            newUser.setStatus("INACTIVE");
-            userRepository.save(newUser);
-
-            String companyName = userRepository.getCompanyNameIdByUserId(user.getId());
-            Company company = new Company(companyName, newUser.getId());
-            companyRepository.save(company);
-
-            String token = jwtServiceImp.generateToken(newUser);
-            emailUtil.confirmAccount(email, token);
-            return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
         }
-        if (optionalUser.get().getStatus().equals("INACTIVE")) {
-            String token = jwtServiceImp.generateToken(optionalUser.get());
-            emailUtil.confirmAccount(email, token);
-            return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
-        }
-        return ResponseEntity.ok(new ResponseObject(Validation.FAIL, "Email " + email + " is exist !", null));
+        createAndSaveUser(email, companyName, CommonUtils.getUserInformationLogin());
+
+        return ResponseEntity.ok(new ResponseObject(Validation.OK, "Please check email " + email, null));
     }
 
     @Override
@@ -178,12 +192,12 @@ public class UserServiceImp implements UserService {
 
     @Override
     public ResponseEntity<ResponseObject> searchUsers(String keyword) {
-        User user = CommonUtils.getUserInforLogin();
+        User user = CommonUtils.getUserInformationLogin();
         if (user.getRole().equals(CommonConstant.ADMIN)) {
             return ResponseEntity.ok(new ResponseObject(Validation.OK, "ListUser found successfully !!!", userRepository.searchUsersForAdmin(keyword)));
         }
         return ResponseEntity.ok(new ResponseObject(Validation.OK, "ListUser found successfully !!!"
-                , userRepository.searchUsersForManager(keyword, userRepository.getCompanyNameIdByUserId(user.getId()))));
+                , userRepository.searchUsersForManager(keyword, user.getCompany_id())));
     }
 
     public ResponseEntity<String> setPassword(String email, String newPassword) {

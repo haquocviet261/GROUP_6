@@ -51,7 +51,7 @@ public class FoodItemController {
 
     @Autowired
     private FoodItemService foodItemService;
-    @RequestMapping(value = "/food-expried", method = RequestMethod.GET)
+    @RequestMapping(value = "/food-expired", method = RequestMethod.GET)
     public ResponseEntity<ResponseObject> getFoodExpired(@RequestParam("company_id") Long company_id) {
         return foodItemService.getExpiredFoodItems(company_id);
     }

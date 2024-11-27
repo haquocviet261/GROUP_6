@@ -14,7 +14,8 @@ import java.util.Date;
 public class FoodItemResponse {
     private Integer id;
     private String name;
-    private String unit;
+    private String type_unit;
     private Date expiration_date;
-    private Integer device_id;
+    private Integer companyId;
+    private Integer categoryId;
 }

@@ -2,7 +2,6 @@ package com.iot.config;
 
 import com.iot.repositories.TokenRepository;
 import com.iot.services.imp.JwtServiceImp;
-import com.iot.services.imp.UserDetailsServiceImp;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,8 +25,6 @@ public class JwtAuthenicationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtServiceImp jwtServiceImp;
-    @Autowired
-    private UserDetailsServiceImp userDetailsServiceImp;
     @Autowired
     private UserDetailsService userDetailsService;
     @Autowired

@@ -1,4 +1,4 @@
-package com.iot.model.dto.request;
+package com.iot.model.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-    private String email;
-    private String companyName;
+public class NotificationResponse {
+    private String type_notification;
+    private Long count;
 }
