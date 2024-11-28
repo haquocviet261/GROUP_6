@@ -16,30 +16,17 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class TextHandler extends TextWebSocketHandler {
-
     @Autowired
     private TemperatureHumidityRepository temperatureHumidityRepository;
     @Autowired
     private FoodItemRepository foodItemRepository;
-
     private final Set<WebSocketSession> sessions = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-    private TemperatureHumidity tempHumidityData = null;
-
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-
-    public TextHandler() {
-        scheduler.scheduleAtFixedRate(this::saveTemperatureHumidityData, 0, 20, TimeUnit.MINUTES);
-    }
-
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) {
+    public void afterConnectionEstablished(WebSocketSession session){
         sessions.add(session);
         log.info("Session added: {}", session.getId());
     }
@@ -62,12 +49,12 @@ public class TextHandler extends TextWebSocketHandler {
         double humidity = jsonObject.getDouble("humidity");
         JSONArray weightArray = jsonObject.getJSONArray("weights");
 
-        tempHumidityData = TemperatureHumidity.builder()
-                .temperature(temperature)
-                .companyId(companyId)
-                .humidity(humidity)
-                .created_at(new Date())
-                .build();
+        temperatureHumidityRepository.save(
+                TemperatureHumidity.builder().
+                        temperature(temperature).
+                        companyId(companyId).humidity(humidity).
+                        created_at(new Date()).
+                        build());
 
         for (int i = 0; i < weightArray.length(); i++) {
             JSONObject weightObject = weightArray.getJSONObject(i);
@@ -77,17 +64,8 @@ public class TextHandler extends TextWebSocketHandler {
             Optional<FoodItem> foodItemOptional = foodItemRepository.findById((long) foodItemId);
             foodItemOptional.ifPresent(foodItem -> updateFoodItemQuantity(foodItem, weight));
         }
-
         if (message instanceof TextMessage) {
             broadcastMessage(((TextMessage) message).getPayload());
-        }
-    }
-
-    private void saveTemperatureHumidityData() {
-        if (tempHumidityData != null) {
-            temperatureHumidityRepository.save(tempHumidityData);
-            log.info("Data saved to repository: {}", tempHumidityData);
-            tempHumidityData = null;
         }
     }
 
@@ -100,6 +78,7 @@ public class TextHandler extends TextWebSocketHandler {
         }
         foodItem.setQuantity(newQuantity);
         foodItemRepository.save(foodItem);
+
     }
 
     private void broadcastMessage(String message) throws Exception {
