@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class InventoryLogServiceImp implements InventoryLogService {
@@ -60,7 +59,7 @@ public class InventoryLogServiceImp implements InventoryLogService {
             double consumedQuantity = openingQuantity - closingQuantity + addedQuantity;
 
             if (consumedQuantity > 0) {
-                consumptionByName.computeIfAbsent(foodItem.getName(), name -> new ConsumeQuantity(name, 0.0))
+                consumptionByName.computeIfAbsent(inventoryLogToday.get().getFoodName(), name -> new ConsumeQuantity(name, 0.0))
                         .addConsumeQuantity(consumedQuantity);
             }
         }
