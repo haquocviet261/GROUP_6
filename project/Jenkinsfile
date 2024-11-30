@@ -29,6 +29,7 @@ pipeline {
                         docker run -d -p 9999:9999 --name iot_app \
                             -v /etc/localtime:/etc/localtime:ro \
                             -v /etc/timezone:/etc/timezone:ro \
+                            -e TZ=Asia/Ho_Chi_Minh \
                             iot_app
                     '''
                 }
