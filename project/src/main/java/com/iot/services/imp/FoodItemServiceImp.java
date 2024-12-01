@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -35,6 +36,8 @@ public class FoodItemServiceImp implements FoodItemService {
     private NotificationRepository notificationRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private SimpMessagingTemplate template;
 
 
     @Override
@@ -100,6 +103,7 @@ public class FoodItemServiceImp implements FoodItemService {
 
         String message = "Food Item " + foodItem.getName() + " has been updated by @" + foodItem.getUpdated_by() + "!";
         saveNotifications(message, foodItem.getCompanyId());
+        template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/food-item-update", message);
 
         return ResponseEntity
                 .ok(new ResponseObject(Validation.OK, "Updated successfully !!!", foodItemRepository.save(foodItem)));
