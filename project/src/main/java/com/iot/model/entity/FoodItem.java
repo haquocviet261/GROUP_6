@@ -69,6 +69,9 @@ public class FoodItem{
     @Column(name = "last_increase_weight")
     private Double lastIncreaseWeight;
 
+    @Column(name = "is_low_stock", nullable = false)
+    private Boolean isLowStock;
+
     @PrePersist
     public void prePersist() {
         created_at = new Date();

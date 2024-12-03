@@ -31,5 +31,7 @@ public class InventoryLog {
     private String foodName;
     @Column(name = "added_quantity")
     private Double addedQuantity;
+    @Column(name = "consumed_quantity")
+    private Double consumedQuantity;
 
 }

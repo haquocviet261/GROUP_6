@@ -84,16 +84,23 @@ public class ScheduledTask {
         }
     }
 
-    @Scheduled(fixedRate = 900000) //15 minutes - = 15 * 60 *1000
+    @Scheduled(fixedRate = 5000) //15 minutes - = 15 * 60 *1000
     public void checkFoodLowStock() {
         log.info("Check Food Low Stock {}", dateFormat.format(new java.util.Date()));
 
         List<FoodItem> foodItems = foodItemRepository.findAll();
         for (FoodItem foodItem : foodItems) {
             if (foodItem.getQuantity() < 1) {
-                String message = "Warning: The stock for " + foodItem.getName() + " is running low. Please restock the inventory to avoid shortage.";
-                saveNotifications(CommonConstant.FOOD_LOW_STOCK_WARNING, message, foodItem.getCompanyId());
-                template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/weight", message);
+                if (!foodItem.getIsLowStock()) {
+                    String message = "Warning: The stock for " + foodItem.getName() + " is running low. Please restock the inventory to avoid shortage.";
+                    saveNotifications(CommonConstant.FOOD_LOW_STOCK_WARNING, message, foodItem.getCompanyId());
+                    template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/weight", message);
+                    foodItem.setIsLowStock(true);
+                    foodItemRepository.save(foodItem);
+                }
+            } else{
+                foodItem.setIsLowStock(false);
+                foodItemRepository.save(foodItem);
             }
         }
     }
@@ -135,11 +142,17 @@ public class ScheduledTask {
                         Date endOfDay = Validation.endOfDay(today);
 
                         Optional<InventoryLog> logOptional = inventoryLogRepository.findByFoodItemIdAndCreatedAt(
-                                foodItem.getId(), startOfDay, endOfDay);
+                                foodItem.getId(), foodItem.getName(), startOfDay, endOfDay);
 
                         InventoryLog log;
                         if (logOptional.isPresent()) {
                             log = logOptional.get();
+                            Double openingQuantity = log.getClosingQuantity() != null ? log.getClosingQuantity() : 0.0;
+                            double totalAddedQuantity = log.getAddedQuantity() != null ? log.getAddedQuantity() : 0.0;
+
+                            Double consumedQuantity = openingQuantity - currentWeight + totalAddedQuantity;
+                            log.setConsumedQuantity(consumedQuantity);
+
                             log.setAddedQuantity(log.getAddedQuantity() + addedQuantity);
                             log.setClosingQuantity(currentWeight);
                         } else {
@@ -151,6 +164,8 @@ public class ScheduledTask {
                             log.setCreated_at(today);
                             log.setFoodName(foodItem.getName());
                             log.setUnit(foodItem.getType_unit());
+
+                            log.setConsumedQuantity(addedQuantity);
                         }
 
                         inventoryLogRepository.save(log);
@@ -229,15 +244,17 @@ public class ScheduledTask {
                 Date endOfDay = Validation.endOfDay(today);
 
                 Optional<InventoryLog> logOptional = inventoryLogRepository.findByFoodItemIdAndCreatedAt(
-                        item.getId(), startOfDay, endOfDay);
+                        item.getId(), item.getName(), startOfDay, endOfDay);
                 if (logOptional.isEmpty()) {
                     inventoryLogRepository.save(InventoryLog.builder().foodItemId(Math.toIntExact(item.getId()))
                             .unit(item.getType_unit())
                             .closingQuantity(item.getQuantity())
                             .companyId(item.getCompanyId())
                             .created_at(new Date())
-                            .foodName(item.getName()).build());
-                }else{
+                            .foodName(item.getName())
+                            .consumedQuantity(0.0)
+                            .addedQuantity(0.0).build());
+                } else {
                     logOptional.get().setClosingQuantity(item.getQuantity());
                     inventoryLogRepository.save(logOptional.get());
                 }

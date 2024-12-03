@@ -25,8 +25,20 @@ public interface InventoryLogRepository extends JpaRepository<InventoryLog, Long
                                                 @Param("endDate") Date endDate
     );
 
-    @Query("SELECT il FROM InventoryLog il WHERE il.foodItemId = :foodItemId AND il.created_at BETWEEN :startDate AND :endDate")
+    @Query("SELECT il FROM InventoryLog il " +
+            "WHERE il.foodItemId = :foodItemId " +
+            "AND il.foodName = :foodName " +
+            "AND il.created_at BETWEEN :startDate AND :endDate")
     Optional<InventoryLog> findByFoodItemIdAndCreatedAt(@Param("foodItemId") Long foodItemId,
+                                                        @Param("foodName") String foodName,
+                                                        @Param("startDate") Date startDate,
+                                                        @Param("endDate") Date endDate
+    );
+
+    @Query("SELECT il FROM InventoryLog il " +
+            "WHERE il.foodItemId = :foodItemId " +
+            "AND il.created_at BETWEEN :startDate AND :endDate")
+    List<InventoryLog> findByFoodItemIdAndCreatedAt(@Param("foodItemId") Long foodItemId,
                                                         @Param("startDate") Date startDate,
                                                         @Param("endDate") Date endDate
     );

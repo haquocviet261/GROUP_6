@@ -18,4 +18,5 @@ public class FoodItemResponse {
     private Date expiration_date;
     private Integer companyId;
     private Integer categoryId;
+    private Boolean isLowStock;
 }
