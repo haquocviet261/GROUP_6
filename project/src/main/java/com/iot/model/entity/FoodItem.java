@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.*;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
