@@ -49,7 +49,7 @@ public class EmailUtils {
                     <br><br>
                     Thank you for registering with us! Please click the link below to verify your email address and activate your account:
                     <br><br>
-                    <a href="http://localhost:9999/api/user/verify-account?token=%s" target="_blank">Click here to verify your account</a>
+                    <a href="https://haquocviet261.click/api/user/verify-account?token=%s" target="_blank">Click here to verify your account</a>
                     <br><br>
                     If you did not sign up for this account, please ignore this email.
                     <br><br>

@@ -44,6 +44,9 @@ public class ScheduledTask {
         log.info("Checking for expired and soon-to-expire food items {}", dateFormat.format(new Date()));
         List<FoodItem> foodItems = foodItemRepository.findAll();
         for (FoodItem foodItem : foodItems) {
+            if (foodItem.getExpired_date() == null) {
+                continue;
+            }
             Date currentExpirationDate = Validation.calculateExpirationDate(foodItem.getExpired_date(), foodItem.getUpdated_at());
 
             boolean expirationDateChanged = foodItem.getLastCheckedExpirationDate() == null ||
@@ -90,7 +93,7 @@ public class ScheduledTask {
 
         List<FoodItem> foodItems = foodItemRepository.findAll();
         for (FoodItem foodItem : foodItems) {
-            if (foodItem.getQuantity() < 1) {
+            if (foodItem.getQuantity() != null && foodItem.getQuantity() < 1) {
                 if (!foodItem.getIsLowStock()) {
                     String message = "Warning: The stock for " + foodItem.getName() + " is running low. Please restock the inventory to avoid shortage.";
                     saveNotifications(CommonConstant.FOOD_LOW_STOCK_WARNING, message, foodItem.getCompanyId());

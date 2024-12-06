@@ -18,4 +18,8 @@ public class CompanyController {
     ResponseEntity<ResponseObject> getAllNameCompany(){
         return companyServiceImp.getAllNameCompany();
     }
+    @GetMapping("/get")
+    public ResponseEntity<ResponseObject> getAllCompany() {
+        return companyServiceImp.getAllCompany();
+    }
 }

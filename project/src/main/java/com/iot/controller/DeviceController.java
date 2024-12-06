@@ -1,5 +1,6 @@
 package com.iot.controller;
 
+import com.iot.model.dto.request.DeviceRequest;
 import com.iot.model.dto.response.ResponseObject;
 import com.iot.model.entity.Device;
 import com.iot.repositories.DeviceRepository;
@@ -16,13 +17,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/device")
 public class DeviceController {
     @Autowired
-    private DeviceRepository deviceRepository;
-    @Autowired
     private DeviceService deviceService;
+    @Autowired
+    private DeviceServiceImp deviceServiceImp;
     @Transactional(rollbackFor = Exception.class)
-    @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public ResponseObject saveDevice(@RequestBody Device device) {
-        return new ResponseObject(HttpStatus.OK.toString(), "Add device successfully !",deviceRepository.save(device));
+    @PostMapping("/save")
+    public ResponseEntity<ResponseObject> saveDevice(@RequestBody DeviceRequest deviceRequest) {
+        return deviceServiceImp.saveDevice(deviceRequest);
     }
     @GetMapping("/get")
     public ResponseObject getDeviceByConpanyId(@RequestParam("company_id") Long conpany_id) {

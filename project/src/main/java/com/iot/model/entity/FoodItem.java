@@ -68,7 +68,7 @@ public class FoodItem{
     @Column(name = "last_increase_weight")
     private Double lastIncreaseWeight;
 
-    @Column(name = "is_low_stock", nullable = false)
+    @Column(name = "is_low_stock")
     private Boolean isLowStock;
 
     @PrePersist
