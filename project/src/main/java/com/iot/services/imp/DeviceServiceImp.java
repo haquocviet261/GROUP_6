@@ -7,12 +7,12 @@ import com.iot.model.entity.FoodItem;
 import com.iot.repositories.DeviceRepository;
 import com.iot.repositories.FoodItemRepository;
 import com.iot.services.interfaces.DeviceService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -36,7 +36,7 @@ public class DeviceServiceImp implements DeviceService {
         List<Device> deviceList = deviceRepository.getDeviceByCompanyId(deviceRequest.getCompanyId());
         boolean isExistDevice = false;
         for (Device device : deviceList) {
-            if (device.getMac_address().equals(deviceRequest.getMacAddress())) {
+            if (device.getMacAddress().equals(deviceRequest.getMacAddress())) {
                 isExistDevice = true;
                 break;
             }
@@ -44,6 +44,8 @@ public class DeviceServiceImp implements DeviceService {
         if (isExistDevice) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ResponseObject(HttpStatus.INTERNAL_SERVER_ERROR.toString(),"Device are exist !", null));
         }
+        Device device = new Device();
+        BeanUtils.copyProperties(deviceRequest, device);
         List<Long> listFoodItemsId = IntStream.range(0, 10)
                 .mapToObj(i -> foodItemRepository.save(
                         FoodItem.builder()
@@ -51,6 +53,7 @@ public class DeviceServiceImp implements DeviceService {
                                 .build()
                 ).getId())
                 .collect(Collectors.toList());
+        deviceRepository.save(device);
         return ResponseEntity.ok(new ResponseObject(HttpStatus.OK.toString(), "List Food Item Id", listFoodItemsId));
     }
 
