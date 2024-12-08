@@ -294,6 +294,8 @@ public class UserServiceImp implements UserService {
             String refreshToken = jwtServiceImp.generateRefreshToken(user);
             revokeAllUserTokens(user);
             saveUserToken(user, jwt);
+            checkMailExist.get().setImages_src(userInformation.get("picture").toString());
+            userRepository.save(checkMailExist.get());
             return ResponseEntity.ok(new ResponseObject("OK", "Handle authorization code and state successfully!", AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ResponseObject(Validation.FAIL, "Email does not exist!", ""));
