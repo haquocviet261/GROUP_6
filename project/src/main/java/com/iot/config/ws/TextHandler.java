@@ -106,16 +106,21 @@ public class TextHandler extends TextWebSocketHandler {
         List<FoodItem> foodItems = foodItemRepository.findAll();
         foodItems.forEach(foodItem -> {
             if (foodItem.getQuantity() != null) {
-                if (foodItem.getQuantity() < 1 && !foodItem.getIsLowStock()) {
-                    // Notify if stock is low
-                    String message = "Warning: The stock for " + foodItem.getName() + " is running low.";
-                    saveNotifications(CommonConstant.FOOD_LOW_STOCK_WARNING, message, foodItem.getCompanyId());
-                    template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/weight", message);
+                if (foodItem.getIsLowStock() == null) {
                     foodItem.setIsLowStock(true);
                     foodItemRepository.save(foodItem);
-                } else if (foodItem.getQuantity() >= 1) {
-                    foodItem.setIsLowStock(false);
-                    foodItemRepository.save(foodItem);
+                } else {
+                    if (foodItem.getQuantity() < 1 && !foodItem.getIsLowStock()) {
+                        // Notify if stock is low
+                        String message = "Warning: The stock for " + foodItem.getName() + " is running low.";
+                        saveNotifications(CommonConstant.FOOD_LOW_STOCK_WARNING, message, foodItem.getCompanyId());
+                        template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/weight", message);
+                        foodItem.setIsLowStock(true);
+                        foodItemRepository.save(foodItem);
+                    } else if (foodItem.getQuantity() >= 1) {
+                        foodItem.setIsLowStock(false);
+                        foodItemRepository.save(foodItem);
+                    }
                 }
             }
         });
@@ -131,9 +136,9 @@ public class TextHandler extends TextWebSocketHandler {
     }
 
     private void updateFoodItemQuantity(FoodItem foodItem, double newQuantity) {
-        if(ObjectUtils.isEmpty(foodItem.getQuantity())){
+        if (ObjectUtils.isEmpty(foodItem.getQuantity())) {
             foodItem.setQuantity(newQuantity);
-        }else{
+        } else {
             double currentQuantity = foodItem.getQuantity();
             if (newQuantity - currentQuantity >= 1.0) {
                 foodItem.setLastIncreaseTime(new Date());
