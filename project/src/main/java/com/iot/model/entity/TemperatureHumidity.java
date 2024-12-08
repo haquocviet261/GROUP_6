@@ -27,4 +27,11 @@ public class TemperatureHumidity {
     private Integer companyId;
     @Column(name = "created_at")
     private Date created_at;
+
+    public TemperatureHumidity(Double temperature, Double humidity, Integer companyId, Date created_at) {
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.companyId = companyId;
+        this.created_at = created_at;
+    }
 }

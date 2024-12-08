@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -34,8 +35,6 @@ public class ScheduledTask {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private CompanyRepository companyRepository;
-    @Autowired
     InventoryLogRepository inventoryLogRepository;
 
 
@@ -43,67 +42,48 @@ public class ScheduledTask {
     public void checkFoodExpired() {
         log.info("Checking for expired and soon-to-expire food items {}", dateFormat.format(new Date()));
         List<FoodItem> foodItems = foodItemRepository.findAll();
-        for (FoodItem foodItem : foodItems) {
-            if (foodItem.getExpired_date() == null) {
-                continue;
-            }
-            Date currentExpirationDate = Validation.calculateExpirationDate(foodItem.getExpired_date(), foodItem.getUpdated_at());
+        if (!ObjectUtils.isEmpty(foodItems)) {
 
-            boolean expirationDateChanged = foodItem.getLastCheckedExpirationDate() == null ||
-                    !foodItem.getLastCheckedExpirationDate().toInstant().equals(currentExpirationDate.toInstant());
-            if (expirationDateChanged) {
-                foodItem.setDaysBeforeExpiredNotified(null);
-            }
-
-            long daysLeft = Validation.calculateDaysLeft(foodItem.getExpired_date(), foodItem.getUpdated_at());
-            String message = null;
-
-            if (daysLeft == 0 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() < 0)) {
-                message = foodItem.getName() + " will expire today!";
-                foodItem.setDaysBeforeExpiredNotified(0);
-            } else if (daysLeft == 3 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() < 3)) {
-                message = foodItem.getName() + " will expire in less than 3 days!";
-                foodItem.setDaysBeforeExpiredNotified(3);
-            } else if (daysLeft == 2 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() < 2)) {
-                message = foodItem.getName() + " will expire in less than 2 days!";
-                foodItem.setDaysBeforeExpiredNotified(2);
-            } else if (daysLeft == 1 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() < 1)) {
-                message = foodItem.getName() + " will expire tomorrow!";
-                foodItem.setDaysBeforeExpiredNotified(1);
-            } else if (daysLeft < 0 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() > 0)) {
-                message = foodItem.getName() + " has expired!";
-                foodItem.setDaysBeforeExpiredNotified(-1);
-            }
-
-            if (message != null) {
-                foodItem.setLastNotifiedAt(new Date());
-
-                foodItem.setLastCheckedExpirationDate(currentExpirationDate);
-                foodItemRepository.save(foodItem);
-
-                saveNotifications(CommonConstant.EXPIRATION_WARNING, message, foodItem.getCompanyId());
-                template.convertAndSendToUser(foodItem.getCompanyId() != null ? foodItem.getCompanyId().toString() : "", "/topic/food-expired", message);
-            }
-        }
-    }
-
-    @Scheduled(fixedRate = 5000) //15 minutes - = 15 * 60 *1000
-    public void checkFoodLowStock() {
-        log.info("Check Food Low Stock {}", dateFormat.format(new java.util.Date()));
-
-        List<FoodItem> foodItems = foodItemRepository.findAll();
-        for (FoodItem foodItem : foodItems) {
-            if (foodItem.getQuantity() != null && foodItem.getQuantity() < 1) {
-                if (!foodItem.getIsLowStock()) {
-                    String message = "Warning: The stock for " + foodItem.getName() + " is running low. Please restock the inventory to avoid shortage.";
-                    saveNotifications(CommonConstant.FOOD_LOW_STOCK_WARNING, message, foodItem.getCompanyId());
-                    template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/weight", message);
-                    foodItem.setIsLowStock(true);
-                    foodItemRepository.save(foodItem);
+            for (FoodItem foodItem : foodItems) {
+                if (foodItem.getExpired_date() == null) {
+                    continue;
                 }
-            } else{
-                foodItem.setIsLowStock(false);
-                foodItemRepository.save(foodItem);
+                Date currentExpirationDate = Validation.calculateExpirationDate(foodItem.getExpired_date(), foodItem.getUpdated_at());
+
+                boolean expirationDateChanged = foodItem.getLastCheckedExpirationDate() == null || !foodItem.getLastCheckedExpirationDate().toInstant().equals(currentExpirationDate.toInstant());
+                if (expirationDateChanged) {
+                    foodItem.setDaysBeforeExpiredNotified(null);
+                }
+
+                long daysLeft = Validation.calculateDaysLeft(foodItem.getExpired_date(), foodItem.getUpdated_at());
+                String message = null;
+
+                if (daysLeft == 0 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() < 0)) {
+                    message = foodItem.getName() + " will expire today!";
+                    foodItem.setDaysBeforeExpiredNotified(0);
+                } else if (daysLeft == 3 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() < 3)) {
+                    message = foodItem.getName() + " will expire in less than 3 days!";
+                    foodItem.setDaysBeforeExpiredNotified(3);
+                } else if (daysLeft == 2 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() < 2)) {
+                    message = foodItem.getName() + " will expire in less than 2 days!";
+                    foodItem.setDaysBeforeExpiredNotified(2);
+                } else if (daysLeft == 1 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() < 1)) {
+                    message = foodItem.getName() + " will expire tomorrow!";
+                    foodItem.setDaysBeforeExpiredNotified(1);
+                } else if (daysLeft < 0 && (foodItem.getDaysBeforeExpiredNotified() == null || foodItem.getDaysBeforeExpiredNotified() > 0)) {
+                    message = foodItem.getName() + " has expired!";
+                    foodItem.setDaysBeforeExpiredNotified(-1);
+                }
+
+                if (message != null) {
+                    foodItem.setLastNotifiedAt(new Date());
+
+                    foodItem.setLastCheckedExpirationDate(currentExpirationDate);
+                    foodItemRepository.save(foodItem);
+
+                    saveNotifications(CommonConstant.EXPIRATION_WARNING, message, foodItem.getCompanyId());
+                    template.convertAndSendToUser(foodItem.getCompanyId() != null ? foodItem.getCompanyId().toString() : "", "/topic/food-expired", message);
+                }
             }
         }
     }
@@ -113,106 +93,79 @@ public class ScheduledTask {
         log.info("Checking newly added food items {}", dateFormat.format(new Date()));
 
         List<FoodItem> foodItems = foodItemRepository.findAll();
+        if (!ObjectUtils.isEmpty(foodItems)) {
+            for (FoodItem foodItem : foodItems) {
+                Double currentWeight = foodItem.getQuantity();
 
-        for (FoodItem foodItem : foodItems) {
-            Double currentWeight = foodItem.getQuantity();
+                if (foodItem.getLastIncreaseWeight() == null) {
+                    foodItem.setLastIncreaseWeight(currentWeight);
+                    foodItemRepository.save(foodItem);
+                    log.info("Initialized LastIncreaseWeight for food item {}", foodItem.getName());
+                    continue;
+                }
 
-            if (foodItem.getLastIncreaseWeight() == null) {
-                foodItem.setLastIncreaseWeight(currentWeight);
-                foodItemRepository.save(foodItem);
-                log.info("Initialized LastIncreaseWeight for food item {}", foodItem.getName());
-                continue;
-            }
+                Double lastIncreaseWeight = foodItem.getLastIncreaseWeight();
 
-            Double lastIncreaseWeight = foodItem.getLastIncreaseWeight();
+                if (currentWeight > lastIncreaseWeight) {
+                    Double addedQuantity = currentWeight - lastIncreaseWeight;
 
-            if (currentWeight > lastIncreaseWeight) {
-                Double addedQuantity = currentWeight - lastIncreaseWeight;
-
-                if (addedQuantity >= 0.9) {
-                    if (foodItem.getLastIncreaseTime() == null) {
-                        foodItem.setLastIncreaseTime(new Date());
-                        foodItemRepository.save(foodItem);
-                        log.info("Initialized LastIncreaseTime for food item {}", foodItem.getName());
-                        continue;
-                    }
-
-                    LocalDateTime lastIncreaseTime = foodItem.getLastIncreaseTime()
-                            .toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                    if (lastIncreaseTime.plusMinutes(5).isBefore(LocalDateTime.now())) {
-                        Date today = java.sql.Date.valueOf(LocalDate.now());
-                        Date startOfDay = Validation.startOfDay(today);
-                        Date endOfDay = Validation.endOfDay(today);
-
-                        Optional<InventoryLog> logOptional = inventoryLogRepository.findByFoodItemIdAndCreatedAt(
-                                foodItem.getId(), foodItem.getName(), startOfDay, endOfDay);
-
-                        InventoryLog log;
-                        if (logOptional.isPresent()) {
-                            log = logOptional.get();
-                            Double openingQuantity = log.getClosingQuantity() != null ? log.getClosingQuantity() : 0.0;
-                            double totalAddedQuantity = log.getAddedQuantity() != null ? log.getAddedQuantity() : 0.0;
-
-                            Double consumedQuantity = openingQuantity - currentWeight + totalAddedQuantity;
-                            log.setConsumedQuantity(consumedQuantity);
-
-                            log.setAddedQuantity(log.getAddedQuantity() + addedQuantity);
-                            log.setClosingQuantity(currentWeight);
-                        } else {
-                            log = new InventoryLog();
-                            log.setFoodItemId(Math.toIntExact(foodItem.getId()));
-                            log.setCompanyId(foodItem.getCompanyId());
-                            log.setAddedQuantity(addedQuantity);
-                            log.setClosingQuantity(currentWeight);
-                            log.setCreated_at(today);
-                            log.setFoodName(foodItem.getName());
-                            log.setUnit(foodItem.getType_unit());
-
-                            log.setConsumedQuantity(addedQuantity);
+                    if (addedQuantity >= 0.9) {
+                        if (foodItem.getLastIncreaseTime() == null) {
+                            foodItem.setLastIncreaseTime(new Date());
+                            foodItemRepository.save(foodItem);
+                            log.info("Initialized LastIncreaseTime for food item {}", foodItem.getName());
+                            continue;
                         }
 
-                        inventoryLogRepository.save(log);
+                        LocalDateTime lastIncreaseTime = foodItem.getLastIncreaseTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                        if (lastIncreaseTime.plusMinutes(5).isBefore(LocalDateTime.now())) {
+                            Date today = java.sql.Date.valueOf(LocalDate.now());
+                            Date startOfDay = Validation.startOfDay(today);
+                            Date endOfDay = Validation.endOfDay(today);
 
-                        foodItem.setLastIncreaseTime(new Date());
-                        foodItem.setLastIncreaseWeight(currentWeight);
-                        foodItemRepository.save(foodItem);
+                            Optional<InventoryLog> logOptional = inventoryLogRepository.findByFoodItemIdAndCreatedAt(foodItem.getId(), foodItem.getName(), startOfDay, endOfDay);
 
-                        String message = "Food Item " + foodItem.getName() + " has been replenished. Total added today: "
-                                + log.getAddedQuantity() + " kg.";
-                        saveNotifications(CommonConstant.FOOD_ITEM_REPLENISHED_WARNING, message, foodItem.getCompanyId());
-                        template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/food-replenish", message);
+                            InventoryLog log;
+                            if (logOptional.isPresent()) {
+                                log = logOptional.get();
+                                Double openingQuantity = log.getClosingQuantity() != null ? log.getClosingQuantity() : 0.0;
+                                double totalAddedQuantity = log.getAddedQuantity() != null ? log.getAddedQuantity() : 0.0;
+
+                                Double consumedQuantity = openingQuantity - currentWeight + totalAddedQuantity;
+                                log.setConsumedQuantity(consumedQuantity);
+
+                                log.setAddedQuantity(log.getAddedQuantity() + addedQuantity);
+                                log.setClosingQuantity(currentWeight);
+                            } else {
+                                log = new InventoryLog();
+                                log.setFoodItemId(Math.toIntExact(foodItem.getId()));
+                                log.setCompanyId(foodItem.getCompanyId());
+                                log.setAddedQuantity(addedQuantity);
+                                log.setClosingQuantity(currentWeight);
+                                log.setCreated_at(today);
+                                log.setFoodName(foodItem.getName());
+                                log.setUnit(foodItem.getType_unit());
+
+                                log.setConsumedQuantity(addedQuantity);
+                            }
+
+                            inventoryLogRepository.save(log);
+
+                            foodItem.setLastIncreaseTime(new Date());
+                            foodItem.setLastIncreaseWeight(currentWeight);
+                            foodItemRepository.save(foodItem);
+
+                            String message = "Food Item " + foodItem.getName() + " has been replenished. Total added today: " + log.getAddedQuantity() + " kg.";
+                            saveNotifications(CommonConstant.FOOD_ITEM_REPLENISHED_WARNING, message, foodItem.getCompanyId());
+                            template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/food-replenish", message);
+                        }
                     }
+                } else {
+                    foodItem.setLastIncreaseWeight(currentWeight);
+                    foodItem.setLastIncreaseTime(null);
+                    foodItemRepository.save(foodItem);
+                    log.info("Updated LastIncreaseWeight for food item {} due to consumption", foodItem.getName());
                 }
-            } else {
-                foodItem.setLastIncreaseWeight(currentWeight);
-                foodItem.setLastIncreaseTime(null);
-                foodItemRepository.save(foodItem);
-                log.info("Updated LastIncreaseWeight for food item {} due to consumption", foodItem.getName());
-            }
-        }
-    }
-
-
-    @Scheduled(fixedRate = 900000) //15 minutes - = 15 * 60 *1000
-    public void checkTemperatureHumidity() {
-        log.info("Check Temperature and Humidity {}", dateFormat.format(new java.util.Date()));
-
-        List<Company> companyList = companyRepository.findAll();
-        for (Company company : companyList) {
-            List<TemperatureHumidity> temperatureHumidityList = temperatureHumidityRepository.getAllByCompanyIdAndCreatedAtDesc(company.getId());
-            if (temperatureHumidityList.isEmpty()) {
-                return;
-            }
-            TemperatureHumidity temperatureHumidity = temperatureHumidityList.get(0);
-            if (temperatureHumidity.getHumidity() > 95 || temperatureHumidity.getHumidity() < 50) {
-                String message = "Alert humidity, please check your inventory !";
-                saveNotifications(CommonConstant.HUMIDITY_WARNING, message, Math.toIntExact(company.getId()));
-                template.convertAndSendToUser(String.valueOf(company.getId()), "/topic/humidity", message);
-            }
-            if (temperatureHumidity.getTemperature() > 8) {
-                String message = "Alert temperature, please check your inventory !";
-                saveNotifications(CommonConstant.TEMPERATURE_WARNING, message, Math.toIntExact(company.getId()));
-                template.convertAndSendToUser(String.valueOf(company.getId()), "/topic/temperature", message);
             }
         }
     }
@@ -221,8 +174,7 @@ public class ScheduledTask {
         List<User> employees = userRepository.findByCompanyId(companyId);
         List<Notification> notifications = new ArrayList<>();
         for (User employee : employees) {
-            notifications.add(Notification.builder().type_notification(typeNotification)
-                    .message(message).userId(employee.getId()).status("unread").build());
+            notifications.add(Notification.builder().type_notification(typeNotification).message(message).userId(employee.getId()).status("unread").build());
         }
         notificationRepository.saveAll(notifications);
     }
@@ -232,8 +184,7 @@ public class ScheduledTask {
         log.info("Check food inventory at the end of the day {}", new java.util.Date());
 
         List<FoodItem> foodItems = foodItemRepository.findAll();
-        Map<Integer, List<FoodItem>> foodItemsByCompany = foodItems.stream()
-                .collect(Collectors.groupingBy(FoodItem::getCompanyId));
+        Map<Integer, List<FoodItem>> foodItemsByCompany = foodItems.stream().collect(Collectors.groupingBy(FoodItem::getCompanyId));
 
         for (Map.Entry<Integer, List<FoodItem>> entry : foodItemsByCompany.entrySet()) {
             Integer companyId = entry.getKey();
@@ -246,24 +197,17 @@ public class ScheduledTask {
                 Date startOfDay = Validation.startOfDay(today);
                 Date endOfDay = Validation.endOfDay(today);
 
-                Optional<InventoryLog> logOptional = inventoryLogRepository.findByFoodItemIdAndCreatedAt(
-                        item.getId(), item.getName(), startOfDay, endOfDay);
+                Optional<InventoryLog> logOptional = inventoryLogRepository.findByFoodItemIdAndCreatedAt(item.getId(), item.getName(), startOfDay, endOfDay);
                 if (logOptional.isEmpty()) {
-                    inventoryLogRepository.save(InventoryLog.builder().foodItemId(Math.toIntExact(item.getId()))
-                            .unit(item.getType_unit())
-                            .closingQuantity(item.getQuantity())
-                            .companyId(item.getCompanyId())
-                            .created_at(new Date())
-                            .foodName(item.getName())
-                            .consumedQuantity(0.0)
-                            .addedQuantity(0.0).build());
+                    inventoryLogRepository.save(InventoryLog.builder().foodItemId(Math.toIntExact(item.getId())).unit(item.getType_unit()).closingQuantity(item.getQuantity()).companyId(item.getCompanyId()).created_at(new Date()).foodName(item.getName()).consumedQuantity(0.0).addedQuantity(0.0).build());
                 } else {
                     logOptional.get().setClosingQuantity(item.getQuantity());
                     inventoryLogRepository.save(logOptional.get());
                 }
 
-
-                message.append("- ").append(item.getName()).append(": ").append(item.getQuantity()).append("g\n");
+                if (item.getName() != null && item.getQuantity() != null) {
+                    message.append("- ").append(item.getName()).append(": ").append(item.getQuantity()).append("g\n");
+                }
             }
             message.append("\nCheck your inventory and plan for restocking if necessary.");
 
