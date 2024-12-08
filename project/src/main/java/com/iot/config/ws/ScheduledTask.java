@@ -101,7 +101,7 @@ public class ScheduledTask {
                     foodItem.setIsLowStock(true);
                     foodItemRepository.save(foodItem);
                 }
-            } else{
+            } else {
                 foodItem.setIsLowStock(false);
                 foodItemRepository.save(foodItem);
             }
@@ -262,8 +262,9 @@ public class ScheduledTask {
                     inventoryLogRepository.save(logOptional.get());
                 }
 
-
-                message.append("- ").append(item.getName()).append(": ").append(item.getQuantity()).append("g\n");
+                if (item.getName() != null && item.getQuantity() != null) {
+                    message.append("- ").append(item.getName()).append(": ").append(item.getQuantity()).append("g\n");
+                }
             }
             message.append("\nCheck your inventory and plan for restocking if necessary.");
 
