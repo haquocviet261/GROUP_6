@@ -227,16 +227,14 @@ public class UserServiceImp implements UserService {
         tokenRepository.save(token);
     }
 
-    private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty()) {
-            return;
-        }
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
+    private void revokeTokens(String refreshToken) {
+        Optional<Token> optionalToken = tokenRepository.findByToken(refreshToken);
+        if (optionalToken.isPresent()) {
+            Token token = optionalToken.get();
             token.setRevoked(true);
-        });
-        tokenRepository.saveAll(validUserTokens);
+            token.setExpired(true);
+            tokenRepository.save(token);
+        }
     }
 
     @Override
@@ -252,7 +250,6 @@ public class UserServiceImp implements UserService {
         User user = optionalUser.get();
         var jwt = jwtServiceImp.generateToken(user);
         var refreshToken = jwtServiceImp.generateRefreshToken(user);
-        revokeAllUserTokens(user);
         saveUserToken(user, jwt);
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(String.valueOf(user.getId()), request.getPassword()));
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK, "Login successfully !", AuthenticationResponse.builder().accessToken(jwt).refresh_token(refreshToken).build()));
@@ -279,7 +276,7 @@ public class UserServiceImp implements UserService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ResponseObject(Validation.FAIL, "Token invalid !", ""));
         }
-        revokeAllUserTokens(user);
+        revokeTokens(refreshToken);
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(Validation.OK, "Logout Successfully !", ""));
     }
 
@@ -292,7 +289,6 @@ public class UserServiceImp implements UserService {
             User user = checkMailExist.get();
             String jwt = jwtServiceImp.generateToken(user);
             String refreshToken = jwtServiceImp.generateRefreshToken(user);
-            revokeAllUserTokens(user);
             saveUserToken(user, jwt);
             checkMailExist.get().setImages_src(userInformation.get("picture").toString());
             userRepository.save(checkMailExist.get());
