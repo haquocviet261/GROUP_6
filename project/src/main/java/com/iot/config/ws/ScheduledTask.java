@@ -155,7 +155,7 @@ public class ScheduledTask {
                             foodItem.setLastIncreaseWeight(currentWeight);
                             foodItemRepository.save(foodItem);
 
-                            String message = "Food Item " + foodItem.getName() + " has been replenished. Total added today: " + log.getAddedQuantity() + " kg.";
+                            String message = "Food Item " + foodItem.getName() + " has been replenished. Total added today: " + Math.round(log.getAddedQuantity() * 10.0) / 10.0 + " kg.";
                             saveNotifications(CommonConstant.FOOD_ITEM_REPLENISHED_WARNING, message, foodItem.getCompanyId());
                             template.convertAndSendToUser(String.valueOf(foodItem.getCompanyId()), "/topic/food-replenish", message);
                         }
