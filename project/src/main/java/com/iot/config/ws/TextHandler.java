@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketMessage;
@@ -91,13 +92,14 @@ public class TextHandler extends TextWebSocketHandler {
     }
 
     private void processFoodItems(JSONArray weightArray) {
-        weightArray.forEach(item -> {
-            JSONObject weightObject = (JSONObject) item;
+        for (int i = 0; i < weightArray.length(); i++) {
+            JSONObject weightObject = weightArray.getJSONObject(i);
             int foodItemId = weightObject.getInt("foodItemId");
             double weight = weightObject.getDouble("weight");
 
-            foodItemRepository.findById((long) foodItemId).ifPresent(foodItem -> updateFoodItemQuantity(foodItem, weight));
-        });
+            Optional<FoodItem> foodItemOptional = foodItemRepository.findById((long) foodItemId);
+            foodItemOptional.ifPresent(foodItem -> updateFoodItemQuantity(foodItem, weight));
+        }
     }
 
     private void checkFoodLowStock() {
@@ -129,12 +131,16 @@ public class TextHandler extends TextWebSocketHandler {
     }
 
     private void updateFoodItemQuantity(FoodItem foodItem, double newQuantity) {
-        double currentQuantity = foodItem.getQuantity();
-        if (newQuantity - currentQuantity >= 1.0) {
-            foodItem.setLastIncreaseTime(new Date());
-            foodItem.setLastIncreaseWeight(currentQuantity);
+        if(ObjectUtils.isEmpty(foodItem.getQuantity())){
+            foodItem.setQuantity(newQuantity);
+        }else{
+            double currentQuantity = foodItem.getQuantity();
+            if (newQuantity - currentQuantity >= 1.0) {
+                foodItem.setLastIncreaseTime(new Date());
+                foodItem.setLastIncreaseWeight(currentQuantity);
+            }
+            foodItem.setQuantity(newQuantity);
         }
-        foodItem.setQuantity(newQuantity);
         foodItemRepository.save(foodItem);
     }
 
