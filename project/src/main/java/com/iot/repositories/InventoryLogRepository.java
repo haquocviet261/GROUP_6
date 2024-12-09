@@ -19,7 +19,8 @@ public interface InventoryLogRepository extends JpaRepository<InventoryLog, Long
     int deleteInventoryLogsOlderThan(@Param("date") LocalDateTime date);
 
     @Query("SELECT i FROM InventoryLog i WHERE i.companyId =:companyId " +
-            "AND i.created_at BETWEEN :startDate AND :endDate")
+            "AND i.created_at BETWEEN :startDate AND :endDate " +
+            "AND i.closingQuantity IS NOT NULL")
     List<InventoryLog> getInventoryLogByCompany(@Param("companyId") Long companyId,
                                                 @Param("startDate") Date startDate,
                                                 @Param("endDate") Date endDate
@@ -28,7 +29,8 @@ public interface InventoryLogRepository extends JpaRepository<InventoryLog, Long
     @Query("SELECT il FROM InventoryLog il " +
             "WHERE il.foodItemId = :foodItemId " +
             "AND il.foodName = :foodName " +
-            "AND il.created_at BETWEEN :startDate AND :endDate")
+            "AND il.created_at BETWEEN :startDate AND :endDate " +
+            "AND il.closingQuantity IS NOT NULL")
     Optional<InventoryLog> findByFoodItemIdAndCreatedAt(@Param("foodItemId") Long foodItemId,
                                                         @Param("foodName") String foodName,
                                                         @Param("startDate") Date startDate,
@@ -37,7 +39,8 @@ public interface InventoryLogRepository extends JpaRepository<InventoryLog, Long
 
     @Query("SELECT il FROM InventoryLog il " +
             "WHERE il.foodItemId = :foodItemId " +
-            "AND il.created_at BETWEEN :startDate AND :endDate")
+            "AND il.created_at BETWEEN :startDate AND :endDate " +
+            "AND il.closingQuantity IS NOT NULL")
     List<InventoryLog> findByFoodItemIdAndCreatedAt(@Param("foodItemId") Long foodItemId,
                                                         @Param("startDate") Date startDate,
                                                         @Param("endDate") Date endDate

@@ -31,10 +31,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.email = :email AND u.deleted_at IS NULL")
     Optional<User> findByEmailForRegister(@Param("email") String email);
 
-    @Query("SELECT new com.iot.model.dto.response.UserResponse(u.id, u.user_name, u.firstname, u.lastname, u.phone_number," +
-            " u.date_of_birth, u.email, u.address, u.role, u.status, u.images_src, c.name) " +
+    @Query("SELECT new com.iot.model.dto.response.UserResponse(u.id, u.user_name, u.firstname, u.lastname, u.phone_number, " +
+            "u.date_of_birth, u.email, u.address, u.role, u.status, u.images_src, c.name) " +
             "FROM User u JOIN Company c ON u.company_id = c.id " +
-            "WHERE u.deleted_at IS NULL AND u.status = 'ACTIVE'")
+            "WHERE u.deleted_at IS NULL AND u.status = 'ACTIVE' " +
+            "AND LOWER(u.role) = LOWER('Manager')")
     List<UserResponse> getAllUserForAdmin();
 
     @Query("SELECT new com.iot.model.dto.response.UserResponse(u.id, u.user_name, u.firstname, u.lastname, u.phone_number," +
