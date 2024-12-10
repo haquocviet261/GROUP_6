@@ -206,7 +206,7 @@ public class ScheduledTask {
                 }
 
                 if (item.getName() != null && item.getQuantity() != null) {
-                    message.append("- ").append(item.getName()).append(": ").append(item.getQuantity()).append("g\n");
+                    message.append("- ").append(item.getName()).append(": ").append(item.getQuantity()).append("kg\n");
                 }
             }
             message.append("\nCheck your inventory and plan for restocking if necessary.");
