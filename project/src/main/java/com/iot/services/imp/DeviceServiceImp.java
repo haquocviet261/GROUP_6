@@ -1,6 +1,7 @@
 package com.iot.services.imp;
 
 import com.iot.model.dto.request.DeviceRequest;
+import com.iot.model.dto.response.DeviceResponse;
 import com.iot.model.dto.response.ResponseObject;
 import com.iot.model.entity.Device;
 import com.iot.model.entity.FoodItem;
@@ -54,17 +55,18 @@ public class DeviceServiceImp implements DeviceService {
         }
         Device device = new Device();
         BeanUtils.copyProperties(deviceRequest, device);
-        deviceRepository.save(device);
+        device = deviceRepository.save(device);
+        Device finalDevice = device;
         List<Long> listFoodItemsId = IntStream.range(0, 10)
                 .mapToObj(i -> foodItemRepository.save(
                         FoodItem.builder()
                                 .companyId(deviceRequest.getCompanyId().intValue())
-                                .deviceId(device.getId().intValue())// Giữ nguyên kiểu int
+                                .deviceId(finalDevice.getId().intValue())// Giữ nguyên kiểu int
                                 .build()
                 ).getId())
                 .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new ResponseObject(HttpStatus.OK.toString(), "List Food Item Id", listFoodItemsId));
+        DeviceResponse deviceResponse = new DeviceResponse(device.getId(), listFoodItemsId);
+        return ResponseEntity.ok(new ResponseObject(HttpStatus.OK.toString(), "Device Id", deviceResponse));
     }
 
 }
