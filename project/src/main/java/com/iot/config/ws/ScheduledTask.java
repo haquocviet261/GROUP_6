@@ -191,7 +191,7 @@ public class ScheduledTask {
             List<FoodItem> items = entry.getValue();
 
 
-            StringBuilder message = new StringBuilder("Daily Stock Update: Here is the remaining quantity of each food item as of 10 PM:\n\n");
+            StringBuilder message = new StringBuilder("Daily Stock Update: Here is the remaining quantity of each food item as:\n\n");
             for (FoodItem item : items) {
                 Date today = java.sql.Date.valueOf(LocalDate.now());
                 Date startOfDay = Validation.startOfDay(today);

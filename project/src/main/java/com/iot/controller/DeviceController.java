@@ -26,7 +26,13 @@ public class DeviceController {
         return deviceServiceImp.saveDevice(deviceRequest);
     }
     @GetMapping("/get")
-    public ResponseObject getDeviceByConpanyId(@RequestParam("company_id") Long conpany_id) {
+    public ResponseObject getDeviceByCompanyId(@RequestParam("company_id") Long conpany_id) {
         return new ResponseObject(HttpStatus.OK.toString(), "Get device successfully", deviceService.getDeviceByCompanyId(conpany_id));
     }
+
+    @DeleteMapping ("/delete")
+    public ResponseObject deleteDeviceAndFoodItems(@RequestParam("device_id") Long device_id) {
+        return new ResponseObject(HttpStatus.OK.toString(), " Delete device successfully", deviceService.deleteDeviceAndFoodItems(device_id));
+    }
+
 }

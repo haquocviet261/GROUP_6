@@ -71,6 +71,9 @@ public class FoodItem{
     @Column(name = "is_low_stock")
     private Boolean isLowStock;
 
+    @Column(name = "device_id")
+    private Integer deviceId;
+
     @PrePersist
     public void prePersist() {
         created_at = new Date();

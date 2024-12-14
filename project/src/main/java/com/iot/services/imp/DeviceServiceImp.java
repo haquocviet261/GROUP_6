@@ -32,6 +32,14 @@ public class DeviceServiceImp implements DeviceService {
     public ResponseEntity<ResponseObject> getDeviceByCompanyId(Long company_id) {
         return ResponseEntity.ok(new ResponseObject(HttpStatus.OK.toString(), "Get device successfully!", deviceRepository.getDeviceByCompanyId(company_id)));
     }
+
+    @Override
+    public ResponseEntity<ResponseObject> deleteDeviceAndFoodItems(Long device_id) {
+        deviceRepository.deleteById(device_id);
+        foodItemRepository.deleteFoodItemsByDeviceId(device_id);
+        return ResponseEntity.ok(new ResponseObject(HttpStatus.OK.toString(), "Delete device successfully!", null));
+    }
+
     public ResponseEntity<ResponseObject> saveDevice(DeviceRequest deviceRequest) {
         List<Device> deviceList = deviceRepository.getDeviceByCompanyId(deviceRequest.getCompanyId());
         boolean isExistDevice = false;
@@ -46,14 +54,16 @@ public class DeviceServiceImp implements DeviceService {
         }
         Device device = new Device();
         BeanUtils.copyProperties(deviceRequest, device);
+        deviceRepository.save(device);
         List<Long> listFoodItemsId = IntStream.range(0, 10)
                 .mapToObj(i -> foodItemRepository.save(
                         FoodItem.builder()
-                                .companyId(deviceRequest.getCompanyId().intValue()) // Giữ nguyên kiểu int
+                                .companyId(deviceRequest.getCompanyId().intValue())
+                                .deviceId(device.getId().intValue())// Giữ nguyên kiểu int
                                 .build()
                 ).getId())
                 .collect(Collectors.toList());
-        deviceRepository.save(device);
+
         return ResponseEntity.ok(new ResponseObject(HttpStatus.OK.toString(), "List Food Item Id", listFoodItemsId));
     }
 

@@ -2,9 +2,12 @@ package com.iot.repositories;
 
 import com.iot.model.entity.FoodItem;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,4 +27,9 @@ public interface FoodItemRepository extends JpaRepository<FoodItem, Long> {
 
     @Query(value = "SELECT * FROM FoodItem f WHERE f.company_id = :company_id AND f.quantity IS NOT NULL", nativeQuery = true)
     List<FoodItem> findByCompanyId(@Param("company_id") Long company_id);
+
+    @Modifying
+    @Transactional(rollbackFor = Exception.class)
+    @Query("DELETE FROM FoodItem f WHERE f.deviceId = :deviceId")
+    int deleteFoodItemsByDeviceId(@Param("deviceId") Long deviceId);
 }
