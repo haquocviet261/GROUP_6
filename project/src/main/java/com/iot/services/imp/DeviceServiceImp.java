@@ -58,12 +58,22 @@ public class DeviceServiceImp implements DeviceService {
         device = deviceRepository.save(device);
         Device finalDevice = device;
         List<Long> listFoodItemsId = IntStream.range(0, 10)
-                .mapToObj(i -> foodItemRepository.save(
-                        FoodItem.builder()
-                                .companyId(deviceRequest.getCompanyId().intValue())
-                                .deviceId(finalDevice.getId().intValue())// Giữ nguyên kiểu int
-                                .build()
-                ).getId())
+                .mapToObj(i -> {
+                    // Tạo FoodItem nhưng chưa gán tên
+                    FoodItem foodItem = FoodItem.builder()
+                            .companyId(deviceRequest.getCompanyId().intValue())
+                            .name("Food") // Đặt tạm tên, sẽ sửa sau
+                            .deviceId(finalDevice.getId().intValue())
+                            .build();
+
+                    FoodItem savedFoodItem = foodItemRepository.save(foodItem);
+
+                    savedFoodItem.setName("Food " + savedFoodItem.getId());
+
+                    foodItemRepository.save(savedFoodItem);
+
+                    return savedFoodItem.getId();
+                })
                 .collect(Collectors.toList());
         DeviceResponse deviceResponse = new DeviceResponse(device.getId(), listFoodItemsId);
         return ResponseEntity.ok(new ResponseObject(HttpStatus.OK.toString(), "Device Id", deviceResponse));
